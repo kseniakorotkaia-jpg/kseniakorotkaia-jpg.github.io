@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP · Живой портрет сотрудника — Иван Петров</title>
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --border-strong: #d1d5db;
+    --text: #0f172a;
+    --text-2: #334155;
+    --muted: #64748b;
+    --muted-2: #94a3b8;
+    --accent: #6c63ff;
+    --accent-soft: #eef0ff;
+    --accent-dark: #5146d9;
+    --success: #10b981;
+    --success-soft: #d1fae5;
+    --warning: #f59e0b;
+    --warning-soft: #fef3c7;
+    --danger: #ef4444;
+    --danger-soft: #fee2e2;
+    --info: #3b82f6;
+    --info-soft: #dbeafe;
+    --purple: #8b5cf6;
+    --purple-soft: #ede9fe;
+    --pink: #ec4899;
+    --pink-soft: #fce7f3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.55; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* TOP BAR */
+  .topbar { background: white; border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 15px; }
+  .brand-logo { width: 28px; height: 28px; background: linear-gradient(135deg, #6c63ff, #a89fff); border-radius: 8px; }
+  .breadcrumbs { color: var(--muted); font-size: 13px; }
+  .breadcrumbs b { color: var(--text); font-weight: 600; }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+  .btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-strong); background: white; font-size: 13px; font-weight: 600; color: var(--text-2); }
+  .btn:hover { background: #f3f4f6; }
+  .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .btn-primary:hover { background: var(--accent-dark); }
+
+  /* LAYOUT */
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 57px); }
+  .sidebar { background: white; border-right: 1px solid var(--border); padding: 28px 16px; position: sticky; top: 57px; height: calc(100vh - 57px); overflow-y: auto; }
+  .nav-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 18px 12px 8px; font-weight: 700; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--text-2); font-size: 13px; font-weight: 500; margin-bottom: 2px; cursor: pointer; }
+  .nav-item:hover { background: #f3f4f6; }
+  .nav-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .nav-icon { width: 16px; height: 16px; border-radius: 4px; background: currentColor; opacity: 0.3; flex-shrink: 0; }
+  .nav-badge { margin-left: auto; background: var(--accent); color: white; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 10px; }
+
+  /* CONTENT */
+  .content { padding: 28px 40px 80px; max-width: 1360px; width: 100%; margin: 0 auto; }
+
+  /* HERO */
+  .hero { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 28px 32px; display: grid; grid-template-columns: auto 1fr auto; gap: 32px; align-items: center; margin-bottom: 20px; }
+  .avatar-big { width: 110px; height: 110px; border-radius: 20px; background: linear-gradient(135deg, #6c63ff, #a89fff); display: flex; align-items: center; justify-content: center; color: white; font-size: 42px; font-weight: 800; flex-shrink: 0; position: relative; }
+  .avatar-big::after { content: ''; position: absolute; bottom: 4px; right: 4px; width: 18px; height: 18px; background: var(--success); border: 3px solid white; border-radius: 50%; }
+  .hero-main-info { min-width: 0; }
+  .hero-name { font-size: 26px; font-weight: 800; line-height: 1.15; margin-bottom: 4px; }
+  .hero-role { font-size: 15px; color: var(--text-2); margin-bottom: 14px; font-weight: 500; }
+  .hero-role b { color: var(--text); font-weight: 700; }
+  .hero-facts { display: flex; gap: 22px; flex-wrap: wrap; }
+  .fact { display: flex; flex-direction: column; gap: 2px; }
+  .fact-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; font-weight: 600; }
+  .fact-value { font-size: 13.5px; color: var(--text); font-weight: 600; }
+  .hero-status { display: flex; flex-direction: column; gap: 10px; }
+  .status-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 700; }
+  .status-chip.perf { background: var(--success-soft); color: var(--success); }
+  .status-chip.risk-med { background: var(--warning-soft); color: #b45309; }
+  .status-chip.ready { background: var(--accent-soft); color: var(--accent); }
+  .status-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  /* AI DIGEST */
+  .ai-digest { background: linear-gradient(135deg, #eef0ff 0%, #fafbff 100%); border: 1px solid var(--accent); border-radius: 16px; padding: 24px 28px; margin-bottom: 20px; }
+  .ai-digest-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .ai-digest-icon { width: 30px; height: 30px; background: var(--accent); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+  .ai-digest-title { font-size: 14px; font-weight: 700; color: var(--accent); }
+  .ai-digest-meta { font-size: 11px; color: var(--muted); margin-left: auto; }
+  .ai-insights { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 20px; }
+  .ai-insight { display: flex; gap: 12px; font-size: 13.5px; color: var(--text-2); line-height: 1.5; }
+  .ai-insight .num { width: 22px; height: 22px; border-radius: 6px; background: white; color: var(--accent); font-weight: 800; font-size: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .ai-insight b { color: var(--text); font-weight: 700; }
+
+  /* 2-COL LAYOUT */
+  .two-col { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; }
+  @media (max-width: 1200px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* CARD */
+  .card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 22px 26px; margin-bottom: 20px; }
+  .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .card-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .card-title .ci { width: 22px; height: 22px; background: var(--accent-soft); color: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+  .card-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .card-link { font-size: 12px; color: var(--accent); font-weight: 600; cursor: pointer; }
+  .card-updated { font-size: 11px; color: var(--muted); }
+
+  /* EVENT STREAM */
+  .stream { position: relative; padding-left: 28px; }
+  .stream::before { content: ''; position: absolute; left: 10px; top: 4px; bottom: 4px; width: 2px; background: var(--border); }
+  .event { position: relative; padding: 10px 0 18px; }
+  .event::before { content: ''; position: absolute; left: -24px; top: 14px; width: 14px; height: 14px; border-radius: 50%; background: white; border: 3px solid var(--accent); }
+  .event.pulse::before { border-color: var(--purple); }
+  .event.feedback::before { border-color: var(--pink); }
+  .event.one-on-one::before { border-color: var(--info); }
+  .event.learning::before { border-color: var(--success); }
+  .event.assessment::before { border-color: var(--warning); }
+  .event.milestone::before { border-color: var(--accent); background: var(--accent); }
+  .event-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .event-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 10px; }
+  .event-type.pulse { background: var(--purple-soft); color: var(--purple); }
+  .event-type.feedback { background: var(--pink-soft); color: var(--pink); }
+  .event-type.one-on-one { background: var(--info-soft); color: var(--info); }
+  .event-type.learning { background: var(--success-soft); color: var(--success); }
+  .event-type.assessment { background: var(--warning-soft); color: #b45309; }
+  .event-type.milestone { background: var(--accent-soft); color: var(--accent); }
+  .event-date { font-size: 11px; color: var(--muted); font-weight: 600; }
+  .event-title { font-size: 13.5px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .event-desc { font-size: 13px; color: var(--text-2); line-height: 1.55; }
+  .event-desc b { color: var(--text); font-weight: 700; }
+  .event-quote { margin-top: 8px; padding: 10px 14px; background: #f9fafb; border-left: 3px solid var(--accent); border-radius: 6px; font-size: 12px; font-style: italic; color: var(--muted); }
+  .event.pulse .event-quote { border-left-color: var(--purple); }
+  .event.feedback .event-quote { border-left-color: var(--pink); }
+  .event.one-on-one .event-quote { border-left-color: var(--info); }
+
+  /* COMPETENCIES */
+  .comp-row { display: grid; grid-template-columns: 150px 1fr 60px 50px; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+  .comp-row:last-child { border-bottom: none; }
+  .comp-name { color: var(--text); font-weight: 600; }
+  .comp-bar-wrap { height: 8px; background: #f3f4f6; border-radius: 4px; position: relative; overflow: hidden; }
+  .comp-bar { height: 100%; background: linear-gradient(90deg, #6c63ff, #8a82ff); border-radius: 4px; }
+  .comp-bar.high { background: linear-gradient(90deg, #10b981, #34d399); }
+  .comp-bar.low { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .comp-val { font-weight: 700; font-size: 13px; text-align: right; color: var(--text); }
+  .comp-trend { font-size: 11px; font-weight: 700; text-align: right; }
+  .comp-trend.up { color: var(--success); }
+  .comp-trend.down { color: var(--danger); }
+  .comp-trend.flat { color: var(--muted); }
+
+  /* GOALS */
+  .goal { padding: 12px 0; border-bottom: 1px solid #f3f4f6; }
+  .goal:last-child { border-bottom: none; padding-bottom: 0; }
+  .goal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .goal-title { font-size: 13.5px; font-weight: 700; color: var(--text); }
+  .goal-status { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.5px; }
+  .goal-status.on-track { background: var(--success-soft); color: var(--success); }
+  .goal-status.at-risk { background: var(--warning-soft); color: #b45309; }
+  .goal-status.done { background: var(--accent-soft); color: var(--accent); }
+  .goal-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .goal-prog-bar { height: 6px; background: #f3f4f6; border-radius: 3px; overflow: hidden; }
+  .goal-prog-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+
+  /* IPR / DEV */
+  .dev-item { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f3f4f6; align-items: flex-start; }
+  .dev-item:last-child { border-bottom: none; }
+  .dev-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; font-size: 13px; flex-shrink: 0; }
+  .dev-icon.course { background: var(--info); }
+  .dev-icon.cert { background: var(--success); }
+  .dev-icon.book { background: var(--warning); }
+  .dev-icon.stretch { background: var(--purple); }
+  .dev-body { flex: 1; min-width: 0; }
+  .dev-title { font-size: 13.5px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .dev-meta { font-size: 12px; color: var(--muted); }
+  .dev-prog { margin-top: 6px; display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--muted); }
+  .dev-prog-bar { flex: 1; height: 5px; background: #f3f4f6; border-radius: 3px; overflow: hidden; }
+  .dev-prog-fill { height: 100%; background: var(--success); border-radius: 3px; }
+
+  /* CAREER READINESS */
+  .role-card { padding: 14px 16px; background: #fafbff; border: 1px solid #e0e7ff; border-radius: 10px; margin-bottom: 10px; }
+  .role-card:last-child { margin-bottom: 0; }
+  .role-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .role-name { font-size: 13.5px; font-weight: 700; }
+  .role-time { font-size: 11px; color: var(--muted); font-weight: 600; }
+  .role-readiness { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .role-bar-wrap { flex: 1; height: 7px; background: white; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+  .role-bar { height: 100%; background: linear-gradient(90deg, #6c63ff, #8a82ff); border-radius: 4px; }
+  .role-bar.ready { background: linear-gradient(90deg, #10b981, #34d399); }
+  .role-pct { font-size: 12px; font-weight: 700; color: var(--accent); min-width: 40px; text-align: right; }
+  .role-pct.ready { color: var(--success); }
+  .role-gap { font-size: 11.5px; color: var(--muted); }
+  .role-gap b { color: var(--text-2); font-weight: 600; }
+
+  /* COMPENSATION */
+  .comp-block { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .comp-stat { padding: 14px 16px; background: #f9fafb; border-radius: 10px; }
+  .comp-stat-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+  .comp-stat-value { font-size: 18px; font-weight: 800; color: var(--text); }
+  .comp-stat-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .benchmark { padding: 14px 16px; background: var(--warning-soft); border: 1px solid var(--warning); border-radius: 10px; }
+  .benchmark-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; font-weight: 700; color: #b45309; }
+  .benchmark-scale { position: relative; height: 30px; background: white; border-radius: 6px; display: flex; align-items: center; padding: 0 10px; }
+  .benchmark-range { position: absolute; left: 20%; right: 15%; top: 8px; bottom: 8px; background: linear-gradient(90deg, #fde68a, #d1fae5, #fde68a); border-radius: 4px; }
+  .benchmark-marker { position: absolute; left: 30%; top: 0; bottom: 0; width: 3px; background: var(--warning); border-radius: 2px; }
+  .benchmark-marker::after { content: 'Иван'; position: absolute; top: -18px; left: 50%; transform: translateX(-50%); background: var(--warning); color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+  .benchmark-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+  /* ENGAGEMENT */
+  .eng-hero { display: flex; align-items: center; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+  .eng-score { font-size: 36px; font-weight: 800; color: var(--success); }
+  .eng-info { flex: 1; }
+  .eng-info-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .eng-info-desc { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+  .eng-trend { display: flex; align-items: flex-end; gap: 3px; height: 36px; }
+  .eng-bar { width: 10px; background: var(--success); border-radius: 2px 2px 0 0; opacity: 0.5; }
+  .eng-bar.now { opacity: 1; }
+  .eng-bar.warn { background: var(--warning); }
+
+  .theme-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 7px 0; font-size: 12.5px; }
+  .theme-row .tname { color: var(--text); font-weight: 600; }
+  .theme-row .tsent { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .theme-row .tsent.pos { background: var(--success-soft); color: var(--success); }
+  .theme-row .tsent.neu { background: var(--warning-soft); color: #b45309; }
+  .theme-row .tsent.neg { background: var(--danger-soft); color: var(--danger); }
+  .theme-row .tcount { font-size: 11px; color: var(--muted); min-width: 50px; text-align: right; }
+
+  /* 1-1 */
+  .one-list { display: flex; flex-direction: column; gap: 10px; }
+  .one-item { padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; }
+  .one-head { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; }
+  .one-date { color: var(--muted); font-weight: 600; }
+  .one-by { color: var(--text-2); font-weight: 600; }
+  .one-summary { font-size: 13px; color: var(--text-2); line-height: 1.55; }
+  .one-topics { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .one-topic { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #f3f4f6; color: var(--text-2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+
+  /* MANAGER ACTIONS (sticky bar or card) */
+  .actions-card { background: linear-gradient(135deg, #fef3c7 0%, #fafbff 100%); border: 1px solid var(--warning); border-radius: 14px; padding: 22px 26px; margin-bottom: 20px; }
+  .actions-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .actions-icon { width: 30px; height: 30px; background: var(--warning); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; }
+  .actions-title { font-size: 14px; font-weight: 700; color: #b45309; }
+  .actions-list { display: flex; flex-direction: column; gap: 8px; }
+  .action-item { display: flex; gap: 12px; align-items: center; padding: 10px 14px; background: white; border-radius: 8px; border: 1px solid var(--border); }
+  .action-priority { width: 28px; height: 28px; border-radius: 8px; background: var(--warning-soft); color: #b45309; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+  .action-priority.high { background: var(--danger-soft); color: var(--danger); }
+  .action-body { flex: 1; }
+  .action-title { font-size: 13px; font-weight: 700; color: var(--text); }
+  .action-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .action-btn { padding: 6px 14px; border-radius: 7px; background: var(--accent); color: white; border: none; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .action-btn:hover { background: var(--accent-dark); }
+  .action-btn.ghost { background: white; color: var(--text-2); border: 1px solid var(--border-strong); }
+  .action-btn.ghost:hover { background: #f3f4f6; }
+
+  /* NETWORK / PEERS */
+  .peer-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .peer { text-align: center; padding: 10px; background: #f9fafb; border-radius: 10px; }
+  .peer-avatar { width: 44px; height: 44px; border-radius: 12px; margin: 0 auto 6px; background: linear-gradient(135deg, #cbd5e1, #94a3b8); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; }
+  .peer-avatar.c1 { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+  .peer-avatar.c2 { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+  .peer-avatar.c3 { background: linear-gradient(135deg, #10b981, #34d399); }
+  .peer-avatar.c4 { background: linear-gradient(135deg, #ec4899, #f472b6); }
+  .peer-name { font-size: 12px; font-weight: 700; color: var(--text); }
+  .peer-role { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+  .peer-stat { font-size: 10px; color: var(--accent); font-weight: 700; margin-top: 4px; }
+
+  /* COMPACT KV list */
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 13px; }
+  .kv dt { color: var(--muted); font-weight: 600; }
+  .kv dd { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:24px;">
+    <div class="brand">
+      <div class="brand-logo"></div>
+      StartExam People
+    </div>
+    <div class="breadcrumbs">Люди &nbsp;/&nbsp; Команда Backend &nbsp;/&nbsp; <b>Иван Петров</b></div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn">Скачать портрет</button>
+    <button class="btn">Поделиться с HR</button>
+    <button class="btn btn-primary">Запланировать 1-1</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="nav-label">Люди</div>
+    <div class="nav-item"><span class="nav-icon"></span> Вся команда</div>
+    <div class="nav-item active"><span class="nav-icon"></span> Профиль сотрудника</div>
+    <div class="nav-item"><span class="nav-icon"></span> Карта талантов</div>
+    <div class="nav-item"><span class="nav-icon"></span> Кадровый резерв <span class="nav-badge">3</span></div>
+    <div class="nav-item"><span class="nav-icon"></span> Риски и алерты <span class="nav-badge">5</span></div>
+
+    <div class="nav-label">Оценки и развитие</div>
+    <div class="nav-item"><span class="nav-icon"></span> Мои оценки</div>
+    <div class="nav-item"><span class="nav-icon"></span> ИПР команды</div>
+    <div class="nav-item"><span class="nav-icon"></span> 1-1 и встречи</div>
+
+    <div class="nav-label">Настройки</div>
+    <div class="nav-item"><span class="nav-icon"></span> Интеграции (1С, LMS)</div>
+    <div class="nav-item"><span class="nav-icon"></span> Доступы и роли</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="avatar-big">ИП</div>
+      <div class="hero-main-info">
+        <h1 class="hero-name">Иван Петров</h1>
+        <div class="hero-role"><b>Senior Backend Engineer</b> · Команда Backend · Департамент разработки</div>
+        <div class="hero-facts">
+          <div class="fact">
+            <div class="fact-label">Локация</div>
+            <div class="fact-value">Москва</div>
+          </div>
+          <div class="fact">
+            <div class="fact-label">Возраст</div>
+            <div class="fact-value">31 год</div>
+          </div>
+          <div class="fact">
+            <div class="fact-label">В компании</div>
+            <div class="fact-value">3 года 4 мес.</div>
+          </div>
+          <div class="fact">
+            <div class="fact-label">В текущей роли</div>
+            <div class="fact-value">1 год 6 мес.</div>
+          </div>
+          <div class="fact">
+            <div class="fact-label">Грейд</div>
+            <div class="fact-value">Senior (L5)</div>
+          </div>
+          <div class="fact">
+            <div class="fact-label">Руководитель</div>
+            <div class="fact-value">Дмитрий М.</div>
+          </div>
+          <div class="fact">
+            <div class="fact-label">Прямых подчинённых</div>
+            <div class="fact-value">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-status">
+        <div class="status-chip perf"><span class="dot"></span> Performance: выше ожиданий</div>
+        <div class="status-chip risk-med"><span class="dot"></span> Риск ухода: средний ↑</div>
+        <div class="status-chip ready"><span class="dot"></span> Готов к Team Lead — 84%</div>
+      </div>
+    </div>
+
+    <!-- AI DIGEST -->
+    <div class="ai-digest">
+      <div class="ai-digest-head">
+        <div class="ai-digest-icon">AI</div>
+        <div class="ai-digest-title">Что я вижу по Ивану сейчас — 4 самых важных сигнала</div>
+        <div class="ai-digest-meta">обновлено 2 часа назад · на основе 14 источников</div>
+      </div>
+      <div class="ai-insights">
+        <div class="ai-insight">
+          <div class="num">1</div>
+          <div><b>Иван готов к роли Team Lead</b> — высокие оценки по делегированию, принятию решений и развитию людей. По итогам 360 от марта — один из трёх кандидатов на открывающуюся позицию.</div>
+        </div>
+        <div class="ai-insight">
+          <div class="num">2</div>
+          <div><b>18 месяцев без повышения грейда</b> и зарплата на 15% ниже рыночного медианного уровня для Senior Backend в Москве. Повод для проактивной коррекции.</div>
+        </div>
+        <div class="ai-insight">
+          <div class="num">3</div>
+          <div><b>Тема карьерного роста поднята 3 раза</b> за 6 недель — в пульс-опросе, на 1-1 и в открытом комментарии 360. Устойчивый запрос, не разовый сигнал.</div>
+        </div>
+        <div class="ai-insight">
+          <div class="num">4</div>
+          <div><b>Нагрузка пульс = 2.1 из 5</b> (норма 3.5+). Минус 0.7 за месяц. Сигнал возможного выгорания — стоит обсудить на ближайшем 1-1.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGER SUGGESTED ACTIONS -->
+    <div class="actions-card">
+      <div class="actions-head">
+        <div class="actions-icon">!</div>
+        <div class="actions-title">Рекомендуемые действия руководителю</div>
+      </div>
+      <div class="actions-list">
+        <div class="action-item">
+          <div class="action-priority high">1</div>
+          <div class="action-body">
+            <div class="action-title">Обсудить с Иваном карьерные планы и нагрузку на ближайшем 1-1</div>
+            <div class="action-desc">Сочетание «запрос на рост + просадка по нагрузке + недоплата» — классический паттерн преждевременного ухода. Лучше успеть с разговором</div>
+          </div>
+          <button class="action-btn">Шаблон разговора</button>
+        </div>
+        <div class="action-item">
+          <div class="action-priority">2</div>
+          <div class="action-body">
+            <div class="action-title">Инициировать пересмотр компенсации</div>
+            <div class="action-desc">Подготовить обоснование для HRD: разрыв с рынком 15%, performance выше ожиданий, 18 мес. без пересмотра</div>
+          </div>
+          <button class="action-btn ghost">Сформировать обоснование</button>
+        </div>
+        <div class="action-item">
+          <div class="action-priority">3</div>
+          <div class="action-body">
+            <div class="action-title">Рассмотреть Ивана в резерв на Team Lead</div>
+            <div class="action-desc">Готовность 84% · доступна открывающаяся позиция в команде Backend Q3</div>
+          </div>
+          <button class="action-btn ghost">Добавить в резерв</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENT STREAM -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title"><span class="ci">↻</span> Поток событий</div>
+          <div class="card-sub">Все сигналы об Иване из всех систем в одной ленте</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <select class="btn" style="padding:6px 10px;font-size:12px;">
+            <option>Все источники</option>
+            <option>Только оценки</option>
+            <option>Только 1-1 и пульсы</option>
+            <option>Только обучение</option>
+          </select>
+          <button class="btn" style="padding:6px 10px;font-size:12px;">30 дней</button>
+        </div>
+      </div>
+
+      <div class="stream">
+
+        <div class="event pulse">
+          <div class="event-head">
+            <div class="event-type pulse">Пульс-опрос</div>
+            <div class="event-date">14 апреля · 2 дня назад</div>
+          </div>
+          <div class="event-title">Снижение индекса нагрузки: 2.8 → 2.1</div>
+          <div class="event-desc">Иван отметил, что последние 2 недели работает по вечерам. AI классифицировал тему как <b>«нагрузка»</b>. Это второй подряд пульс со снижением.</div>
+          <div class="event-quote">«Слишком много созвонов, не остаётся времени на свою работу. Разгребаю вечерами»</div>
+        </div>
+
+        <div class="event feedback">
+          <div class="event-head">
+            <div class="event-type feedback">Фидбек от руководителя</div>
+            <div class="event-date">12 апреля · 4 дня назад</div>
+          </div>
+          <div class="event-title">Дмитрий отметил успешное закрытие incident P0</div>
+          <div class="event-desc">Иван координировал устранение сбоя биллинга 11 апреля. Принял 3 решения за час в условиях неопределённости.</div>
+          <div class="event-quote">«Отличная работа под давлением. Именно такие ситуации показывают готовность к лидерской роли»</div>
+        </div>
+
+        <div class="event one-on-one">
+          <div class="event-head">
+            <div class="event-type one-on-one">1-1 встреча</div>
+            <div class="event-date">8 апреля · 8 дней назад</div>
+          </div>
+          <div class="event-title">Обсуждение карьерных планов с Дмитрием</div>
+          <div class="event-desc">Главные темы: рост в Team Lead, перегрузка встречами, желание больше времени на архитектуру. <b>Договорились</b>: вернуться к теме роста на следующей встрече, попробовать no-meeting morning.</div>
+          <div class="one-topics">
+            <div class="one-topic">карьерный рост</div>
+            <div class="one-topic">нагрузка</div>
+            <div class="one-topic">архитектура</div>
+          </div>
+        </div>
+
+        <div class="event assessment">
+          <div class="event-head">
+            <div class="event-type assessment">Оценка 360</div>
+            <div class="event-date">28 марта · 19 дней назад</div>
+          </div>
+          <div class="event-title">Готова оценка 360 «Готовность к Team Lead»</div>
+          <div class="event-desc">Средний балл <b>4.2 из 5</b>. Сильные стороны: делегирование, принятие решений, развитие людей. Зоны роста: управление конфликтами.</div>
+        </div>
+
+        <div class="event learning">
+          <div class="event-head">
+            <div class="event-type learning">Обучение</div>
+            <div class="event-date">22 марта · 25 дней назад</div>
+          </div>
+          <div class="event-title">Завершён курс «System Design Interview»</div>
+          <div class="event-desc">Результат итогового теста — <b>92%</b>. Время на курс: 18 часов.</div>
+        </div>
+
+        <div class="event pulse">
+          <div class="event-head">
+            <div class="event-type pulse">Пульс-опрос</div>
+            <div class="event-date">17 марта · 30 дней назад</div>
+          </div>
+          <div class="event-title">Упомянул карьерный рост в открытом ответе</div>
+          <div class="event-desc">На вопрос «что бы ты поменял в работе» — ответ про ясность карьерного трека.</div>
+          <div class="event-quote">«Хочется понимать, что дальше — какие есть варианты роста, что надо подтянуть»</div>
+        </div>
+
+        <div class="event milestone">
+          <div class="event-head">
+            <div class="event-type milestone">Веха</div>
+            <div class="event-date">15 марта</div>
+          </div>
+          <div class="event-title">3 года в компании</div>
+          <div class="event-desc">Отмечен в корпоративной системе. Премия за лояльность начислена.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TWO-COL GRID -->
+    <div class="two-col">
+
+      <!-- LEFT: competencies + goals + IPR -->
+      <div>
+
+        <!-- COMPETENCIES -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="ci">✓</span> Компетенции и навыки</div>
+              <div class="card-sub">По итогам 360 · март 2026 · 7 оценивших</div>
+            </div>
+            <a class="card-link">Посмотреть отчёт →</a>
+          </div>
+          <div class="comp-row">
+            <div class="comp-name">Делегирование</div>
+            <div class="comp-bar-wrap"><div class="comp-bar high" style="width:92%"></div></div>
+            <div class="comp-val">4.6</div>
+            <div class="comp-trend up">↑ 0.4</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-name">Принятие решений</div>
+            <div class="comp-bar-wrap"><div class="comp-bar high" style="width:88%"></div></div>
+            <div class="comp-val">4.4</div>
+            <div class="comp-trend up">↑ 0.3</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-name">Развитие людей</div>
+            <div class="comp-bar-wrap"><div class="comp-bar high" style="width:86%"></div></div>
+            <div class="comp-val">4.3</div>
+            <div class="comp-trend up">↑ 0.5</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-name">Техническое лидерство</div>
+            <div class="comp-bar-wrap"><div class="comp-bar" style="width:84%"></div></div>
+            <div class="comp-val">4.2</div>
+            <div class="comp-trend flat">→ 0.0</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-name">Приоритизация</div>
+            <div class="comp-bar-wrap"><div class="comp-bar" style="width:82%"></div></div>
+            <div class="comp-val">4.1</div>
+            <div class="comp-trend up">↑ 0.2</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-name">Коммуникация</div>
+            <div class="comp-bar-wrap"><div class="comp-bar" style="width:78%"></div></div>
+            <div class="comp-val">3.9</div>
+            <div class="comp-trend up">↑ 0.2</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-name">Управление конфликтами</div>
+            <div class="comp-bar-wrap"><div class="comp-bar low" style="width:76%"></div></div>
+            <div class="comp-val">3.8</div>
+            <div class="comp-trend down">↓ 0.1</div>
+          </div>
+
+          <div style="margin-top:16px;padding:12px 14px;background:#f9fafb;border-radius:8px;font-size:12px;color:var(--muted);">
+            <b style="color:var(--text-2);">Hard skills:</b> Go (expert) · Python (advanced) · PostgreSQL (expert) · Kubernetes (intermediate) · System Design (advanced)
+          </div>
+        </div>
+
+        <!-- GOALS -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="ci">☑</span> Performance Review · Q1 2026</div>
+              <div class="card-sub">Календарный квартал · 3 цели</div>
+            </div>
+            <span class="card-updated">обновлено 3 дня назад</span>
+          </div>
+          <div class="goal">
+            <div class="goal-head">
+              <div class="goal-title">Миграция биллинга на новый тариф-движок</div>
+              <div class="goal-status done">Выполнена</div>
+            </div>
+            <div class="goal-meta">Вес 40% · завершена на 2 недели раньше срока</div>
+            <div class="goal-prog-bar"><div class="goal-prog-fill" style="width:100%;background:var(--success);"></div></div>
+          </div>
+          <div class="goal">
+            <div class="goal-head">
+              <div class="goal-title">Uptime API выше 99.95%</div>
+              <div class="goal-status on-track">В срок</div>
+            </div>
+            <div class="goal-meta">Вес 35% · текущий — 99.97%</div>
+            <div class="goal-prog-bar"><div class="goal-prog-fill" style="width:100%"></div></div>
+          </div>
+          <div class="goal">
+            <div class="goal-head">
+              <div class="goal-title">Внедрить новый observability-стек</div>
+              <div class="goal-status at-risk">Под риском</div>
+            </div>
+            <div class="goal-meta">Вес 25% · выполнено 45% · задержка из-за переключения на P0 инцидент</div>
+            <div class="goal-prog-bar"><div class="goal-prog-fill" style="width:45%;background:var(--warning);"></div></div>
+          </div>
+        </div>
+
+        <!-- DEVELOPMENT / IPR -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="ci">↗</span> Активный ИПР</div>
+              <div class="card-sub">План развития на 6 месяцев · 4 активности</div>
+            </div>
+            <a class="card-link">Открыть в Upway →</a>
+          </div>
+
+          <div class="dev-item">
+            <div class="dev-icon course">К</div>
+            <div class="dev-body">
+              <div class="dev-title">Курс «Conflict resolution for tech leads» (Coursera)</div>
+              <div class="dev-meta">Под компетенцию «Управление конфликтами» · дедлайн 31 мая</div>
+              <div class="dev-prog">
+                <div class="dev-prog-bar"><div class="dev-prog-fill" style="width:58%"></div></div>
+                <span>58% · 7 из 12 модулей</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dev-item">
+            <div class="dev-icon stretch">С</div>
+            <div class="dev-body">
+              <div class="dev-title">Стретч-проект: менторство junior разработчика</div>
+              <div class="dev-meta">Под «Развитие людей» · менти — Алексей В. · старт 1 апреля</div>
+              <div class="dev-prog">
+                <div class="dev-prog-bar"><div class="dev-prog-fill" style="width:30%"></div></div>
+                <span>30% · 2-я неделя</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dev-item">
+            <div class="dev-icon book">Ч</div>
+            <div class="dev-body">
+              <div class="dev-title">«Crucial Conversations» — книга</div>
+              <div class="dev-meta">Под «Управление конфликтами» · дедлайн 30 апреля</div>
+              <div class="dev-prog">
+                <div class="dev-prog-bar"><div class="dev-prog-fill" style="width:75%"></div></div>
+                <span>75% · осталось ≈ 60 страниц</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dev-item">
+            <div class="dev-icon cert">С</div>
+            <div class="dev-body">
+              <div class="dev-title">Сертификация: AWS Solutions Architect Pro</div>
+              <div class="dev-meta">Запланирован экзамен — 15 июня</div>
+              <div class="dev-prog">
+                <div class="dev-prog-bar"><div class="dev-prog-fill" style="width:22%"></div></div>
+                <span>22% · подготовка начата</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;padding:12px 14px;background:#f9fafb;border-radius:8px;font-size:12px;color:var(--muted);">
+            <b style="color:var(--text-2);">Прошлое обучение (последние 12 мес):</b> «System Design Interview» (92%) · «Kubernetes for Developers» (87%) · «Effective Feedback» (100%)
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: readiness + compensation + engagement + 1-1 + peers -->
+      <div>
+
+        <!-- CAREER READINESS -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="ci">↑</span> Карьерные возможности</div>
+              <div class="card-sub">Готовность к следующим ролям</div>
+            </div>
+          </div>
+
+          <div class="role-card">
+            <div class="role-head">
+              <div class="role-name">Team Lead · Backend</div>
+              <div class="role-time">готов сейчас</div>
+            </div>
+            <div class="role-readiness">
+              <div class="role-bar-wrap"><div class="role-bar ready" style="width:84%"></div></div>
+              <div class="role-pct ready">84%</div>
+            </div>
+            <div class="role-gap"><b>Gap:</b> управление конфликтами (3.8 vs 4.2 ожидаемая)</div>
+          </div>
+
+          <div class="role-card">
+            <div class="role-head">
+              <div class="role-name">Staff Engineer</div>
+              <div class="role-time">3–6 месяцев</div>
+            </div>
+            <div class="role-readiness">
+              <div class="role-bar-wrap"><div class="role-bar" style="width:72%"></div></div>
+              <div class="role-pct">72%</div>
+            </div>
+            <div class="role-gap"><b>Gap:</b> архитектура распределённых систем, влияние вне команды</div>
+          </div>
+
+          <div class="role-card">
+            <div class="role-head">
+              <div class="role-name">Engineering Manager</div>
+              <div class="role-time">12+ месяцев</div>
+            </div>
+            <div class="role-readiness">
+              <div class="role-bar-wrap"><div class="role-bar" style="width:48%"></div></div>
+              <div class="role-pct">48%</div>
+            </div>
+            <div class="role-gap"><b>Gap:</b> опыт управления, стратегическое планирование, OKR</div>
+          </div>
+
+          <div style="margin-top:14px;padding:12px 14px;background:var(--accent-soft);border-radius:8px;font-size:12px;color:var(--accent);font-weight:600;">
+            В кадровом резерве: <b>Да</b> · категория «готов к лидерской роли» с 28 марта
+          </div>
+        </div>
+
+        <!-- COMPENSATION -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="ci">₽</span> Компенсация</div>
+              <div class="card-sub">Текущий уровень + бенчмарк</div>
+            </div>
+          </div>
+
+          <div class="comp-block">
+            <div class="comp-stat">
+              <div class="comp-stat-label">Текущая ЗП</div>
+              <div class="comp-stat-value">320 000 ₽</div>
+              <div class="comp-stat-meta">брутто, ежемесячно</div>
+            </div>
+            <div class="comp-stat">
+              <div class="comp-stat-label">Последнее повышение</div>
+              <div class="comp-stat-value">+18%</div>
+              <div class="comp-stat-meta">октябрь 2024 · 18 мес. назад</div>
+            </div>
+          </div>
+
+          <div class="benchmark">
+            <div class="benchmark-head">
+              <span>Иван vs рынок · Senior Backend · Москва</span>
+              <span>−15% к медиане</span>
+            </div>
+            <div class="benchmark-scale">
+              <div class="benchmark-range"></div>
+              <div class="benchmark-marker"></div>
+            </div>
+            <div class="benchmark-labels">
+              <span>280К</span>
+              <span>Медиана: 375К</span>
+              <span>470К</span>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;padding:10px 14px;background:#f9fafb;border-radius:8px;font-size:11.5px;color:var(--muted);">
+            <b style="color:var(--text-2);">Источник бенчмарка:</b> Habr Salary Q1 2026 + внутренние данные · обновлено 1 апреля
+          </div>
+        </div>
+
+        <!-- ENGAGEMENT -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="ci">♥</span> Вовлечённость и пульс</div>
+              <div class="card-sub">По ответам в Pulse за 12 недель</div>
+            </div>
+          </div>
+
+          <div class="eng-hero">
+            <div class="eng-score">7.8</div>
+            <div class="eng-info">
+              <div class="eng-info-label">Индекс вовлечённости</div>
+              <div class="eng-info-desc">выше среднего по команде (+0.4), но <b style="color:var(--warning);">снижается</b> 3 недели подряд</div>
+            </div>
+            <div class="eng-trend">
+              <div class="eng-bar" style="height:60%"></div>
+              <div class="eng-bar" style="height:72%"></div>
+              <div class="eng-bar" style="height:84%"></div>
+              <div class="eng-bar" style="height:82%"></div>
+              <div class="eng-bar" style="height:78%"></div>
+              <div class="eng-bar warn" style="height:70%"></div>
+              <div class="eng-bar warn now" style="height:62%"></div>
+            </div>
+          </div>
+
+          <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Горячие темы</div>
+          <div class="theme-row"><div class="tname">Нагрузка и баланс</div><div class="tsent neg">−</div><div class="tcount">4 упом.</div></div>
+          <div class="theme-row"><div class="tname">Карьерный рост</div><div class="tsent neu">запрос</div><div class="tcount">3 упом.</div></div>
+          <div class="theme-row"><div class="tname">Команда и отношения</div><div class="tsent pos">+</div><div class="tcount">5 упом.</div></div>
+          <div class="theme-row"><div class="tname">Интересные задачи</div><div class="tsent pos">+</div><div class="tcount">3 упом.</div></div>
+        </div>
+
+        <!-- 1-1 HISTORY -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="ci">⇄</span> История 1-1</div>
+              <div class="card-sub">С руководителем · последние 3 встречи</div>
+            </div>
+            <a class="card-link">Все встречи →</a>
+          </div>
+
+          <div class="one-list">
+            <div class="one-item">
+              <div class="one-head">
+                <div class="one-date">8 апреля 2026</div>
+                <div class="one-by">с Дмитрием М.</div>
+              </div>
+              <div class="one-summary">Обсудили карьерные планы Ивана. Договорились: вернуться к теме роста через 2 недели, попробовать «утро без встреч», подготовить обоснование для пересмотра компенсации.</div>
+              <div class="one-topics">
+                <div class="one-topic">карьера</div>
+                <div class="one-topic">нагрузка</div>
+                <div class="one-topic">компенсация</div>
+              </div>
+            </div>
+
+            <div class="one-item">
+              <div class="one-head">
+                <div class="one-date">25 марта 2026</div>
+                <div class="one-by">с Дмитрием М.</div>
+              </div>
+              <div class="one-summary">Разбор инцидента с биллингом. Дмитрий отметил качество координации Ивана. Обсудили наставничество над Алексеем В. — решили включить в стретч-проект.</div>
+              <div class="one-topics">
+                <div class="one-topic">incident</div>
+                <div class="one-topic">менторство</div>
+              </div>
+            </div>
+
+            <div class="one-item">
+              <div class="one-head">
+                <div class="one-date">11 марта 2026</div>
+                <div class="one-by">с Дмитрием М.</div>
+              </div>
+              <div class="one-summary">Планирование миграции биллинга. Обсудили технические риски и зависимости. Иван попросил больше автономности в архитектурных решениях — Дмитрий согласился.</div>
+              <div class="one-topics">
+                <div class="one-topic">проекты</div>
+                <div class="one-topic">автономность</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PEER NETWORK -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="ci">◊</span> С кем чаще всего работает</div>
+              <div class="card-sub">По данным 1С, календаря и 360</div>
+            </div>
+          </div>
+          <div class="peer-list">
+            <div class="peer">
+              <div class="peer-avatar c1">ПМ</div>
+              <div class="peer-name">Пётр М.</div>
+              <div class="peer-role">Senior Backend</div>
+              <div class="peer-stat">6 общих проектов</div>
+            </div>
+            <div class="peer">
+              <div class="peer-avatar c2">МК</div>
+              <div class="peer-name">Мария К.</div>
+              <div class="peer-role">Middle Backend</div>
+              <div class="peer-stat">4 общих проекта</div>
+            </div>
+            <div class="peer">
+              <div class="peer-avatar c3">АВ</div>
+              <div class="peer-name">Алексей В.</div>
+              <div class="peer-role">Junior Backend</div>
+              <div class="peer-stat">ментори</div>
+            </div>
+            <div class="peer">
+              <div class="peer-avatar c4">ЕП</div>
+              <div class="peer-name">Елена П.</div>
+              <div class="peer-role">Product Manager</div>
+              <div class="peer-stat">смежная</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- META INFO -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="ci">i</span> Справочно</div>
+              <div class="card-sub">Кадровые данные из 1С</div>
+            </div>
+          </div>
+          <dl class="kv">
+            <dt>Дата приёма</dt><dd>15 декабря 2022</dd>
+            <dt>Текущий грейд с</dt><dd>октябрь 2024</dd>
+            <dt>Тип занятости</dt><dd>Полная, бессрочный</dd>
+            <dt>Отпуск</dt><dd>14 дней использовано, 14 осталось</dd>
+            <dt>Больничные за год</dt><dd>3 дня</dd>
+            <dt>Корп. email</dt><dd>ivan.petrov@company.ru</dd>
+          </dl>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

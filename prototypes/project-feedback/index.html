@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Модуль непрерывной обратной связи по проектам — прототип, вид HR</title>
+<style>
+  :root{
+    --slate:#244B5A; --slate-deep:#1A3744; --gray:#6B7B86; --cyan:#03AEC9; --cyan-dark:#0298B0;
+    --orange:#E87028; --canvas:#F7FAFB; --border:#E6EDF0; --card:#fff;
+    --green:#2FA36B; --amber:#E2A22B; --red:#DC6A55;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Onest,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--canvas);color:var(--slate);-webkit-font-smoothing:antialiased}
+  .proto-bar{background:var(--cyan);color:#fff;text-align:center;padding:6px;font-size:13px;font-weight:600;letter-spacing:.02em}
+  .layout{display:flex;min-height:100vh}
+
+  /* ── Сайдбар: 1:1 с платформой ── */
+  .sidebar{width:280px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+  .logo{padding:22px 24px;border-bottom:1px solid var(--border);font-weight:800;font-size:19px;color:var(--slate);letter-spacing:-.02em}
+  .logo small{display:block;font-size:12px;font-weight:500;color:var(--gray);letter-spacing:0}
+  .nav{padding:16px 12px;flex:1;overflow:auto}
+  .nav-label{font-size:11px;font-weight:700;color:#9BAAB4;letter-spacing:.08em;padding:12px 12px 6px}
+  .nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:var(--slate);text-decoration:none;font-size:14.5px;font-weight:500;cursor:pointer}
+  .nav a:hover{background:#F1F7F9}
+  .nav a.active{background:#E6F7FA;color:var(--cyan-dark);font-weight:600}
+  .nav a.new::after{content:"NEW";margin-left:auto;font-size:9px;font-weight:800;color:#fff;background:var(--orange);padding:2px 5px;border-radius:4px;letter-spacing:.04em}
+  .ico{width:18px;height:18px;flex:0 0 18px;opacity:.75}
+  .side-foot{border-top:1px solid var(--border);padding:16px 20px}
+  .user{display:flex;align-items:center;gap:11px;margin-top:12px}
+  .ava{width:38px;height:38px;border-radius:50%;background:var(--slate);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .user b{display:block;font-size:14px}
+  .user span{font-size:12px;color:var(--gray)}
+
+  /* ── Контент ── */
+  .main{flex:1;min-width:0}
+  .topbar{display:flex;justify-content:flex-end;padding:18px 32px}
+  .btn{border:0;border-radius:9px;padding:9px 15px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px}
+  .btn-primary{background:var(--orange);color:#fff}
+  .btn-primary:hover{filter:brightness(1.07)}
+  .btn-ghost{background:#fff;color:var(--slate);border:1px solid var(--border)}
+  .btn-ghost:hover{border-color:var(--cyan);background:#F3FBFC}
+  .btn-cyan{background:#E6F7FA;color:var(--cyan-dark)}
+  .wrap{padding:0 32px 56px;max-width:1180px}
+  h1{font-size:27px;font-weight:800;letter-spacing:-.02em}
+  .sub{color:var(--gray);font-size:14px;margin-top:5px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px}
+  .pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+  .p-green{background:#E7F6EE;color:var(--green)} .p-cyan{background:#E6F7FA;color:var(--cyan-dark)}
+  .p-amber{background:#FCF3E0;color:#A87415} .p-gray{background:#F0F3F5;color:var(--gray)}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:11px;font-weight:700;color:#9BAAB4;letter-spacing:.06em;padding:14px 18px;border-bottom:1px solid var(--border)}
+  td{padding:15px 18px;border-bottom:1px solid #F1F5F7;font-size:14px}
+  tr:last-child td{border-bottom:0}
+  tr.click{cursor:pointer} tr.click:hover{background:#F7FCFD}
+  .muted{color:var(--gray);font-size:13px}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0}
+  .kpi .card{padding:16px 18px}
+  .kpi b{display:block;font-size:25px;font-weight:800;margin-top:5px}
+  .kpi span{font-size:11px;font-weight:700;color:#9BAAB4;letter-spacing:.06em}
+  .tabs{display:flex;gap:26px;border-bottom:1px solid var(--border);margin:22px 0 0}
+  .tabs button{background:0;border:0;padding:12px 2px;font-size:14.5px;font-weight:600;color:var(--gray);cursor:pointer;border-bottom:2px solid transparent;font-family:inherit}
+  .tabs button.active{color:var(--cyan-dark);border-bottom-color:var(--cyan)}
+  .bar{height:7px;border-radius:999px;background:#EEF2F4;overflow:hidden;width:120px;display:inline-block;vertical-align:middle}
+  .bar i{display:block;height:100%;border-radius:999px}
+  .score{font-weight:800;font-variant-numeric:tabular-nums}
+  .back{color:var(--cyan-dark);font-size:13.5px;font-weight:600;cursor:pointer;display:inline-block;margin-bottom:12px}
+  .screen{display:none} .screen.on{display:block}
+  .note{background:#FFF8EC;border:1px solid #F3E2C0;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#8A6A22;margin-top:14px}
+  .note b{color:#6E5316}
+  .role{font-size:11px;font-weight:700;color:var(--cyan-dark);background:#E6F7FA;border-radius:5px;padding:2px 7px}
+  .avatar-sm{width:32px;height:32px;border-radius:50%;background:#E6F7FA;color:var(--cyan-dark);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;margin-right:10px;vertical-align:middle}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .sec-h{font-size:11px;font-weight:700;color:#9BAAB4;letter-spacing:.07em;margin:26px 0 10px}
+  .radar-ph{display:flex;align-items:center;justify-content:center;height:210px;color:var(--gray);font-size:13px;background:#FBFDFE;border:1px dashed var(--border);border-radius:12px}
+  .fb{padding:15px 18px;border-bottom:1px solid #F1F5F7}
+  .fb:last-child{border-bottom:0}
+  .fb-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .quote{font-size:13.5px;color:#41565F;line-height:1.55;margin-top:6px}
+  .params{display:flex;gap:18px;flex-wrap:wrap;margin-top:9px}
+  .param{font-size:12px;color:var(--gray)} .param b{color:var(--slate);font-variant-numeric:tabular-nums}
+
+  /* ── Справочник ролей ── */
+  .rolegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+  .rolecard{padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+  .rolecard .rc-top{display:flex;align-items:center;gap:9px}
+  .rdot{width:11px;height:11px;border-radius:3px;flex:0 0 11px}
+  .rolecard b{font-size:15px}
+  .rolecard .rc-desc{font-size:12.5px;color:var(--gray);line-height:1.5;flex:1}
+  .rolecard .rc-foot{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#9BAAB4;margin-top:2px}
+  .rc-act{display:flex;gap:14px;margin-top:8px;padding-top:10px;border-top:1px solid #F1F5F7}
+  .rc-act a{font-size:12.5px;font-weight:600;color:var(--cyan-dark);cursor:pointer}
+  .rc-arch{opacity:.62}
+  /* профиль: общая информация + вкладки */
+  .inforow{display:flex;justify-content:space-between;align-items:center;padding:14px 2px;border-bottom:1px solid #F1F5F7;font-size:14.5px}
+  .inforow:last-child{border-bottom:0}
+  .inforow>span{color:var(--gray)} .inforow>b{font-weight:700}
+  .ptab{display:none} .ptab.on{display:block}
+
+  /* ── Модалки ── */
+  .overlay{position:fixed;inset:0;background:rgba(26,55,68,.45);display:none;align-items:flex-start;justify-content:center;z-index:60;padding:38px 20px;overflow:auto}
+  .overlay.on{display:flex}
+  .modal{background:#fff;border-radius:16px;width:100%;max-width:640px;box-shadow:0 24px 70px rgba(0,0,0,.25);animation:pop .16s ease}
+  @keyframes pop{from{transform:translateY(8px);opacity:.6}to{transform:none;opacity:1}}
+  .modal-h{padding:19px 24px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .modal-h b{font-size:18px;font-weight:800;letter-spacing:-.01em}
+  .modal-h .mh-sub{font-size:12.5px;color:var(--gray);margin-top:3px}
+  .modal-b{padding:22px 24px}
+  .modal-f{padding:15px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .x{cursor:pointer;color:var(--gray);font-size:24px;line-height:.7;background:0;border:0;font-family:inherit}
+  .fld{display:block;margin-bottom:16px}
+  .fld .lb{font-size:12.5px;font-weight:700;color:var(--slate);margin-bottom:6px;display:block}
+  .fld .hint{font-size:11.5px;color:var(--gray);margin-top:5px;line-height:1.4}
+  .inp{width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:14px;color:var(--slate);background:#fff}
+  .inp:focus{outline:0;border-color:var(--cyan)}
+  select.inp{cursor:pointer}
+  textarea.inp{resize:vertical;min-height:62px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .swatches{display:flex;gap:9px;margin-top:2px}
+  .sw{width:28px;height:28px;border-radius:8px;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--border)}
+  .sw.sel{box-shadow:0 0 0 2px var(--slate)}
+  .chk{display:flex;align-items:flex-start;gap:10px;background:#F7FBFC;border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+  .chk input{margin-top:2px;width:16px;height:16px;accent-color:var(--cyan)}
+  .chk .lb{font-size:13.5px;font-weight:600;color:var(--slate)}
+  /* Мастер */
+  .steps{display:flex;gap:6px;margin-bottom:22px}
+  .step{flex:1;text-align:center;font-size:12px;font-weight:700;color:var(--gray);padding-bottom:9px;border-bottom:2px solid var(--border)}
+  .step .n{display:inline-flex;width:19px;height:19px;border-radius:50%;background:#EEF2F4;color:var(--gray);align-items:center;justify-content:center;font-size:11px;margin-right:6px}
+  .step.on{color:var(--cyan-dark);border-bottom-color:var(--cyan)} .step.on .n{background:var(--cyan);color:#fff}
+  .step.done{color:var(--green);border-bottom-color:var(--green)} .step.done .n{background:var(--green);color:#fff}
+  .wstep{display:none} .wstep.on{display:block}
+  .addbar{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;background:#F7FBFC;border:1px solid var(--border);border-radius:11px;padding:14px;margin-bottom:14px}
+  .sumrow{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #F1F5F7;font-size:14px}
+  .sumrow:last-child{border-bottom:0} .sumrow span{color:var(--gray)} .sumrow b{font-weight:700}
+  .rchip{font-size:11px;font-weight:700;border-radius:5px;padding:2px 8px;color:#fff}
+  /* Наш компонент выбора */
+  .sel{position:relative}
+  .sel-btn{width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:9px;background:#fff;font-size:14px;color:var(--slate);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:inherit;text-align:left}
+  .sel-btn:hover{border-color:var(--cyan)}
+  .sel-btn .val{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sel-btn .val.ph{color:#9BAAB4}
+  .sel-btn .car{color:var(--gray);font-size:9px;flex:0 0 auto}
+  .sel-menu{position:absolute;top:calc(100% + 5px);left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 14px 34px rgba(26,55,68,.16);z-index:8;padding:6px;display:none;max-height:236px;overflow:auto}
+  .sel-menu.on{display:block}
+  .opt{padding:9px 10px;border-radius:7px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:10px}
+  .opt:hover{background:#F1F7F9}
+  .opt .ck{width:17px;height:17px;border:1.5px solid #C4D0D6;border-radius:5px;flex:0 0 17px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:transparent}
+  .opt.sel .ck{background:var(--cyan);border-color:var(--cyan);color:#fff}
+  .opt small{color:var(--gray);margin-left:auto;font-size:12px}
+  .opt .rdot{width:9px;height:9px;border-radius:3px;flex:0 0 9px}
+</style>
+</head>
+<body>
+<div class="proto-bar">ПРОТОТИП · Проектный фидбэк · вид HR / администратора · BioTech Lab</div>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="logo">StartExam<small>People Intelligence</small></div>
+    <nav class="nav">
+      <div class="nav-label">УПРАВЛЕНИЕ</div>
+      <a><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Дашборд</a>
+      <a onclick="go('org')"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-3h14v3"/></svg>Оргструктура</a>
+      <a><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>Опросы</a>
+      <a><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>Оценки</a>
+      <a class="active new" onclick="go('projects')"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Проекты</a>
+      <a onclick="go('roles')"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Шаблоны</a>
+      <div class="nav-label">ЛИЧНОЕ</div>
+      <a><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0"/></svg>Мои оценки</a>
+      <a><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>Мои опросы</a>
+      <a><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Мои отчёты</a>
+    </nav>
+    <div class="side-foot">
+      <a style="display:flex;gap:12px;align-items:center;color:var(--slate);text-decoration:none;font-size:14.5px;font-weight:500"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 3h-5l-.3 2.6a7 7 0 00-1.7 1l-2.4-1-2 3.4L5 11a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.4 2.6h5l.3-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6c.1-.3.1-.7.1-1z"/></svg>Настройки</a>
+      <div class="user"><div class="ava">НЗ</div><div><b>Надежда Зайцева</b><span>HR-директор · BioTech Lab</span></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar"><button class="btn btn-primary">✦ Спросить AI-эксперта</button></div>
+
+    <!-- ══ ПРОЕКТЫ ══ -->
+    <section id="projects" class="screen on"><div class="wrap">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+        <div>
+          <h1>Проекты</h1>
+          <p class="sub">Проектный фидбэк по участникам. Состав проектов обновляется маппингом раз в месяц.</p>
+        </div>
+        <button class="btn btn-primary" style="white-space:nowrap" onclick="openProject()">+ Создать проект</button>
+      </div>
+      <div class="kpi">
+        <div class="card"><span>АКТИВНЫХ ПРОЕКТОВ</span><b>41</b></div>
+        <div class="card"><span>УЧАСТНИКОВ</span><b>287</b></div>
+        <div class="card"><span>ФИДБЭКОВ ЗА МЕСЯЦ</span><b>612</b></div>
+        <div class="card"><span>ПОКРЫТИЕ</span><b>74%</b></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <button class="btn btn-ghost">↑ Загрузить маппинг из Clockify</button>
+        <span class="muted" style="align-self:center;margin-left:6px">Последняя актуализация: 1 июля 2026</span>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>КОД</th><th>ПРОЕКТ</th><th>СРОКИ</th><th>УЧАСТНИКИ</th><th>РУКОВОДИТЕЛЬ ПРОЕКТА</th><th>СТАТУС</th></tr></thead>
+          <tbody>
+            <tr class="click" onclick="go('project')"><td><b>BG-014</b></td><td><b>Genomic Atlas · фаза 2</b></td><td class="muted">янв — сен 2026</td><td>8</td><td>Зайцева Дарья</td><td><span class="pill p-cyan">Идёт</span></td></tr>
+            <tr class="click" onclick="go('project')"><td><b>BG-021</b></td><td><b>Onco Platform · миграция</b></td><td class="muted">апр — июл 2026</td><td>6</td><td>Соколов Артём</td><td><span class="pill p-green">Завершён</span></td></tr>
+            <tr class="click" onclick="go('project')"><td><b>BG-033</b></td><td><b>Clinical Data Hub</b></td><td class="muted">мар 2026 — фев 2027</td><td>12</td><td>Рождественская Анастасия</td><td><span class="pill p-cyan">Идёт</span></td></tr>
+            <tr class="click" onclick="go('project')"><td><b>BG-040</b></td><td><b>Biomarker Discovery</b></td><td class="muted">июн — авг 2026</td><td>5</td><td class="muted">— (PM не назначен)</td><td><span class="pill p-amber">Идёт</span></td></tr>
+            <tr class="click" onclick="go('project')"><td><b>BG-007</b></td><td><b>LIMS Integration</b></td><td class="muted">фев — май 2026</td><td>7</td><td>Волков Игорь</td><td><span class="pill p-green">Завершён</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note"><b>Как это работает.</b> Состав участников приходит маппингом раз в месяц (выгрузка из Clockify). Уже собранный фидбэк <b>фиксируется снимком</b>: пересборка проектов не меняет прошлые месяцы.</div>
+    </div></section>
+
+    <!-- ══ КАРТОЧКА ПРОЕКТА ══ -->
+    <section id="project" class="screen"><div class="wrap">
+      <span class="back" onclick="go('projects')">← Проекты</span>
+      <h1>BG-014 · Genomic Atlas · фаза 2</h1>
+      <p class="sub">янв — сен 2026 · 8 участников · руководитель проекта: Анастасия Рождественская</p>
+      <div class="kpi" style="grid-template-columns:repeat(3,1fr)">
+        <div class="card"><span>СРЕДНИЙ БАЛЛ</span><b style="color:var(--green)">8,4</b></div>
+        <div class="card"><span>ФИДБЭКОВ СОБРАНО</span><b>23</b></div>
+        <div class="card"><span>ОХВАЧЕНО УЧАСТНИКОВ</span><b>7 / 8</b></div>
+      </div>
+
+      <div class="sec-h">УЧАСТНИКИ И ФИДБЭК</div>
+      <div class="card">
+        <table>
+          <thead><tr><th>СОТРУДНИК</th><th>РОЛЬ В ПРОЕКТЕ</th><th>ФИДБЭКОВ</th><th>СРЕДНЯЯ ОЦЕНКА</th><th></th></tr></thead>
+          <tbody>
+            <tr class="click" onclick="openPF('Гусев Максим')"><td><span class="avatar-sm">МП</span><b>Гусев Максим</b></td><td><span class="role">Лид-аналитик</span></td><td>5</td><td><span class="score" style="color:var(--green)">9,2</span></td><td class="muted">→</td></tr>
+            <tr class="click" onclick="openPF('Белова Елена')"><td><span class="avatar-sm">ЕС</span><b>Белова Елена</b></td><td><span class="role">BI-аналитик</span></td><td>4</td><td><span class="score" style="color:var(--green)">8,5</span></td><td class="muted">→</td></tr>
+            <tr class="click" onclick="openPF('Волков Александр')"><td><span class="avatar-sm">АЧ</span><b>Волков Александр</b></td><td><span class="role">Аналитик</span></td><td>4</td><td><span class="score" style="color:var(--amber)">6,8</span></td><td class="muted">→</td></tr>
+            <tr class="click" onclick="openPF('Зайцева Дарья')"><td><span class="avatar-sm">ДК</span><b>Зайцева Дарья</b></td><td><span class="role">PM</span></td><td>6</td><td><span class="score" style="color:var(--green)">8,9</span></td><td class="muted">→</td></tr>
+            <tr class="click" onclick="openPF('Фомин Иван')"><td><span class="avatar-sm">ИМ</span><b>Фомин Иван</b></td><td><span class="role">Аналитик</span></td><td>3</td><td><span class="score" style="color:var(--green)">7,7</span></td><td class="muted">→</td></tr>
+            <tr><td><span class="avatar-sm">ОЛ</span><b>Сорокин Дмитрий</b></td><td><span class="role">Аналитик</span></td><td class="muted">0</td><td class="muted">—</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note"><b>Референс Clockify.</b> Здесь на месте «залогированного времени» — сводка фидбэка по участнику в рамках этого проекта. Клик по участнику → его фидбэки <b>за этот проект</b>; полный профиль (все проекты + 360°) открывается из Оргструктуры.<br><b>Вопрос к обсуждению:</b> видит ли этот экран руководитель проекта (PM), или только HR/администратор? На встрече решение отложили.</div>
+    </div></section>
+
+    <!-- ══ ОРГСТРУКТУРА ══ -->
+    <section id="org" class="screen"><div class="wrap">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+        <div>
+          <h1>Оргструктура</h1>
+          <p class="sub">287 сотрудников · 24 отдела · импорт через Excel</p>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost">↥ Импорт Excel</button>
+          <button class="btn btn-ghost">↧ Экспорт Excel</button>
+          <button class="btn btn-primary" style="white-space:nowrap">+ Добавить сотрудника</button>
+        </div>
+      </div>
+      <div class="tabs" style="flex-wrap:wrap">
+        <button onclick="alert('В прототипе не раскрыт — дерево отделов.')">Дерево отделов</button>
+        <button class="active">Все сотрудники (287)</button>
+        <button onclick="alert('В прототипе не раскрыт — срезы и группы.')">Срезы и группы</button>
+        <button onclick="alert('В прототипе не раскрыт — архив.')">Архив (0)</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 6px">
+        <input placeholder="Поиск по ФИО, email, Employee ID…" style="flex:1;min-width:240px;max-width:340px;padding:10px 14px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:14px">
+        <button class="btn btn-ghost">Роль: все ▾</button>
+        <button class="btn btn-ghost">Отдел: все ▾</button>
+        <button class="btn btn-ghost">Должность: все ▾</button>
+        <button class="btn btn-ghost">Грейд: все ▾</button>
+        <button class="btn btn-ghost">Стаж: все ▾</button>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px"><span class="muted">Показано 8 из 287</span></div>
+      <div class="card" style="overflow-x:auto">
+        <table>
+          <thead><tr><th>ФИО</th><th>РОЛЬ</th><th>EMAIL</th><th>ОТДЕЛ</th><th>ДОЛЖНОСТЬ</th><th>ГРЕЙД</th><th>СТАЖ</th></tr></thead>
+          <tbody>
+            <tr class="click" onclick="go('profile')"><td><span class="avatar-sm">МП</span><b>Гусев Максим</b></td><td><span class="pill p-gray">Сотрудник</span></td><td class="muted">m.gusev@biotechlab.ru</td><td class="muted">Аналитика</td><td class="muted">Ведущий аналитик</td><td class="muted">middle</td><td><span class="pill p-gray">5+ лет</span></td></tr>
+            <tr class="click" onclick="go('profile')"><td><span class="avatar-sm">ЕС</span><b>Белова Елена</b></td><td><span class="pill p-gray">Сотрудник</span></td><td class="muted">e.belova@biotechlab.ru</td><td class="muted">BI</td><td class="muted">BI-аналитик</td><td class="muted">middle</td><td><span class="pill p-gray">1–3 года</span></td></tr>
+            <tr class="click" onclick="go('profile')"><td><span class="avatar-sm">АЧ</span><b>Волков Александр</b></td><td><span class="pill p-gray">Сотрудник</span></td><td class="muted">a.volkov@biotechlab.ru</td><td class="muted">Аналитика</td><td class="muted">Аналитик</td><td class="muted">junior</td><td><span class="pill p-gray">1–3 года</span></td></tr>
+            <tr class="click" onclick="go('profile')"><td><span class="avatar-sm">ДК</span><b>Зайцева Дарья</b></td><td><span class="pill p-gray">Сотрудник</span></td><td class="muted">d.zaytseva@biotechlab.ru</td><td class="muted">PMO</td><td class="muted">Проектный менеджер</td><td class="muted">senior</td><td><span class="pill p-gray">5+ лет</span></td></tr>
+            <tr class="click" onclick="go('profile')"><td><span class="avatar-sm">ИМ</span><b>Фомин Иван</b></td><td><span class="pill p-gray">Сотрудник</span></td><td class="muted">i.fomin@biotechlab.ru</td><td class="muted">Аналитика</td><td class="muted">Аналитик</td><td class="muted">junior</td><td><span class="pill p-gray">6–12 мес</span></td></tr>
+            <tr class="click" onclick="go('profile')"><td><span class="avatar-sm">ДЛ</span><b>Сорокин Дмитрий</b></td><td><span class="pill p-gray">Сотрудник</span></td><td class="muted">d.sorokin@biotechlab.ru</td><td class="muted">Аналитика</td><td class="muted">Аналитик</td><td class="muted">junior</td><td><span class="pill p-gray">1–3 года</span></td></tr>
+            <tr class="click" onclick="go('profile')"><td><span class="avatar-sm">НО</span><b>Панова Наталья</b></td><td><span class="pill p-gray">Сотрудник</span></td><td class="muted">n.panova@biotechlab.ru</td><td class="muted">Биоинформатика</td><td class="muted">Биоинформатик</td><td class="muted">middle</td><td><span class="pill p-gray">1–3 года</span></td></tr>
+            <tr class="click" onclick="go('profile')"><td><span class="avatar-sm">СТ</span><b>Марков Сергей</b></td><td><span class="pill p-gray">Сотрудник</span></td><td class="muted">s.markov@biotechlab.ru</td><td class="muted">Data Engineering</td><td class="muted">Data-инженер</td><td class="muted">middle</td><td><span class="pill p-gray">5+ лет</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note"><b>Единый справочник людей.</b> Оргструктура — источник сотрудников для проектов, оценок и фидбэка. Провалитесь в человека → профиль: общая информация, оценка 360° и проектный фидбэк в одном месте.</div>
+    </div></section>
+
+    <!-- ══ ПРОФИЛЬ СОТРУДНИКА (вид HR — с именами) ══ -->
+    <section id="profile" class="screen"><div class="wrap">
+      <span class="back" onclick="go('org')">← Оргструктура</span>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:4px">
+        <div class="ava" style="width:54px;height:54px;font-size:17px">АЧ</div>
+        <div><h1>Волков Александр</h1><p class="sub">Аналитик · Аналитика · руководитель: Зайцева Надежда</p></div>
+      </div>
+      <div class="tabs">
+        <button class="active" onclick="ptab(this,'pt-info')">Общая информация</button>
+        <button onclick="ptab(this,'pt-360')">Оценка 360°</button>
+        <button onclick="ptab(this,'pt-fb')">Проектный фидбэк</button>
+        <button onclick="alert('В прототипе не раскрыт: опросы вовлечённости, в которых участвовал сотрудник.')">Опросы</button>
+        <button onclick="alert('В прототипе не раскрыт: цели и план развития.')">Развитие</button>
+      </div>
+
+      <!-- Вкладка: Общая информация -->
+      <div class="ptab on" id="pt-info" style="margin-top:16px">
+        <div class="card" style="padding:6px 20px;max-width:660px">
+          <div class="inforow"><span>Employee ID</span><b>EMP-000031</b></div>
+          <div class="inforow"><span>Идентификатор сотрудника</span><b>chv1031</b></div>
+          <div class="inforow"><span>Роль</span><b>Сотрудник</b></div>
+          <div class="inforow"><span>Отдел</span><b>Аналитика</b></div>
+          <div class="inforow"><span>Руководитель</span><b>Зайцева Надежда</b></div>
+          <div class="inforow"><span>Email</span><b>a.volkov@biotechlab.ru</b></div>
+          <div class="inforow"><span>Стаж</span><b>1–3 года</b></div>
+          <div class="inforow"><span>Возраст</span><b>25–34</b></div>
+          <div class="inforow"><span>Пол</span><b>М</b></div>
+          <div class="inforow"><span>Город</span><b>Москва</b></div>
+          <div class="inforow"><span>Грейд</span><b>junior</b></div>
+          <div class="inforow"><span>Регион</span><b>Центр</b></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px;max-width:660px">
+          <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="alert('В прототипе не раскрыт — редактирование карточки сотрудника.')">✎ Редактировать</button>
+          <button class="btn btn-ghost" style="flex:1;justify-content:center;color:var(--red);border-color:#F0C9C0" onclick="alert('В прототипе не раскрыт — архивирование сотрудника.')">Архивировать</button>
+        </div>
+      </div>
+
+      <!-- Вкладка: Оценка 360 -->
+      <div class="ptab" id="pt-360" style="margin-top:16px">
+        <div class="card"><table><tbody>
+          <tr style="cursor:pointer" onclick="alert('В прототипе не раскрыт — открывается сводный отчёт 360°, как на действующей платформе.')">
+            <td><span class="avatar-sm" style="background:#E6F7FA;font-size:15px">📄</span><b>Оценка корпоративных компетенций 2026</b><div class="muted" style="margin-left:42px">3 июля 2026 · 8/8 оценили</div></td>
+            <td style="text-align:right;white-space:nowrap"><span class="muted">Само <b style="color:var(--slate)">4,8</b></span> &nbsp; <span class="muted">Окр. <b style="color:var(--amber)">4,6</b></span> &nbsp; <span class="muted">Разрыв <b style="color:var(--green)">+0,2</b></span> &nbsp;<span style="color:var(--cyan-dark);font-weight:600">Открыть ›</span></td>
+          </tr>
+        </tbody></table></div>
+        <div class="note">Здесь — результаты оценки 360° сотрудника: сводный балл, зоны, слепые зоны и план развития (как на действующей платформе).</div>
+      </div>
+
+      <!-- Вкладка: Проектный фидбэк -->
+      <div class="ptab" id="pt-fb" style="margin-top:16px">
+      <div class="kpi" style="margin-top:8px">
+        <div class="card"><span>ПРОЕКТОВ ЗА ГОД</span><b>2</b></div>
+        <div class="card"><span>ФИДБЭКОВ</span><b>7</b></div>
+        <div class="card"><span>СНОВА ВЗЯЛИ БЫ · СРЕДНЕЕ</span><b style="color:var(--amber)">6,8</b></div>
+        <div class="card"><span>ДИНАМИКА</span><b style="color:var(--green)">+1,2</b></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card" style="padding:18px">
+          <div style="font-weight:700;font-size:15px;margin-bottom:4px">Параметры · среднее по всем проектам</div>
+          <p class="muted" style="margin-bottom:10px">Фиксированный набор — сравнимо между проектами</p>
+          <div style="display:flex;flex-direction:column;gap:11px">
+            <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>Коммуникация</span><b class="score">7,5</b></div><span class="bar" style="width:100%"><i style="width:75%;background:var(--cyan)"></i></span></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>Качество</span><b class="score">7,0</b></div><span class="bar" style="width:100%"><i style="width:70%;background:var(--cyan)"></i></span></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>Сроки</span><b class="score" style="color:var(--red)">5,4</b></div><span class="bar" style="width:100%"><i style="width:54%;background:var(--red)"></i></span></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>Экспертиза</span><b class="score">7,8</b></div><span class="bar" style="width:100%"><i style="width:78%;background:var(--cyan)"></i></span></div>
+          </div>
+        </div>
+        <div class="card" style="padding:18px">
+          <div style="font-weight:700;font-size:15px;margin-bottom:4px">По проектам</div>
+          <p class="muted" style="margin-bottom:10px">Один сотрудник — несколько проектов, фидбэк раздельный</p>
+          <table>
+            <tbody>
+              <tr><td style="padding-left:0"><b>BG-014</b> Genomic Atlas<div class="muted">Аналитик · янв — сен</div></td><td style="text-align:right;padding-right:0"><span class="score" style="color:var(--amber)">6,8</span><div class="muted">4 фидбэка</div></td></tr>
+              <tr><td style="padding-left:0"><b>BG-007</b> LIMS Integration<div class="muted">Аналитик · фев — май</div></td><td style="text-align:right;padding-right:0"><span class="score" style="color:var(--green)">8,0</span><div class="muted">3 фидбэка</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:26px 0 10px;flex-wrap:wrap">
+        <div class="sec-h" style="margin:0">СПИСОК ФИДБЕКОВ</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost">Проект: все ▾</button>
+          <button class="btn btn-ghost">Роль: все ▾</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="fb">
+          <div class="fb-top"><span class="avatar-sm">ДК</span><b>Зайцева Дарья</b><span class="role">PM</span><span class="muted">· BG-014 · 30 июня</span><span class="score" style="margin-left:auto;color:var(--amber)">7 / 10</span></div>
+          <div class="params"><span class="param">Коммуникация <b>8</b></span><span class="param">Качество <b>7</b></span><span class="param">Сроки <b>5</b></span><span class="param">Экспертиза <b>8</b></span></div>
+          <div class="quote">«Хорошо разбирается в данных, объясняет понятно. Но дважды сдвигал сроки без предупреждения — команда узнавала постфактум.»</div>
+        </div>
+        <div class="fb">
+          <div class="fb-top"><span class="avatar-sm">МП</span><b>Гусев Максим</b><span class="role">Лид-аналитик</span><span class="muted">· BG-014 · 28 июня</span><span class="score" style="margin-left:auto;color:var(--amber)">6 / 10</span></div>
+          <div class="params"><span class="param">Коммуникация <b>7</b></span><span class="param">Качество <b>7</b></span><span class="param">Сроки <b>5</b></span><span class="param">Экспертиза <b>7</b></span></div>
+          <div class="quote">«Задачи закрывает качественно, но нужен постоянный контроль по срокам.»</div>
+        </div>
+        <div class="fb">
+          <div class="fb-top"><span class="avatar-sm">ЕС</span><b>Белова Елена</b><span class="role">BI-аналитик</span><span class="muted">· BG-014 · 27 июня</span><span class="score" style="margin-left:auto;color:var(--green)">8 / 10</span></div>
+          <div class="params"><span class="param">Коммуникация <b>8</b></span><span class="param">Качество <b>8</b></span><span class="param">Сроки <b>6</b></span><span class="param">Экспертиза <b>9</b></span></div>
+          <div class="quote">«Сильная экспертиза по геномным данным, помогал разобраться с выгрузками.»</div>
+        </div>
+        <div class="fb">
+          <div class="fb-top"><span class="avatar-sm">ДК</span><b>Зайцева Дарья</b><span class="role">PM</span><span class="muted">· BG-007 · 14 мая</span><span class="score" style="margin-left:auto;color:var(--green)">8 / 10</span></div>
+          <div class="params"><span class="param">Коммуникация <b>8</b></span><span class="param">Качество <b>8</b></span><span class="param">Сроки <b>7</b></span><span class="param">Экспертиза <b>8</b></span></div>
+          <div class="quote">«Надёжный аналитик на LIMS-интеграции, взял бы в проект снова.»</div>
+        </div>
+      </div>
+      <div class="note"><b>Права.</b> HR и администратор видят фидбэк <b>с именами</b> тех, кто давал, — как просила Анастасия. Непосредственный и вышестоящий руководитель — тоже. Сам сотрудник видит этот же профиль <b>без имён</b> (см. второй файл — вид сотрудника).</div>
+      </div>
+    </div></section>
+
+    <!-- ══ СПРАВОЧНИК РОЛЕЙ (внутри Шаблонов) ══ -->
+    <section id="roles" class="screen"><div class="wrap">
+      <h1>Шаблоны</h1>
+      <p class="sub">Системные шаблоны, библиотеки и справочники платформы.</p>
+      <div class="tabs" style="flex-wrap:wrap">
+        <button onclick="alert('В прототипе не раскрыт — это существующая вкладка платформы.')">Шаблоны опросов</button>
+        <button onclick="alert('В прототипе не раскрыт — это существующая вкладка платформы.')">Библиотека драйверов</button>
+        <button onclick="alert('В прототипе не раскрыт — это существующая вкладка платформы.')">Библиотека компетенций</button>
+        <button onclick="alert('В прототипе не раскрыт — это существующая вкладка платформы.')">Библиотека шкал</button>
+        <button onclick="alert('В прототипе не раскрыт — это существующая вкладка платформы.')">Модели компетенций</button>
+        <button class="active">Справочник ролей</button>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:22px 0 4px">
+        <p class="sub" style="max-width:640px;margin:0">Роли, которые сотрудники получают <b>внутри проектов</b> (PM, лид, аналитик…). Единый справочник — на всех проектах роль выбирается отсюда, поэтому фидбэк сравним между проектами.</p>
+        <button class="btn btn-primary" style="white-space:nowrap" onclick="openM('mRole')">+ Создать роль</button>
+      </div>
+
+      <div class="rolegrid">
+        <div class="card rolecard">
+          <div class="rc-top"><span class="rdot" style="background:#03AEC9"></span><b>Руководитель проекта (PM)</b></div>
+          <div class="rc-desc">Отвечает за проект в целом: план, сроки, коммуникацию с заказчиком и командой.</div>
+          <div class="rc-foot"><span>Используется в 12 проектах</span><span class="pill p-green">Активна</span></div>
+          <div class="rc-act"><a onclick="openM('mRole')">Изменить</a><a onclick="alert('В прототипе: роль уходит в архив. Удаления нет — история фидбэка фиксируется снимком.')">Архивировать</a></div>
+        </div>
+        <div class="card rolecard">
+          <div class="rc-top"><span class="rdot" style="background:#244B5A"></span><b>Лид-аналитик</b></div>
+          <div class="rc-desc">Ведёт аналитическую команду проекта, отвечает за качество результата.</div>
+          <div class="rc-foot"><span>Используется в 9 проектах</span><span class="pill p-green">Активна</span></div>
+          <div class="rc-act"><a onclick="openM('mRole')">Изменить</a><a onclick="alert('В прототипе: роль уходит в архив.')">Архивировать</a></div>
+        </div>
+        <div class="card rolecard">
+          <div class="rc-top"><span class="rdot" style="background:#2FA36B"></span><b>BI-аналитик</b></div>
+          <div class="rc-desc">Строит отчётность и дашборды, готовит данные для решений.</div>
+          <div class="rc-foot"><span>Используется в 7 проектах</span><span class="pill p-green">Активна</span></div>
+          <div class="rc-act"><a onclick="openM('mRole')">Изменить</a><a onclick="alert('В прототипе: роль уходит в архив.')">Архивировать</a></div>
+        </div>
+        <div class="card rolecard">
+          <div class="rc-top"><span class="rdot" style="background:#E2A22B"></span><b>Аналитик</b></div>
+          <div class="rc-desc">Выполняет аналитические задачи проекта под руководством лида.</div>
+          <div class="rc-foot"><span>Используется в 34 проектах</span><span class="pill p-green">Активна</span></div>
+          <div class="rc-act"><a onclick="openM('mRole')">Изменить</a><a onclick="alert('В прототипе: роль уходит в архив.')">Архивировать</a></div>
+        </div>
+        <div class="card rolecard">
+          <div class="rc-top"><span class="rdot" style="background:#E87028"></span><b>Data-инженер</b></div>
+          <div class="rc-desc">Готовит и поддерживает данные, пайплайны и выгрузки для проекта.</div>
+          <div class="rc-foot"><span>Используется в 5 проектах</span><span class="pill p-green">Активна</span></div>
+          <div class="rc-act"><a onclick="openM('mRole')">Изменить</a><a onclick="alert('В прототипе: роль уходит в архив.')">Архивировать</a></div>
+        </div>
+        <div class="card rolecard rc-arch">
+          <div class="rc-top"><span class="rdot" style="background:#9BAAB4"></span><b>Методолог</b></div>
+          <div class="rc-desc">Больше не используется в новых проектах, но сохранена для истории фидбэка.</div>
+          <div class="rc-foot"><span>В 2 прошлых проектах</span><span class="pill p-gray">В архиве</span></div>
+          <div class="rc-act"><a onclick="alert('В прототипе: роль возвращается в активные.')">Вернуть в активные</a></div>
+        </div>
+      </div>
+
+      <div class="note"><b>Почему отдельный справочник, а не список внутри проекта.</b> Так делают зрелые системы (Runn, Forecast, Float, Jira): роли — общий справочник, проект их только использует. Роль в проекте — это <b>не должность из оргструктуры</b>: один человек может быть аналитиком на одном проекте и лидом на другом. В ресурсных системах у роли есть ещё ставка — нам она не нужна (мы не биллим), поэтому роль = название + метка + описание.</div>
+    </div></section>
+
+  </main>
+</div>
+
+<!-- ═════ МОДАЛКА: СОЗДАТЬ РОЛЬ ═════ -->
+<div class="overlay" id="mRole">
+  <div class="modal">
+    <div class="modal-h">
+      <div><b>Создать роль</b><div class="mh-sub">Роль будет доступна для выбора на всех проектах</div></div>
+      <button class="x" onclick="closeM('mRole')">×</button>
+    </div>
+    <div class="modal-b">
+      <label class="fld"><span class="lb">Название роли</span>
+        <input class="inp" placeholder="Напр. Аналитик">
+      </label>
+      <label class="fld"><span class="lb">Описание</span>
+        <textarea class="inp" placeholder="Чем занимается человек с этой ролью на проекте…"></textarea>
+      </label>
+      <div class="chk">
+        <input type="checkbox" checked>
+        <div><div class="lb">Активна</div><span class="hint">Неактивную роль нельзя выбрать в новых проектах, но собранный по ней фидбэк сохраняется. Роли не удаляются — только архивируются.</span></div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-ghost" onclick="closeM('mRole')">Отмена</button>
+      <button class="btn btn-primary" onclick="closeM('mRole');alert('Роль сохранена (прототип) и добавлена в справочник.')">Сохранить роль</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════ МАСТЕР: СОЗДАТЬ ПРОЕКТ ═════ -->
+<div class="overlay" id="mProject">
+  <div class="modal" style="max-width:660px">
+    <div class="modal-h">
+      <div><b>Новый проект</b><div class="mh-sub">Обычно состав приходит маппингом из Clockify — здесь можно завести проект вручную.</div></div>
+      <button class="x" onclick="closeM('mProject')">×</button>
+    </div>
+    <div class="modal-b">
+      <div class="steps">
+        <div class="step on" id="st1"><span class="n">1</span>Основное</div>
+        <div class="step" id="st2"><span class="n">2</span>Сроки</div>
+        <div class="step" id="st3"><span class="n">3</span>Участники</div>
+        <div class="step" id="st4"><span class="n">4</span>Проверка</div>
+      </div>
+
+      <!-- Шаг 1 -->
+      <div class="wstep on" id="ws1">
+        <label class="fld"><span class="lb">Код проекта</span>
+          <input class="inp" id="pCode" placeholder="Напр. BG-042" value="BG-042">
+          <span class="hint">Стабильный код — по нему проект связывается с выгрузкой из Clockify.</span>
+        </label>
+        <label class="fld"><span class="lb">Название</span>
+          <input class="inp" id="pName" placeholder="Напр. Proteomics Pipeline" value="Proteomics Pipeline">
+        </label>
+        <label class="fld"><span class="lb">Описание</span>
+          <textarea class="inp" id="pDesc" placeholder="Коротко о проекте — для контекста участникам и HR."></textarea>
+        </label>
+        <div class="fld"><span class="lb">Руководитель проекта</span>
+          <div class="sel" id="selPM">
+            <button class="sel-btn" onclick="toggleMenu('selPM',event)"><span class="val ph">Выберите из оргструктуры</span><span class="car">▼</span></button>
+            <div class="sel-menu" id="menuPM" onclick="event.stopPropagation()"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Шаг 2 -->
+      <div class="wstep" id="ws2">
+        <div class="row2">
+          <label class="fld"><span class="lb">Дата начала</span><input class="inp" id="pFrom" type="date" value="2026-08-01"></label>
+          <label class="fld"><span class="lb">Дата завершения</span><input class="inp" id="pTo" type="date" value="2026-12-15"></label>
+        </div>
+      </div>
+
+      <!-- Шаг 3 -->
+      <div class="wstep" id="ws3">
+        <div class="addbar">
+          <div class="fld" style="margin:0"><span class="lb">Роль</span>
+            <div class="sel" id="selRole">
+              <button class="sel-btn" onclick="toggleMenu('selRole',event)"><span class="val ph">Выберите роль</span><span class="car">▼</span></button>
+              <div class="sel-menu" id="menuRole" onclick="event.stopPropagation()"></div>
+            </div>
+          </div>
+          <div class="fld" style="margin:0"><span class="lb">Сотрудники из оргструктуры</span>
+            <div class="sel" id="selEmp">
+              <button class="sel-btn" onclick="toggleMenu('selEmp',event)"><span class="val ph">Выберите сотрудников</span><span class="car">▼</span></button>
+              <div class="sel-menu" id="menuEmp" onclick="event.stopPropagation()"></div>
+            </div>
+          </div>
+          <button class="btn btn-cyan" style="height:40px" onclick="addPart()">Добавить</button>
+        </div>
+        <div class="card" style="overflow:hidden">
+          <table><thead><tr><th>СОТРУДНИК</th><th>ПОДРАЗДЕЛЕНИЕ</th><th>РОЛЬ В ПРОЕКТЕ</th><th></th></tr></thead>
+            <tbody id="partBody">
+              <tr><td><span class="avatar-sm">ДК</span><b>Зайцева Дарья</b></td><td class="muted">PMO</td><td><span class="rchip" style="background:#03AEC9">PM</span></td><td class="muted" style="cursor:pointer" onclick="rmPart(this)">✕</td></tr>
+              <tr><td><span class="avatar-sm">МП</span><b>Гусев Максим</b></td><td class="muted">Аналитика</td><td><span class="rchip" style="background:#244B5A">Лид-аналитик</span></td><td class="muted" style="cursor:pointer" onclick="rmPart(this)">✕</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <span class="hint" style="display:block;margin-top:8px">Выберите роль → сотрудника из оргструктуры → «Добавить». Один человек может быть в разных проектах с разными ролями.</span>
+      </div>
+
+      <!-- Шаг 4 -->
+      <div class="wstep" id="ws4">
+        <div class="sumrow"><span>Код проекта</span><b id="sCode">—</b></div>
+        <div class="sumrow"><span>Название</span><b id="sName">—</b></div>
+        <div class="sumrow"><span>Руководитель проекта</span><b id="sPM">—</b></div>
+        <div class="sumrow"><span>Период</span><b id="sDates">—</b></div>
+        <div class="sumrow"><span>Участников</span><b id="sPart">—</b></div>
+        <div class="note" style="margin-top:16px"><b>Что дальше.</b> После создания проект появится в списке. <b>Сбор фидбэка запускается отдельно</b> — когда именно (по ходу или при закрытии проекта) остаётся открытым вопросом к клиенту.</div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-ghost" id="wBack" onclick="wizBack()" style="visibility:hidden">← Назад</button>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span class="muted" id="wCount">Шаг 1 из 4</span>
+        <button class="btn btn-primary" id="wNext" onclick="wizNext()">Далее →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════ ФИДБЭКИ СОТРУДНИКА ЗА ПРОЕКТ ═════ -->
+<div class="overlay" id="mPF">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-h">
+      <div><b id="pfName">Фидбэк</b><div class="mh-sub" id="pfSub">BG-014 · Genomic Atlas</div></div>
+      <button class="x" onclick="closeM('mPF')">×</button>
+    </div>
+    <div class="modal-b" id="pfBody" style="padding:0"></div>
+    <div class="modal-f"><span class="muted">Только фидбэк по этому проекту</span><button class="btn btn-primary" onclick="closeM('mPF')">Закрыть</button></div>
+  </div>
+</div>
+
+<script>
+  function go(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+    document.getElementById(id).classList.add('on');
+    document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));
+    var map={projects:4,project:4,org:1,profile:1,roles:5};
+    document.querySelectorAll('.nav a')[map[id]].classList.add('active');
+    window.scrollTo(0,0);
+  }
+  function ptab(btn,id){
+    btn.parentNode.querySelectorAll('button').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    document.querySelectorAll('#profile .ptab').forEach(function(p){p.classList.toggle('on',p.id===id);});
+    window.scrollTo(0,0);
+  }
+
+  /* ── Модалки ── */
+  function openM(id){document.getElementById(id).classList.add('on');}
+  function closeM(id){document.getElementById(id).classList.remove('on');}
+  document.querySelectorAll('.overlay').forEach(function(o){
+    o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});
+  });
+  function pickSw(e){
+    if(!e.target.classList.contains('sw'))return;
+    e.currentTarget.querySelectorAll('.sw').forEach(function(s){s.classList.remove('sel');});
+    e.target.classList.add('sel');
+  }
+
+  /* ── Мастер «Создать проект» ── */
+  var wiz=1;
+  function openProject(){wiz=1;renderWiz();openM('mProject');}
+  function renderWiz(){
+    for(var i=1;i<=4;i++){
+      var st=document.getElementById('st'+i), ws=document.getElementById('ws'+i);
+      ws.classList.toggle('on',i===wiz);
+      st.classList.remove('on','done');
+      if(i===wiz)st.classList.add('on'); else if(i<wiz)st.classList.add('done');
+    }
+    document.getElementById('wBack').style.visibility = wiz>1?'visible':'hidden';
+    document.getElementById('wCount').textContent='Шаг '+wiz+' из 4';
+    document.getElementById('wNext').textContent = wiz===4?'Создать проект':'Далее →';
+    if(wiz===4)fillSummary();
+  }
+  function wizNext(){
+    if(wiz===4){closeM('mProject');alert('Проект создан (прототип).\nВ реальной системе — сохранение проекта и фиксация состава снимком.');go('projects');return;}
+    wiz++;renderWiz();
+  }
+  function wizBack(){if(wiz>1){wiz--;renderWiz();}}
+  var roleColors={'PM':'#03AEC9','Аналитик':'#E2A22B','Лид-аналитик':'#244B5A','BI-аналитик':'#2FA36B','Data-инженер':'#E87028'};
+  function initials(n){var p=n.split(' ');return (p[0][0]+(p[1]?p[1][0]:'')).toUpperCase();}
+
+  /* ── Наш компонент выбора ── */
+  var ROLES=['PM','Аналитик','Лид-аналитик','BI-аналитик','Data-инженер'];
+  var EMP=[
+    {n:'Гусев Максим',d:'Аналитика'},{n:'Белова Елена',d:'BI'},
+    {n:'Волков Александр',d:'Аналитика'},{n:'Зайцева Дарья',d:'PMO'},
+    {n:'Фомин Иван',d:'Аналитика'},{n:'Сорокин Дмитрий',d:'Аналитика'},
+    {n:'Панова Наталья',d:'Биоинформатика'},{n:'Марков Сергей',d:'Data Engineering'}
+  ];
+  var selRole=null, selEmp=new Set(), selPMval=null;
+  function buildMenus(){
+    document.getElementById('menuRole').innerHTML=ROLES.map(function(r){
+      return '<div class="opt" onclick="pickRole(\''+r+'\')"><span class="rdot" style="background:'+(roleColors[r]||'#6B7B86')+'"></span>'+r+'</div>';
+    }).join('');
+    document.getElementById('menuEmp').innerHTML=EMP.map(function(e,i){
+      return '<div class="opt" id="opt-'+i+'" onclick="toggleEmp('+i+')"><span class="ck">✓</span>'+e.n+'<small>'+e.d+'</small></div>';
+    }).join('');
+    document.getElementById('menuPM').innerHTML=EMP.map(function(e){
+      return '<div class="opt" onclick="pickPM(\''+e.n+'\')">'+e.n+'<small>'+e.d+'</small></div>';
+    }).join('');
+  }
+  function pickPM(n){
+    selPMval=n;
+    var v=document.querySelector('#selPM .val'); v.textContent=n; v.classList.remove('ph');
+    document.getElementById('menuPM').classList.remove('on');
+  }
+  function toggleMenu(id,ev){
+    ev.stopPropagation();
+    var target='menu'+id.slice(3);
+    document.querySelectorAll('.sel-menu').forEach(function(m){if(m.id!==target)m.classList.remove('on');});
+    document.getElementById(target).classList.toggle('on');
+  }
+  document.addEventListener('click',function(){document.querySelectorAll('.sel-menu').forEach(function(m){m.classList.remove('on');});});
+  function pickRole(r){
+    selRole=r;
+    var v=document.querySelector('#selRole .val'); v.textContent=r; v.classList.remove('ph');
+    document.getElementById('menuRole').classList.remove('on');
+  }
+  function toggleEmp(i){
+    if(selEmp.has(i))selEmp.delete(i); else selEmp.add(i);
+    document.getElementById('opt-'+i).classList.toggle('sel',selEmp.has(i));
+    var v=document.querySelector('#selEmp .val');
+    if(selEmp.size===0){v.textContent='Выберите сотрудников';v.classList.add('ph');}
+    else if(selEmp.size===1){v.textContent=EMP[[].concat(Array.from(selEmp))[0]].n;v.classList.remove('ph');}
+    else{v.textContent='Выбрано: '+selEmp.size;v.classList.remove('ph');}
+  }
+  function resetPicker(){
+    selRole=null; selEmp.clear();
+    var rv=document.querySelector('#selRole .val');rv.textContent='Выберите роль';rv.classList.add('ph');
+    var ev=document.querySelector('#selEmp .val');ev.textContent='Выберите сотрудников';ev.classList.add('ph');
+    document.querySelectorAll('#menuEmp .opt').forEach(function(o){o.classList.remove('sel');});
+  }
+  function addPart(){
+    if(!selRole||selEmp.size===0){alert('Выберите роль и хотя бы одного сотрудника.');return;}
+    var col=roleColors[selRole]||'#6B7B86';
+    Array.from(selEmp).forEach(function(i){
+      var e=EMP[i];
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td><span class="avatar-sm">'+initials(e.n)+'</span><b>'+e.n+'</b></td><td class="muted">'+e.d+'</td><td><span class="rchip" style="background:'+col+'">'+selRole+'</span></td><td class="muted" style="cursor:pointer" onclick="rmPart(this)">✕</td>';
+      document.getElementById('partBody').appendChild(tr);
+    });
+    resetPicker();
+  }
+  function rmPart(x){x.closest('tr').remove();}
+  function fillSummary(){
+    document.getElementById('sCode').textContent=document.getElementById('pCode').value||'—';
+    document.getElementById('sName').textContent=document.getElementById('pName').value||'—';
+    document.getElementById('sPM').textContent=selPMval||'—';
+    var f=document.getElementById('pFrom').value, t=document.getElementById('pTo').value;
+    document.getElementById('sDates').textContent=(f&&t)?(f+' → '+t):'—';
+    document.getElementById('sPart').textContent=document.getElementById('partBody').children.length+' чел.';
+  }
+  buildMenus();
+
+  // ── Фидбэки участника за конкретный проект (BG-014) ──
+  var PF={
+    'Гусев Максим':[
+      {who:'Зайцева Дарья',role:'PM',date:'29 июня',score:'9 / 10',col:'var(--green)',p:[['Коммуникация',9],['Качество',9],['Сроки',9],['Экспертиза',9]],q:'Тащит аналитику команды, задаёт стандарт качества.'},
+      {who:'Белова Елена',role:'BI-аналитик',date:'27 июня',score:'9 / 10',col:'var(--green)',p:[['Коммуникация',9],['Качество',10],['Сроки',8],['Экспертиза',9]],q:'Глубоко в теме, помогает разобраться со сложными выгрузками.'}
+    ],
+    'Белова Елена':[
+      {who:'Зайцева Дарья',role:'PM',date:'28 июня',score:'8 / 10',col:'var(--green)',p:[['Коммуникация',8],['Качество',9],['Сроки',8],['Экспертиза',9]],q:'Быстро готовит дашборды, удобно принимать решения.'},
+      {who:'Гусев Максим',role:'Лид-аналитик',date:'26 июня',score:'9 / 10',col:'var(--green)',p:[['Коммуникация',9],['Качество',9],['Сроки',8],['Экспертиза',9]],q:'Сильная в BI, коммуникация на высоте.'}
+    ],
+    'Волков Александр':[
+      {who:'Зайцева Дарья',role:'PM',date:'30 июня',score:'7 / 10',col:'var(--amber)',p:[['Коммуникация',8],['Качество',7],['Сроки',5],['Экспертиза',8]],q:'Хорошо разбирается в данных, но дважды сдвигал сроки без предупреждения.'},
+      {who:'Гусев Максим',role:'Лид-аналитик',date:'28 июня',score:'6 / 10',col:'var(--amber)',p:[['Коммуникация',7],['Качество',7],['Сроки',5],['Экспертиза',7]],q:'Задачи закрывает качественно, но нужен контроль по срокам.'}
+    ],
+    'Зайцева Дарья':[
+      {who:'Гусев Максим',role:'Лид-аналитик',date:'29 июня',score:'9 / 10',col:'var(--green)',p:[['Коммуникация',9],['Качество',9],['Сроки',9],['Экспертиза',8]],q:'Чётко ведёт проект, снимает блокеры вовремя.'},
+      {who:'Белова Елена',role:'BI-аналитик',date:'27 июня',score:'9 / 10',col:'var(--green)',p:[['Коммуникация',9],['Качество',8],['Сроки',9],['Экспертиза',9]],q:'Отличная организация, всегда в курсе статусов.'}
+    ],
+    'Фомин Иван':[
+      {who:'Зайцева Дарья',role:'PM',date:'28 июня',score:'8 / 10',col:'var(--green)',p:[['Коммуникация',8],['Качество',8],['Сроки',7],['Экспертиза',7]],q:'Ответственный, растёт быстро.'},
+      {who:'Гусев Максим',role:'Лид-аналитик',date:'25 июня',score:'7 / 10',col:'var(--green)',p:[['Коммуникация',8],['Качество',7],['Сроки',7],['Экспертиза',8]],q:'Хороший потенциал, иногда нужна помощь по срокам.'}
+    ]
+  };
+  function openPF(name){
+    var list=PF[name]||[];
+    document.getElementById('pfName').textContent=name;
+    document.getElementById('pfSub').textContent='BG-014 · Genomic Atlas';
+    document.getElementById('pfBody').innerHTML = list.length ? list.map(function(f){
+      return '<div class="fb"><div class="fb-top"><span class="avatar-sm">'+initials(f.who)+'</span><b>'+f.who+'</b><span class="role">'+f.role+'</span><span class="muted">· '+f.date+'</span><span class="score" style="margin-left:auto;color:'+f.col+'">'+f.score+'</span></div><div class="params">'+f.p.map(function(x){return '<span class="param">'+x[0]+' <b>'+x[1]+'</b></span>';}).join('')+'</div><div class="quote">«'+f.q+'»</div></div>';
+    }).join('') : '<div style="padding:22px 24px" class="muted">Фидбэка по этому проекту пока нет.</div>';
+    openM('mPF');
+  }
+</script>
+</body>
+</html>
