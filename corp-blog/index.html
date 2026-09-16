@@ -28,7 +28,7 @@ h1,h2,h3{font-weight:500; letter-spacing:-.01em; margin:0; text-wrap:balance}
 .muted{color:var(--muted)} .small{font-size:13px}
 
 /* buttons & controls */
-.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; border:0; border-radius:var(--radius);
+.btn{text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; border:0; border-radius:var(--radius);
   padding:10px 18px; font-weight:500; font-size:14px; cursor:pointer; white-space:nowrap; transition:background .15s, color .15s}
 .btn-primary{background:var(--indigo); color:#fff} .btn-primary:hover{background:var(--indigo-deep)}
 .btn-secondary{background:var(--line); color:var(--ink)} .btn-secondary:hover{background:#DEDCEA}
@@ -121,16 +121,19 @@ body{background:var(--soft)}
 .searchrow{display:grid; grid-template-columns:1fr 220px; gap:12px}
 @media (max-width:640px){.searchrow{grid-template-columns:1fr}}
 .search{position:relative} .search svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted)}
-.search .input{padding-left:40px; height:46px; border-color:transparent}
+.search .input{padding-left:40px}
+.blog-hero .search .input{height:46px; border-color:transparent}
 .searchrow select.input{height:46px; border-color:transparent}
 .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
 .section{padding:28px 0 8px}
 .section-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px; gap:12px}
 .section-head h2{font-size:24px}
-.pinned{display:grid; grid-template-columns:1.6fr 1fr; gap:20px}
-.pinned-side{display:grid; gap:20px; align-content:start}
-@media (max-width:860px){.pinned{grid-template-columns:1fr}}
-.card{background:#fff; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; cursor:pointer; display:flex;
+.pinned{display:grid; gap:20px}
+.pinned.n1{grid-template-columns:1fr} .pinned.n1 .cover{aspect-ratio:3/1}
+.pinned.n2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.pinned.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:860px){.pinned.n2,.pinned.n3{grid-template-columns:1fr}}
+.card{color:var(--ink); text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; cursor:pointer; display:flex;
   flex-direction:column; transition:box-shadow .15s, transform .15s; text-align:left; padding:0; width:100%}
 .card:hover{box-shadow:var(--shadow); transform:translateY(-2px)}
 .card-body{padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; flex:1}
@@ -150,9 +153,21 @@ body{background:var(--soft)}
 @media (max-width:900px){.feed{grid-template-columns:repeat(2,1fr)}} @media (max-width:560px){.feed{grid-template-columns:1fr}}
 .empty{padding:40px; text-align:center; color:var(--muted); background:var(--soft2); border-radius:var(--radius)}
 .more{display:flex; justify-content:center; padding:24px 0 48px}
+.news{border-top:1px solid var(--line)}
+.news-row{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:40px; align-items:center; padding:28px 0; border-bottom:1px solid var(--line); color:var(--ink); text-decoration:none}
+.news-row:hover h3{color:var(--indigo)}
+.news-meta{display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; font-size:13px; color:var(--muted); margin-bottom:10px}
+.pin-label{display:inline-flex; align-items:center; gap:4px; color:var(--indigo); font-weight:500}
+.news-row h3{font-size:24px; line-height:1.25; transition:color .15s}
+.news-row p{margin:10px 0 0; color:var(--ink2); font-size:16px; line-height:1.55; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden}
+.news-counts{display:flex; gap:22px; margin-top:18px; color:var(--muted); font-size:15px}
+.news-counts span{display:inline-flex; align-items:center; gap:6px}
+.news-cover{border-radius:8px; aspect-ratio:3/2}
+@media (max-width:760px){.news-row{grid-template-columns:minmax(0,1fr) 112px; gap:16px; padding:20px 0} .news-row h3{font-size:18px}
+  .news-row p{-webkit-line-clamp:2; font-size:14px} .news-cover{aspect-ratio:1}}
 
 .post{max-width:780px; margin:0 auto; padding:24px 24px 64px}
-.back{display:inline-flex; align-items:center; gap:6px; border:0; background:transparent; color:var(--indigo); cursor:pointer; padding:0; font-size:14px; margin-bottom:16px}
+.back{text-decoration:none; display:inline-flex; align-items:center; gap:6px; border:0; background:transparent; color:var(--indigo); cursor:pointer; padding:0; font-size:14px; margin-bottom:16px}
 .post .cover{border-radius:var(--radius); aspect-ratio:21/9}
 .post h1{font-size:32px; line-height:1.2; margin:16px 0 10px}
 .post-meta{display:flex; flex-wrap:wrap; gap:6px 16px; color:var(--muted); font-size:14px; align-items:center}
@@ -535,14 +550,11 @@ function viewUserHome() {
   <div class="wrap">
     ${!filtering && pins.length ? `<section class="section">
       <div class="section-head"><h2>Закреплено</h2></div>
-      <div class="pinned" style="${pins.length === 1 ? 'grid-template-columns:1fr' : ''}">
-        ${cardHTML(pins[0], true)}
-        ${pins.length > 1 ? `<div class="pinned-side">${pins.slice(1).map(p => cardHTML(p)).join('')}</div>` : ''}
-      </div></section>` : ''}
+      <div class="pinned n${pins.length}">${pins.map(p => cardHTML(p)).join('')}</div></section>` : ''}
     <section class="section">
       <div class="section-head"><h2>${filtering ? 'Найдено: ' + total : 'Все публикации'}</h2>
         ${filtering ? '<button type="button" class="btn btn-ghost btn-sm" data-act="clear-filters">Сбросить фильтры</button>' : ''}</div>
-      ${feed.length ? `<div class="feed">${feed.map(p => cardHTML(p)).join('')}</div>`
+      ${feed.length ? `<div class="news">${feed.map(newsRowHTML).join('')}</div>`
         : `<div class="empty">Ничего не нашлось. Попробуйте другой запрос, рубрику или период.</div>`}
     </section>
     <div class="more">${total > UI.limit ? `<button type="button" class="btn btn-secondary" data-act="more">Показать ещё</button>` : ''}</div>
@@ -558,6 +570,17 @@ function cardHTML(p, big = false) {
       <div class="card-meta"><span>${fmtDate(p.publishedAt, false)}</span>
         <span class="counts">${p.allowReactions ? `<span title="Реакции">${I.react(15)}${countReactions(p)}</span>` : ''}<span title="Комментарии">${I.msg(15)}${countComments(p)}</span></span></div>
     </div></a>`;
+}
+function newsRowHTML(p) {
+  return `<a class="news-row" href="#/user/post/${p.id}">
+    <div>
+      <div class="news-meta">${p.pinnedAt ? `<span class="pin-label">${I.pin(14)}Закреплено</span>` : ''}${rubricTag(p)}<span>${fmtDate(p.publishedAt, false)}</span></div>
+      <h3>${esc(p.title)}</h3>
+      <p>${esc(descOf(p))}</p>
+      <div class="news-counts">${p.allowReactions ? `<span title="Реакции">${I.react(20)}${countReactions(p)}</span>` : ''}<span title="Комментарии">${I.msg(20)}${countComments(p)}</span><span title="Просмотры">${I.eye(20)}${p.views}</span></div>
+    </div>
+    <div class="cover news-cover">${coverHTML(p)}</div>
+  </a>`;
 }
 function viewUnavailable(backHref) {
   return `<div class="post"><a class="back" href="${backHref}">${I.back(16)} Ко всем публикациям</a>
