@@ -28,7 +28,7 @@ h1,h2,h3{font-weight:500; letter-spacing:-.01em; margin:0; text-wrap:balance}
 .muted{color:var(--muted)} .small{font-size:13px}
 
 /* buttons & controls */
-.btn{text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; border:0; border-radius:var(--radius);
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; border:0; border-radius:var(--radius);
   padding:10px 18px; font-weight:500; font-size:14px; cursor:pointer; white-space:nowrap; transition:background .15s, color .15s}
 .btn-primary{background:var(--indigo); color:#fff} .btn-primary:hover{background:var(--indigo-deep)}
 .btn-secondary{background:var(--line); color:var(--ink)} .btn-secondary:hover{background:#DEDCEA}
@@ -55,8 +55,6 @@ h1,h2,h3{font-weight:500; letter-spacing:-.01em; margin:0; text-wrap:balance}
 .pill.scheduled{background:var(--yellow-soft); color:#8A5A00}
 .pill.published{background:var(--green-soft); color:var(--green)}
 .pill.archived{background:#E4E3EA; color:var(--muted)}
-.stage2{display:inline-flex; align-items:center; font-size:11px; font-weight:500; color:#C2410C; border:1px solid #FDBA9A;
-  background:#FFF4EE; border-radius:var(--radius); padding:1px 6px; margin-left:6px; white-space:nowrap; vertical-align:middle}
 .toggle{position:relative; width:40px; height:22px; flex:none}
 .toggle input{opacity:0; width:0; height:0; position:absolute}
 .toggle span{position:absolute; inset:0; background:var(--line2); border-radius:11px; transition:.15s; cursor:pointer}
@@ -64,17 +62,25 @@ h1,h2,h3{font-weight:500; letter-spacing:-.01em; margin:0; text-wrap:balance}
 .toggle input:checked+span{background:var(--indigo)} .toggle input:checked+span::after{left:21px}
 .toggle input:focus-visible+span{outline:2px solid var(--violet); outline-offset:2px}
 
+/* prototype chrome */
+body{background:var(--soft)}
+.proto-bar{padding:14px 24px 0; text-align:center; font-size:13px; color:var(--muted)}
+.proto-bar b{color:var(--ink); font-weight:500}
+.proto-switch-row{display:flex; justify-content:center; padding:14px 24px 20px}
+.screen-wrap{padding:0 24px 40px}
+.screen{max-width:1440px; margin:0 auto; background:#fff; border:1px solid var(--line); border-radius:12px; overflow:clip; box-shadow:0 8px 30px rgba(33,31,46,.08)}
+@media (max-width:640px){.screen-wrap{padding:0 0 24px} .screen{border-radius:0; border-left:0; border-right:0}}
 /* top bar */
-.topbar{position:sticky; top:0; z-index:40; background:#fff; border-bottom:1px solid var(--line)}
-.topbar-in{height:64px; padding:0 24px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px}
+.topbar{position:relative; z-index:40; background:#fff; border-bottom:1px solid var(--line)}
+.topbar-in{height:64px; padding:0 24px; display:grid; grid-template-columns:1fr auto; align-items:center; gap:16px}
 .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--ink)}
 .logo{width:40px; height:40px; background:var(--indigo); color:#fff; display:flex; align-items:center; justify-content:center;
   font-weight:700; font-size:17px; position:relative; flex:none}
 .logo sup{font-size:10px; position:relative; top:-6px; margin-left:1px}
 .brand b{font-weight:500; font-size:15px} .brand small{display:block; color:var(--muted); font-size:12px; line-height:1.2}
-.switch{display:flex; background:var(--soft); border-radius:var(--radius); padding:4px; gap:4px}
-.switch button{border:0; background:transparent; padding:8px 16px; border-radius:var(--radius); cursor:pointer; font-weight:500;
-  font-size:14px; color:var(--ink2); display:flex; align-items:center; gap:8px; white-space:nowrap}
+.switch{display:flex; background:#fff; border:1px solid var(--line2); border-radius:8px; padding:5px; gap:4px; box-shadow:0 1px 2px rgba(33,31,46,.06)}
+.switch button{border:0; background:transparent; padding:11px 24px; border-radius:6px; cursor:pointer; font-weight:500;
+  font-size:15px; color:var(--ink2); display:flex; align-items:center; gap:8px; white-space:nowrap}
 .switch button:hover{color:var(--indigo)}
 .switch button.on{background:var(--indigo); color:#fff}
 .top-right{display:flex; align-items:center; justify-content:flex-end; gap:8px}
@@ -84,11 +90,7 @@ h1,h2,h3{font-weight:500; letter-spacing:-.01em; margin:0; text-wrap:balance}
 .whoami div span{color:var(--muted); display:block; font-size:12px}
 .dot{position:absolute; top:5px; right:5px; min-width:16px; height:16px; padding:0 4px; border-radius:8px; background:var(--red);
   color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center}
-@media (max-width:900px){.topbar-in{grid-template-columns:auto 1fr; height:auto; padding:10px 16px}
-  .switch{grid-column:1/-1; order:3; justify-content:stretch} .switch button{flex:1; justify-content:center} .whoami div{display:none}}
-.demo-bar{background:var(--lav); color:var(--indigo-night); font-size:13px}
-.demo-bar-in{padding:8px 24px; display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center; justify-content:space-between}
-.demo-bar button{border:0; background:transparent; color:var(--indigo); cursor:pointer; font-size:13px; text-decoration:underline; padding:0}
+@media (max-width:640px){.topbar-in{padding:0 16px} .whoami div{display:none} .switch{width:100%} .switch button{flex:1; justify-content:center; padding:10px 8px; font-size:14px}}
 
 /* dropdowns, modal, toast */
 .dropdown{position:absolute; top:calc(100% + 6px); right:0; background:#fff; border:1px solid var(--line); border-radius:var(--radius);
@@ -119,8 +121,7 @@ h1,h2,h3{font-weight:500; letter-spacing:-.01em; margin:0; text-wrap:balance}
 .searchrow{display:grid; grid-template-columns:1fr 220px; gap:12px}
 @media (max-width:640px){.searchrow{grid-template-columns:1fr}}
 .search{position:relative} .search svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted)}
-.search .input{padding-left:40px}
-.blog-hero .search .input{height:46px; border-color:transparent}
+.search .input{padding-left:40px; height:46px; border-color:transparent}
 .searchrow select.input{height:46px; border-color:transparent}
 .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
 .section{padding:28px 0 8px}
@@ -129,7 +130,7 @@ h1,h2,h3{font-weight:500; letter-spacing:-.01em; margin:0; text-wrap:balance}
 .pinned{display:grid; grid-template-columns:1.6fr 1fr; gap:20px}
 .pinned-side{display:grid; gap:20px; align-content:start}
 @media (max-width:860px){.pinned{grid-template-columns:1fr}}
-.card{color:var(--ink); text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; cursor:pointer; display:flex;
+.card{background:#fff; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; cursor:pointer; display:flex;
   flex-direction:column; transition:box-shadow .15s, transform .15s; text-align:left; padding:0; width:100%}
 .card:hover{box-shadow:var(--shadow); transform:translateY(-2px)}
 .card-body{padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; flex:1}
@@ -151,7 +152,7 @@ h1,h2,h3{font-weight:500; letter-spacing:-.01em; margin:0; text-wrap:balance}
 .more{display:flex; justify-content:center; padding:24px 0 48px}
 
 .post{max-width:780px; margin:0 auto; padding:24px 24px 64px}
-.back{text-decoration:none; display:inline-flex; align-items:center; gap:6px; border:0; background:transparent; color:var(--indigo); cursor:pointer; padding:0; font-size:14px; margin-bottom:16px}
+.back{display:inline-flex; align-items:center; gap:6px; border:0; background:transparent; color:var(--indigo); cursor:pointer; padding:0; font-size:14px; margin-bottom:16px}
 .post .cover{border-radius:var(--radius); aspect-ratio:21/9}
 .post h1{font-size:32px; line-height:1.2; margin:16px 0 10px}
 .post-meta{display:flex; flex-wrap:wrap; gap:6px 16px; color:var(--muted); font-size:14px; align-items:center}
@@ -186,7 +187,7 @@ h1,h2,h3{font-weight:500; letter-spacing:-.01em; margin:0; text-wrap:balance}
 .closed{padding:14px 16px; background:var(--soft2); border-radius:var(--radius); color:var(--muted); font-size:14px}
 
 /* ===== admin cabinet ===== */
-.admin{display:grid; grid-template-columns:232px 1fr; min-height:calc(100vh - 100px)}
+.admin{display:grid; grid-template-columns:232px 1fr; min-height:calc(100vh - 190px)}
 .side{background:var(--soft); padding:20px 12px; border-right:1px solid var(--line)}
 .side h4{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:6px 12px 10px; font-weight:500}
 .side button{display:flex; justify-content:space-between; align-items:center; width:100%; border:0; background:transparent; padding:10px 12px;
@@ -246,7 +247,7 @@ tbody tr{cursor:pointer} tbody tr:hover td{background:var(--soft2)}
   display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; z-index:5}
 @media (max-width:860px){.savebar{margin:24px -16px -40px; padding:12px 16px}}
 .savebar .btns{display:flex; gap:10px; flex-wrap:wrap}
-.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:16px 0 24px}
+.stats{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:16px 0 24px}
 @media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
 .stat{border:1px solid var(--line); border-radius:var(--radius); padding:14px}
 .stat b{display:block; font-size:26px; font-weight:500; font-variant-numeric:tabular-nums; color:var(--indigo-night)}
@@ -259,12 +260,12 @@ tbody tr{cursor:pointer} tbody tr:hover td{background:var(--soft2)}
 </style>
 </head>
 <body>
+<div class="proto-bar"><b>Прототип модуля «Корпоративный блог»</b> · тестовое задание · Ксения Короткая. Данные вымышленные</div>
+<div class="proto-switch-row"><div class="switch" id="mode-switch" role="group" aria-label="Кабинет"></div></div>
+<div class="screen-wrap"><div class="screen">
 <header class="topbar"><div class="topbar-in" id="topbar"></div></header>
-<div class="demo-bar"><div class="demo-bar-in">
-  <span><b>Прототип модуля «Корпоративный блог»</b> · тестовое задание · Ксения Короткая. Данные вымышленные. Функции с меткой <span class="stage2" style="margin:0">Этап 2</span> не входят в MVP.</span>
-  <button type="button" data-act="reset">Сбросить демо-данные</button>
-</div></div>
 <main id="app"></main>
+</div></div>
 <div id="modal-root"></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <script>
@@ -345,10 +346,11 @@ const MAX_PINS = 3, TITLE_MAX = 120, DESC_MAX = 200;
 /* ===== seed ===== */
 function seed() {
   const N = Date.now();
+  let seq = 0; const sid = () => 's' + (++seq);
   const at = (days, h = 10, m = 0) => { const d = new Date(N - days * DAY); d.setHours(h, m, 0, 0); return d.getTime(); };
   const next = (days, h) => { const d = new Date(N + days * DAY); d.setHours(h, 0, 0, 0); return d.getTime(); };
-  const c = (author, dept, text, t, extra = {}) => ({ id: uid(), author, dept, text, at: t, replies: [], pinned: false, deleted: null, edited: false, mine: false, ...extra });
-  const post = o => ({ id: uid(), desc: '', cover: null, files: [], author: EDITOR.name, createdAt: o.publishedAt || N, publishedAt: null,
+  const c = (author, dept, text, t, extra = {}) => ({ id: sid(), author, dept, text, at: t, replies: [], pinned: false, deleted: null, edited: false, mine: false, ...extra });
+  const post = o => ({ id: sid(), desc: '', cover: null, files: [], author: EDITOR.name, createdAt: o.publishedAt || N, publishedAt: null,
     scheduledAt: null, editedAt: null, notify: false, allowComments: true, allowReactions: true, visibility: 'all', views: 0,
     reactions: { like: 0, heart: 0, fire: 0, party: 0, clap: 0 }, myReaction: null, comments: [], pinnedAt: null, ...o });
 
@@ -431,8 +433,8 @@ function seed() {
     ],
     posts: [p2, p1, p5, p3, p4, p6, p7, p8, p9, p10, p11],
     notifications: [
-      { id: uid(), kind: 'important', postId: p2.id, text: 'Важное: ' + p2.title, at: p2.publishedAt, read: false },
-      { id: uid(), kind: 'reply', postId: p6.id, text: EDITOR.name + ' ответила на ваш комментарий', at: at(1, 9, 15), read: false },
+      { id: sid(), kind: 'important', postId: p2.id, text: 'Важное: ' + p2.title, at: p2.publishedAt, read: false },
+      { id: sid(), kind: 'reply', postId: p6.id, text: EDITOR.name + ' ответила на ваш комментарий', at: at(1, 9, 15), read: false },
     ],
   };
 }
@@ -440,8 +442,8 @@ function seed() {
 /* ===== state ===== */
 const STORE_KEY = 'm2-corp-blog-proto-v1';
 function load() { try { const s = localStorage.getItem(STORE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
-let S = load() || seed();
-function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) {} }
+let S = seed();
+function save() {}
 const UI = { q: '', rubric: 'all', period: 'all', limit: 9, aq: '', astatus: 'all', arubric: 'all', aperiod: 'all', menu: null, bell: false };
 let ED = null;
 
@@ -483,12 +485,11 @@ const statusPill = p => `<span class="pill ${p.status}">${STATUS[p.status]}</spa
 function renderTopbar(mode) {
   const who = mode === 'admin' ? EDITOR : ME;
   const unread = S.notifications.filter(n => !n.read).length;
+  $('#mode-switch').innerHTML = `
+    <button type="button" class="${mode === 'admin' ? 'on' : ''}" data-act="mode" data-mode="admin" aria-pressed="${mode === 'admin'}">${I.admin(18)}Кабинет администратора</button>
+    <button type="button" class="${mode === 'user' ? 'on' : ''}" data-act="mode" data-mode="user" aria-pressed="${mode === 'user'}">${I.user(18)}Кабинет пользователя</button>`;
   $('#topbar').innerHTML = `
     <a class="brand" href="#/${mode}"><span class="logo">м<sup>2</sup></span><span><b>Портал сотрудников</b><small>Корпоративный блог</small></span></a>
-    <div class="switch" role="group" aria-label="Режим прототипа">
-      <button type="button" class="${mode === 'admin' ? 'on' : ''}" data-act="mode" data-mode="admin" aria-pressed="${mode === 'admin'}">${I.admin(17)}Кабинет администратора</button>
-      <button type="button" class="${mode === 'user' ? 'on' : ''}" data-act="mode" data-mode="user" aria-pressed="${mode === 'user'}">${I.user(17)}Кабинет пользователя</button>
-    </div>
     <div class="top-right">
       ${mode === 'user' ? `<div style="position:relative">
         <button type="button" class="icon-btn" data-act="bell" aria-label="Уведомления">${I.bell(20)}${unread ? `<span class="dot">${unread}</span>` : ''}</button>
@@ -560,7 +561,7 @@ function cardHTML(p, big = false) {
 }
 function viewUnavailable(backHref) {
   return `<div class="post"><a class="back" href="${backHref}">${I.back(16)} Ко всем публикациям</a>
-    <div class="empty"><h2 style="margin-bottom:8px">Публикация недоступна</h2>Возможно, её перенесли в архив. Если материал нужен вам для работы, напишите во внутренние коммуникации.</div></div>`;
+    <div class="empty"><h2 style="margin-bottom:8px">Публикация недоступна</h2>Возможно, её перенесли в архив.</div></div>`;
 }
 function viewUserPost(id) {
   const p = byId(id);
@@ -633,7 +634,6 @@ function adminShell(active, inner) {
       <h4>Корпоративный блог</h4>
       <button type="button" class="${active === 'list' ? 'on' : ''}" data-act="nav" data-to="#/admin"><span style="display:flex;gap:10px;align-items:center">${I.doc(17)}Публикации</span><span class="count">${n}</span></button>
       <button type="button" class="${active === 'settings' ? 'on' : ''}" data-act="nav" data-to="#/admin/settings"><span style="display:flex;gap:10px;align-items:center">${I.gear(17)}Настройки</span></button>
-      <div class="side-note">Кабинет для сотрудников внутренних коммуникаций: подготовка и выпуск публикаций, закрепы на главной, модерация комментариев.</div>
     </aside>
     <div class="content">${inner}</div></div>`;
 }
@@ -706,7 +706,7 @@ function viewAdminPost(id) {
   return adminShell('list', `
     <a class="back" href="#/admin">${I.back(16)} Все публикации</a>
     ${p.status === 'archived' ? `<div class="closed" style="margin-bottom:16px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
-      <span>Публикация в архиве: сотрудники не видят её в ленте, поиске и по прямой ссылке.</span>
+      <span>Публикация в архиве. Сотрудники её не видят.</span>
       <button type="button" class="btn btn-primary btn-sm" data-act="restore" data-id="${p.id}">Вернуть в опубликованные</button></div>` : ''}
     <div class="page-head" style="align-items:flex-start">
       <div><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">${statusPill(p)}${rubricTag(p)}${p.pinnedAt && p.status === 'published' ? `<span class="tag-pin">${I.pin(12)} На главной</span>` : ''}</div>
@@ -723,10 +723,9 @@ function viewAdminPost(id) {
       <div class="stat"><b>${p.views}</b><span>Просмотров</span></div>
       <div class="stat"><b>${countReactions(p)}</b><span>Реакций ${p.allowReactions ? '' : '(отключены)'}</span></div>
       <div class="stat"><b>${countComments(p)}</b><span>Комментариев</span></div>
-      <div class="stat"><b style="color:var(--muted2)">${Math.min(99, Math.round(p.views / 5.4))}%</b><span>Охват за 48 часов<span class="stage2">Этап 2</span></span></div>
     </div>
     ${p.allowReactions ? `<div class="reacts" style="margin-bottom:24px">${REACTIONS.map(([k, e]) => `<span class="react" style="cursor:default">${e}<b>${p.reactions[k]}</b></span>`).join('')}</div>` : ''}
-    <div class="section-head"><h2 style="font-size:22px">Комментарии</h2>${p.allowComments ? '' : '<span class="muted small">Комментирование отключено — существующие комментарии видны только для чтения</span>'}</div>
+    <div class="section-head"><h2 style="font-size:22px">Комментарии</h2>${p.allowComments ? '' : '<span class="muted small">Комментарии отключены</span>'}</div>
     ${top.length ? top.map(c => modRow(c) + c.replies.map(r => modRow(r, c)).join('')).join('') : '<div class="empty">Комментариев пока нет.</div>'}
   `);
 }
@@ -736,18 +735,12 @@ function viewAdminSettings() {
     <div class="page-head"><h1>Настройки блога</h1></div>
     <div class="stack" style="max-width:760px">
       <div class="panel"><h3>Рубрики</h3>
-        <p class="small muted" style="margin:0">У публикации одна рубрика — по ней сотрудники фильтруют ленту. Рубрику с публикациями нельзя удалить: её можно скрыть из выбора.</p>
         <div>${S.rubrics.map(r => `<div class="rub-row"><span class="swatch" style="background:${r.color}"></span>
           <span>${esc(r.name)} <span class="muted small">· ${used(r.id)} ${plural(used(r.id), 'публикация', 'публикации', 'публикаций')}</span></span>
           <span class="small muted">${r.active ? 'Показывается' : 'Скрыта'}</span>
           <label class="toggle" title="Показывать рубрику"><input type="checkbox" data-act-change="rubric-active" data-id="${r.id}" ${r.active ? 'checked' : ''}><span></span></label></div>`).join('')}</div>
         <div style="display:flex;gap:8px"><input id="new-rubric" class="input" maxlength="40" placeholder="Название новой рубрики"><button type="button" class="btn btn-secondary" data-act="rubric-add">Добавить</button></div>
       </div>
-      <div class="panel"><h3>Главная блога</h3>
-        <p class="small muted" style="margin:0">Закреплено может быть не больше ${MAX_PINS} публикаций: так важное остаётся заметным. Последняя закреплённая показывается первой. Публикация, перенесённая в архив, открепляется автоматически.</p></div>
-      <div class="panel"><h3>Редакторы<span class="stage2">Этап 2</span></h3>
-        <p class="small muted" style="margin:0">В MVP права редактора выдаются через настройки доступа портала. На этапе 2 список редакторов можно будет вести здесь.</p>
-        <div style="display:flex;gap:10px;align-items:center">${avatar(EDITOR.name)}<span>${esc(EDITOR.name)} <span class="muted small">· Внутренние коммуникации</span></span></div></div>
     </div>`);
 }
 
@@ -774,20 +767,20 @@ function viewEditor(id) {
   return adminShell('list', `
     <a class="back" href="#/admin">${I.back(16)} Все публикации</a>
     <div class="page-head"><h1>${ED.id ? 'Редактирование' : 'Новая публикация'}</h1>${ED.id ? `<span class="pill ${ED.status}">${STATUS[ED.status]}</span>` : ''}</div>
-    ${isPub ? '<div class="closed" style="margin-bottom:20px">Публикация уже видна сотрудникам. Изменения появятся сразу после сохранения, у публикации появится метка «Изменено».</div>' : ''}
+    ${isPub ? '<div class="closed" style="margin-bottom:20px">Публикация опубликована. Изменения сразу увидят сотрудники.</div>' : ''}
     <div class="editor">
       <div class="stack">
         <div class="field"><span class="label">Обложка</span>
           <div class="cover-drop"><div class="cover">${coverHTML(fake)}</div>
             <div class="cover-actions"><label class="btn btn-secondary btn-sm" style="cursor:pointer">${I.image(16)}Загрузить<input type="file" accept="image/*" hidden data-file="cover"></label>
               ${ED.cover ? '<button type="button" class="btn btn-ghost btn-sm" data-act="cover-remove">Убрать</button>' : ''}
-              <span>16:9, до 10 МБ. Без обложки покажем обложку рубрики.</span></div></div></div>
+              <span>16:9, до 10 МБ</span></div></div></div>
         <div class="field"><label for="ed-title">Заголовок *</label>
           <input id="ed-title" class="input ${e.title ? 'err' : ''}" maxlength="${TITLE_MAX}" data-ed="title" value="${esc(ED.title)}" placeholder="О чём публикация">
           <div style="display:flex;justify-content:space-between;gap:12px"><span class="err-text">${e.title || ''}</span><span class="counter" id="cnt-title">${ED.title.length} / ${TITLE_MAX}</span></div></div>
         <div class="field"><label for="ed-desc">Краткое описание</label>
           <textarea id="ed-desc" class="input" rows="2" maxlength="${DESC_MAX}" data-ed="desc" placeholder="Одно-два предложения для карточки в ленте">${esc(ED.desc)}</textarea>
-          <div style="display:flex;justify-content:space-between;gap:12px"><span class="small muted">Если оставить пустым, в ленте покажем начало текста.</span><span class="counter" id="cnt-desc">${ED.desc.length} / ${DESC_MAX}</span></div></div>
+          <div style="display:flex;justify-content:space-between;gap:12px"><span></span><span class="counter" id="cnt-desc">${ED.desc.length} / ${DESC_MAX}</span></div></div>
         <div class="field"><span class="label">Текст публикации</span>
           <div class="rte">
             <div class="rte-bar" role="toolbar" aria-label="Форматирование">
@@ -803,7 +796,7 @@ function viewEditor(id) {
               <label title="Изображение" style="display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;cursor:pointer;color:var(--ink2)">${I.image(17)}<input type="file" accept="image/*" hidden data-file="inline-image"></label>
               <label title="Прикрепить файл" style="display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;cursor:pointer;color:var(--ink2)">${I.clip(17)}<input type="file" hidden multiple data-file="attach"></label>
             </div>
-            <div class="rte-area" contenteditable="true" id="ed-body" data-ph="Текст публикации. Можно вставить текст из Word или Google Docs — лишнее форматирование уберём."></div>
+            <div class="rte-area" contenteditable="true" id="ed-body" data-ph="Текст публикации"></div>
           </div></div>
         ${ED.files.length ? `<div class="files" style="margin:0">${ED.files.map((f, i) => `<div class="file">${I.doc(20)}<div><b>${esc(f.name)}</b><br><span>${esc(f.size)}</span></div>
           <button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto" data-act="file-remove" data-i="${i}">Убрать</button></div>`).join('')}</div>` : ''}
@@ -820,14 +813,10 @@ function viewEditor(id) {
             <input id="ed-when" type="datetime-local" class="input ${e.when ? 'err' : ''}" value="${ED.scheduledLocal}" data-ed-change="scheduledLocal">
             ${e.when ? `<span class="err-text">${e.when}</span>` : ''}</div>` : ''}
         </div>`}
-        <div class="panel"><h3>Кто увидит</h3>
-          <label class="radio"><input type="radio" name="vis" checked> Все сотрудники</label>
-          <label class="radio" style="color:var(--muted)"><input type="radio" name="vis" disabled> Отдельные подразделения и офисы<span class="stage2">Этап 2</span></label>
-        </div>
         <div class="panel"><h3>Взаимодействие</h3>
-          ${isPub ? `<div class="opt"><div>Уведомить об изменении<p>Если изменились дата, место или суть объявления</p></div>
+          ${isPub ? `<div class="opt"><div>Уведомить об изменении</div>
             <label class="toggle"><input type="checkbox" data-ed-check="notifyChange" ${ED.notifyChange ? 'checked' : ''}><span></span></label></div>`
-          : `<div class="opt"><div>Уведомить сотрудников<p>Для важного. Если уведомлять о каждой публикации, уведомления перестанут читать</p></div>
+          : `<div class="opt"><div>Уведомить сотрудников</div>
             <label class="toggle"><input type="checkbox" data-ed-check="notify" ${ED.notify ? 'checked' : ''}><span></span></label></div>`}
           <div class="opt"><div>Комментарии</div><label class="toggle"><input type="checkbox" data-ed-check="allowComments" ${ED.allowComments ? 'checked' : ''}><span></span></label></div>
           <div class="opt"><div>Реакции</div><label class="toggle"><input type="checkbox" data-ed-check="allowReactions" ${ED.allowReactions ? 'checked' : ''}><span></span></label></div>
@@ -900,7 +889,7 @@ async function pinPost(p) {
 }
 async function archivePost(p) {
   const ok = await modal({ title: 'Перенести в архив?', ok: 'Перенести', danger: true,
-    body: `<p style="margin-top:0">«${esc(p.title)}» исчезнет из ленты, поиска и закрепов. По прямой ссылке сотрудники увидят сообщение «Публикация недоступна».</p><p>Комментарии и статистика сохранятся. Вернуть публикацию можно в любой момент.</p>` });
+    body: `<p style="margin-top:0">Сотрудники перестанут видеть «${esc(p.title)}». Вернуть публикацию можно в любой момент.</p>` });
   if (!ok) return;
   p.status = 'archived'; p.pinnedAt = null; save(); render(); toast('Публикация перенесена в архив');
 }
@@ -1127,7 +1116,7 @@ document.addEventListener('click', async e => {
     case 'mc-pin': p.comments.forEach(c => c.pinned = false); findComment(p, el.dataset.c).c.pinned = true; save(); render(); toast('Комментарий закреплён'); break;
     case 'mc-unpin': findComment(p, el.dataset.c).c.pinned = false; save(); render(); break;
     case 'mc-delete': {
-      const ok = await modal({ title: 'Удалить комментарий?', ok: 'Удалить', danger: true, body: '<p style="margin-top:0">Сотрудники увидят пометку «Комментарий удалён модератором». Текст сохранится в админке, комментарий можно будет восстановить.</p>' });
+      const ok = await modal({ title: 'Удалить комментарий?', ok: 'Удалить', danger: true, body: '<p style="margin-top:0">На месте комментария сотрудники увидят пометку «Комментарий удалён модератором».</p>' });
       if (!ok) break;
       const { c } = findComment(p, el.dataset.c); c.deleted = 'moderator'; c.pinned = false; save(); render(); toast('Комментарий удалён'); break;
     }
