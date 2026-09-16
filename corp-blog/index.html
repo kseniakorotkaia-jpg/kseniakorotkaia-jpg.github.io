@@ -1,0 +1,1221 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Корпоративный блог М2 — прототип</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&display=swap">
+<style>
+:root{
+  --indigo:#3416B6; --indigo-deep:#271188; --indigo-night:#1B0C5F;
+  --violet:#6B4FE8; --lav:#E7E2FD; --lav-soft:#F7F5FF;
+  --ink:#211F2E; --ink2:#464257; --muted:#6E6A81; --muted2:#A4A1B5;
+  --bg:#FFFFFF; --soft:#F3F1F8; --soft2:#F8F8FC; --line:#EAE9F2; --line2:#CCC9D9;
+  --orange:#FF794D; --red:#F44434; --green:#3E9A1E; --green-soft:#E6F6DC;
+  --yellow:#FAC32E; --yellow-soft:#FEF3D2; --teal:#28B8BD;
+  --radius:4px; --shadow:0 2px 12px rgba(33,31,46,.08); --shadow-lg:0 12px 40px rgba(33,31,46,.16);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg); color:var(--ink); font-family:'Onest','ALS Hauss',Tahoma,'Helvetica Neue',Arial,sans-serif;
+  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit; color:inherit}
+a{color:var(--indigo)}
+:focus-visible{outline:2px solid var(--violet); outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+h1,h2,h3{font-weight:500; letter-spacing:-.01em; margin:0; text-wrap:balance}
+.muted{color:var(--muted)} .small{font-size:13px}
+
+/* buttons & controls */
+.btn{text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; border:0; border-radius:var(--radius);
+  padding:10px 18px; font-weight:500; font-size:14px; cursor:pointer; white-space:nowrap; transition:background .15s, color .15s}
+.btn-primary{background:var(--indigo); color:#fff} .btn-primary:hover{background:var(--indigo-deep)}
+.btn-secondary{background:var(--line); color:var(--ink)} .btn-secondary:hover{background:#DEDCEA}
+.btn-ghost{background:transparent; color:var(--indigo)} .btn-ghost:hover{background:var(--lav-soft)}
+.btn-danger{background:var(--red); color:#fff} .btn-danger:hover{background:#D9301F}
+.btn-sm{padding:6px 12px; font-size:13px}
+.icon-btn{width:36px; height:36px; border-radius:var(--radius); border:0; background:transparent; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; color:var(--ink2); position:relative}
+.icon-btn:hover{background:var(--soft)}
+.field{display:flex; flex-direction:column; gap:6px}
+.field label,.label{font-size:12px; color:var(--muted)}
+.input,select.input,textarea.input{border:1px solid var(--line2); border-radius:var(--radius); background:#fff; padding:10px 12px; width:100%}
+.input:focus{outline:none; border-color:var(--indigo); box-shadow:0 0 0 3px rgba(52,22,182,.12)}
+.input.err{border-color:var(--red)}
+.err-text{color:var(--red); font-size:12px}
+.counter{font-size:12px; color:var(--muted2); text-align:right}
+.chip{display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:var(--radius); background:var(--soft);
+  border:0; cursor:pointer; font-size:14px; color:var(--ink)}
+.chip:hover{background:var(--line)} .chip.on{background:var(--indigo); color:#fff}
+.rubric{display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--ink2)}
+.rubric i{width:8px; height:8px; border-radius:50%; display:inline-block}
+.pill{display:inline-flex; align-items:center; padding:3px 8px; border-radius:var(--radius); font-size:12px; font-weight:500; white-space:nowrap}
+.pill.draft{background:var(--line); color:var(--ink2)}
+.pill.scheduled{background:var(--yellow-soft); color:#8A5A00}
+.pill.published{background:var(--green-soft); color:var(--green)}
+.pill.archived{background:#E4E3EA; color:var(--muted)}
+.stage2{display:inline-flex; align-items:center; font-size:11px; font-weight:500; color:#C2410C; border:1px solid #FDBA9A;
+  background:#FFF4EE; border-radius:var(--radius); padding:1px 6px; margin-left:6px; white-space:nowrap; vertical-align:middle}
+.toggle{position:relative; width:40px; height:22px; flex:none}
+.toggle input{opacity:0; width:0; height:0; position:absolute}
+.toggle span{position:absolute; inset:0; background:var(--line2); border-radius:11px; transition:.15s; cursor:pointer}
+.toggle span::after{content:""; position:absolute; width:16px; height:16px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.15s}
+.toggle input:checked+span{background:var(--indigo)} .toggle input:checked+span::after{left:21px}
+.toggle input:focus-visible+span{outline:2px solid var(--violet); outline-offset:2px}
+
+/* top bar */
+.topbar{position:sticky; top:0; z-index:40; background:#fff; border-bottom:1px solid var(--line)}
+.topbar-in{height:64px; padding:0 24px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px}
+.brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--ink)}
+.logo{width:40px; height:40px; background:var(--indigo); color:#fff; display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:17px; position:relative; flex:none}
+.logo sup{font-size:10px; position:relative; top:-6px; margin-left:1px}
+.brand b{font-weight:500; font-size:15px} .brand small{display:block; color:var(--muted); font-size:12px; line-height:1.2}
+.switch{display:flex; background:var(--soft); border-radius:var(--radius); padding:4px; gap:4px}
+.switch button{border:0; background:transparent; padding:8px 16px; border-radius:var(--radius); cursor:pointer; font-weight:500;
+  font-size:14px; color:var(--ink2); display:flex; align-items:center; gap:8px; white-space:nowrap}
+.switch button:hover{color:var(--indigo)}
+.switch button.on{background:var(--indigo); color:#fff}
+.top-right{display:flex; align-items:center; justify-content:flex-end; gap:8px}
+.avatar{width:34px; height:34px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:500; color:#fff; flex:none}
+.whoami{display:flex; align-items:center; gap:10px; font-size:13px; line-height:1.25}
+.whoami div span{color:var(--muted); display:block; font-size:12px}
+.dot{position:absolute; top:5px; right:5px; min-width:16px; height:16px; padding:0 4px; border-radius:8px; background:var(--red);
+  color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center}
+@media (max-width:900px){.topbar-in{grid-template-columns:auto 1fr; height:auto; padding:10px 16px}
+  .switch{grid-column:1/-1; order:3; justify-content:stretch} .switch button{flex:1; justify-content:center} .whoami div{display:none}}
+.demo-bar{background:var(--lav); color:var(--indigo-night); font-size:13px}
+.demo-bar-in{padding:8px 24px; display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center; justify-content:space-between}
+.demo-bar button{border:0; background:transparent; color:var(--indigo); cursor:pointer; font-size:13px; text-decoration:underline; padding:0}
+
+/* dropdowns, modal, toast */
+.dropdown{position:absolute; top:calc(100% + 6px); right:0; background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow-lg); min-width:220px; z-index:60; padding:6px 0}
+.dropdown button{display:flex; width:100%; text-align:left; border:0; background:transparent; padding:9px 14px; cursor:pointer; font-size:14px; gap:8px}
+.dropdown button:hover{background:var(--soft)} .dropdown button.danger{color:var(--red)}
+.dropdown hr{border:0; border-top:1px solid var(--line); margin:6px 0}
+.notif{width:340px; padding:0} .notif-head{padding:12px 16px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center}
+.notif-item{padding:12px 16px!important; border-bottom:1px solid var(--line)!important; flex-direction:column; gap:2px!important}
+.notif-item.unread{background:var(--lav-soft)!important}
+.overlay{position:fixed; inset:0; background:rgba(33,31,46,.45); z-index:80; display:flex; align-items:flex-start; justify-content:center;
+  padding:60px 16px; overflow:auto}
+.modal{background:#fff; border-radius:8px; width:100%; max-width:480px; box-shadow:var(--shadow-lg)}
+.modal.wide{max-width:860px}
+.modal-head{padding:20px 24px 0; display:flex; justify-content:space-between; gap:16px; align-items:flex-start}
+.modal-head h3{font-size:20px}
+.modal-body{padding:12px 24px 8px; color:var(--ink2)}
+.modal-foot{padding:16px 24px 20px; display:flex; justify-content:flex-end; gap:10px}
+.toasts{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:90; display:flex; flex-direction:column; gap:8px; align-items:center}
+.toast{background:var(--ink); color:#fff; padding:10px 18px; border-radius:var(--radius); font-size:14px; box-shadow:var(--shadow-lg)}
+</style>
+<style>
+/* ===== user cabinet ===== */
+.wrap{max-width:1112px; margin:0 auto; padding:0 24px}
+.blog-hero{background:var(--lav); padding:36px 0 28px}
+.blog-hero h1{font-size:34px; color:var(--indigo-night)}
+.blog-hero p{margin:6px 0 20px; color:var(--ink2)}
+.searchrow{display:grid; grid-template-columns:1fr 220px; gap:12px}
+@media (max-width:640px){.searchrow{grid-template-columns:1fr}}
+.search{position:relative} .search svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted)}
+.search .input{padding-left:40px}
+.blog-hero .search .input{height:46px; border-color:transparent}
+.searchrow select.input{height:46px; border-color:transparent}
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+.section{padding:28px 0 8px}
+.section-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px; gap:12px}
+.section-head h2{font-size:24px}
+.pinned{display:grid; grid-template-columns:1.6fr 1fr; gap:20px}
+.pinned-side{display:grid; gap:20px; align-content:start}
+@media (max-width:860px){.pinned{grid-template-columns:1fr}}
+.card{color:var(--ink); text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; cursor:pointer; display:flex;
+  flex-direction:column; transition:box-shadow .15s, transform .15s; text-align:left; padding:0; width:100%}
+.card:hover{box-shadow:var(--shadow); transform:translateY(-2px)}
+.card-body{padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; flex:1}
+.card h3{font-size:17px; line-height:1.3}
+.card.big h3{font-size:24px}
+.card p{margin:0; color:var(--muted); font-size:14px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.card-meta{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:auto; padding-top:8px; font-size:13px; color:var(--muted)}
+.counts{display:flex; gap:12px} .counts span{display:inline-flex; align-items:center; gap:4px}
+.pin-flag{position:absolute; top:10px; left:10px; background:var(--indigo); color:#fff; font-size:12px; padding:3px 8px; border-radius:var(--radius);
+  display:flex; align-items:center; gap:4px}
+.cover{position:relative; aspect-ratio:16/9; overflow:hidden; background:var(--soft)}
+.cover img{width:100%; height:100%; object-fit:cover; display:block}
+.cover-gen{position:absolute; inset:0}
+.cover-gen .icon-big svg{width:100%; height:auto; display:block}
+.card.big .cover{aspect-ratio:2/1}
+.feed{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
+@media (max-width:900px){.feed{grid-template-columns:repeat(2,1fr)}} @media (max-width:560px){.feed{grid-template-columns:1fr}}
+.empty{padding:40px; text-align:center; color:var(--muted); background:var(--soft2); border-radius:var(--radius)}
+.more{display:flex; justify-content:center; padding:24px 0 48px}
+
+.post{max-width:780px; margin:0 auto; padding:24px 24px 64px}
+.back{text-decoration:none; display:inline-flex; align-items:center; gap:6px; border:0; background:transparent; color:var(--indigo); cursor:pointer; padding:0; font-size:14px; margin-bottom:16px}
+.post .cover{border-radius:var(--radius); aspect-ratio:21/9}
+.post h1{font-size:32px; line-height:1.2; margin:16px 0 10px}
+.post-meta{display:flex; flex-wrap:wrap; gap:6px 16px; color:var(--muted); font-size:14px; align-items:center}
+.lead{font-size:18px; color:var(--ink2); margin:18px 0}
+.post-body{font-size:16px; line-height:1.65}
+.post-body img{max-width:100%; border-radius:var(--radius)}
+.post-body h2{font-size:22px; margin:24px 0 8px}
+.post-body blockquote{margin:16px 0; padding:8px 16px; border-left:3px solid var(--indigo); background:var(--lav-soft)}
+.files{display:grid; gap:8px; margin:20px 0}
+.file{display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid var(--line); border-radius:var(--radius); background:var(--soft2)}
+.file b{font-weight:500} .file span{color:var(--muted); font-size:13px}
+.react-bar{display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; align-items:center; padding:20px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-top:28px}
+.reacts{display:flex; flex-wrap:wrap; gap:8px}
+.react{border:1px solid var(--line); background:#fff; border-radius:18px; padding:5px 12px; cursor:pointer; font-size:15px; display:inline-flex; gap:6px; align-items:center}
+.react:hover{border-color:var(--line2)} .react.on{background:var(--lav); border-color:var(--indigo); color:var(--indigo)}
+.react b{font-size:13px; font-weight:500}
+.comments{margin-top:28px}
+.comments h2{font-size:22px; margin-bottom:16px}
+.cform{display:grid; gap:10px; margin-bottom:20px} .cform textarea{min-height:76px; resize:vertical}
+.cform-foot{display:flex; justify-content:flex-end; gap:8px}
+.comment{display:grid; grid-template-columns:36px 1fr; gap:12px; padding:14px 0; border-top:1px solid var(--line)}
+.comment.reply{border-top:0; padding:10px 0 0}
+.c-head{display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline; font-size:14px}
+.c-head b{font-weight:500} .c-head span{color:var(--muted); font-size:13px}
+.c-text{margin:4px 0 6px; white-space:pre-wrap; word-break:break-word}
+.c-text.deleted{color:var(--muted2); font-style:italic}
+.c-actions{display:flex; gap:14px} .c-actions button{border:0; background:transparent; color:var(--muted); cursor:pointer; padding:0; font-size:13px}
+.c-actions button:hover{color:var(--indigo)}
+.c-replies{margin-top:4px; padding-left:0}
+.pinned-c{background:var(--lav-soft); margin:0 -12px; padding:14px 12px; border-radius:var(--radius)}
+.tag-pin{font-size:12px; color:var(--indigo); font-weight:500}
+.closed{padding:14px 16px; background:var(--soft2); border-radius:var(--radius); color:var(--muted); font-size:14px}
+
+/* ===== admin cabinet ===== */
+.admin{display:grid; grid-template-columns:232px 1fr; min-height:calc(100vh - 100px)}
+.side{background:var(--soft); padding:20px 12px; border-right:1px solid var(--line)}
+.side h4{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:6px 12px 10px; font-weight:500}
+.side button{display:flex; justify-content:space-between; align-items:center; width:100%; border:0; background:transparent; padding:10px 12px;
+  border-radius:var(--radius); cursor:pointer; font-size:14px; color:var(--ink2); text-align:left}
+.side button:hover{background:var(--line)} .side button.on{background:#fff; color:var(--indigo); font-weight:500; box-shadow:0 1px 2px rgba(33,31,46,.06)}
+.side .count{font-size:12px; color:var(--muted)}
+.side-note{margin:20px 12px 0; padding:12px; background:#fff; border-radius:var(--radius); font-size:12px; color:var(--muted); line-height:1.45}
+.content{padding:24px 32px 48px; min-width:0}
+@media (max-width:860px){.admin{grid-template-columns:1fr} .side{display:flex; gap:6px; padding:8px; overflow-x:auto} .side h4,.side-note{display:none}
+  .side button{width:auto; white-space:nowrap} .content{padding:20px 16px 40px}}
+.page-head{display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:20px; flex-wrap:wrap}
+.page-head h1{font-size:28px}
+.pins{display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; padding:12px 14px; background:var(--lav-soft); border:1px solid var(--lav); border-radius:var(--radius); margin-bottom:20px; font-size:14px}
+.pins .pin{display:inline-flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:4px 4px 4px 10px; max-width:320px}
+.pins .pin span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pins .pin button{border:0; background:transparent; cursor:pointer; color:var(--muted); width:24px; height:24px; border-radius:var(--radius)}
+.pins .pin button:hover{background:var(--soft); color:var(--red)}
+.tabs{display:flex; gap:4px; border-bottom:1px solid var(--line); margin-bottom:16px; overflow-x:auto}
+.tabs button{border:0; background:transparent; padding:10px 14px; cursor:pointer; font-size:14px; color:var(--ink2); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap}
+.tabs button.on{color:var(--indigo); border-bottom-color:var(--indigo); font-weight:500}
+.tabs .count{color:var(--muted); margin-left:4px}
+.filters{display:grid; grid-template-columns:1fr 200px 180px; gap:10px; margin-bottom:16px}
+@media (max-width:760px){.filters{grid-template-columns:1fr}}
+.tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius)}
+table{border-collapse:collapse; width:100%; min-width:860px; font-size:14px}
+th{text-align:left; font-weight:500; font-size:12px; color:var(--muted); padding:10px 12px; background:var(--soft2); border-bottom:1px solid var(--line); white-space:nowrap}
+td{padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr{cursor:pointer} tbody tr:hover td{background:var(--soft2)}
+.t-title{display:flex; align-items:center; gap:12px; min-width:0}
+.t-title .thumb{width:64px; flex:none; border-radius:2px; overflow:hidden}
+.t-title .thumb .cover{aspect-ratio:16/10}
+.t-title b{font-weight:500; display:block} .t-title small{color:var(--muted); font-size:12px}
+.num{font-variant-numeric:tabular-nums; color:var(--ink2); white-space:nowrap}
+.rowmenu{position:relative}
+
+.editor{display:grid; grid-template-columns:1fr 320px; gap:28px; align-items:start}
+@media (max-width:1000px){.editor{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line); border-radius:var(--radius); padding:18px; display:grid; gap:16px; background:#fff}
+.panel h3{font-size:16px}
+.stack{display:grid; gap:18px}
+.cover-drop{border:1px dashed var(--line2); border-radius:var(--radius); overflow:hidden; background:var(--soft2)}
+.cover-drop .cover{aspect-ratio:21/9}
+.cover-actions{display:flex; gap:8px; padding:10px; flex-wrap:wrap; align-items:center; font-size:13px; color:var(--muted)}
+.rte{border:1px solid var(--line2); border-radius:var(--radius); background:#fff}
+.rte-bar{display:flex; flex-wrap:wrap; gap:2px; padding:6px; border-bottom:1px solid var(--line); background:var(--soft2)}
+.rte-bar button{border:0; background:transparent; min-width:32px; height:32px; border-radius:var(--radius); cursor:pointer; font-size:14px; color:var(--ink2); display:inline-flex; align-items:center; justify-content:center; padding:0 6px}
+.rte-bar button:hover{background:var(--line)}
+.rte-bar .sep{width:1px; background:var(--line2); margin:4px 4px}
+.rte-area{min-height:260px; padding:14px 16px; outline:none; font-size:15px; line-height:1.6}
+.rte-area:empty::before{content:attr(data-ph); color:var(--muted2)}
+.rte-area img{max-width:100%}
+.opt{display:flex; justify-content:space-between; gap:12px; align-items:flex-start}
+.opt p{margin:2px 0 0; font-size:12px; color:var(--muted)}
+.radio{display:flex; gap:8px; align-items:center; font-size:14px; cursor:pointer}
+.savebar{position:sticky; bottom:0; background:#fff; border-top:1px solid var(--line); margin:24px -32px -48px; padding:14px 32px;
+  display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; z-index:5}
+@media (max-width:860px){.savebar{margin:24px -16px -40px; padding:12px 16px}}
+.savebar .btns{display:flex; gap:10px; flex-wrap:wrap}
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:16px 0 24px}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{border:1px solid var(--line); border-radius:var(--radius); padding:14px}
+.stat b{display:block; font-size:26px; font-weight:500; font-variant-numeric:tabular-nums; color:var(--indigo-night)}
+.stat span{font-size:13px; color:var(--muted)}
+.mod-c{display:grid; grid-template-columns:1fr auto; gap:12px; padding:12px 0; border-top:1px solid var(--line); align-items:start}
+.mod-c.reply{padding-left:40px}
+.mod-actions{display:flex; gap:6px}
+.rub-row{display:grid; grid-template-columns:auto 1fr auto auto; gap:12px; align-items:center; padding:12px 0; border-top:1px solid var(--line)}
+.swatch{width:14px; height:14px; border-radius:50%}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-in" id="topbar"></div></header>
+<div class="demo-bar"><div class="demo-bar-in">
+  <span><b>Прототип модуля «Корпоративный блог»</b> · тестовое задание · Ксения Короткая. Данные вымышленные. Функции с меткой <span class="stage2" style="margin:0">Этап 2</span> не входят в MVP.</span>
+  <button type="button" data-act="reset">Сбросить демо-данные</button>
+</div></div>
+<main id="app"></main>
+<div id="modal-root"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script>
+/* ===== utils ===== */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MIN = 6e4, HOUR = 36e5, DAY = 864e5;
+const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const pad = n => String(n).padStart(2, '0');
+function fmtDate(ts, withTime = true) {
+  const d = new Date(ts), now = new Date();
+  let s = d.getDate() + ' ' + MONTHS[d.getMonth()];
+  if (d.getFullYear() !== now.getFullYear()) s += ' ' + d.getFullYear();
+  return withTime ? s + ', ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) : s;
+}
+function ago(ts) {
+  const m = Math.round((Date.now() - ts) / MIN);
+  if (m < 1) return 'только что';
+  if (m < 60) return m + ' мин назад';
+  const h = Math.round(m / 60);
+  if (h < 24) return h + ' ч назад';
+  return fmtDate(ts);
+}
+function plural(n, one, few, many) {
+  const a = Math.abs(n) % 100, b = a % 10;
+  if (a > 10 && a < 20) return many; if (b > 1 && b < 5) return few; if (b === 1) return one; return many;
+}
+const uid = () => Math.random().toString(36).slice(2, 9);
+const initials = name => name.split(' ').map(w => w[0]).slice(0, 2).join('');
+const AV_COLORS = ['#3416B6', '#6B4FE8', '#28B8BD', '#FF794D', '#1F8F93', '#8E75FA', '#D19B05'];
+const avColor = name => AV_COLORS[[...name].reduce((a, c) => a + c.charCodeAt(0), 0) % AV_COLORS.length];
+const avatar = name => `<span class="avatar" style="background:${avColor(name)}">${esc(initials(name))}</span>`;
+const stripHtml = h => { const d = document.createElement('div'); d.innerHTML = h; return d.textContent || ''; };
+
+/* ===== icons ===== */
+const ic = (p, s = 18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const I = {
+  search: s => ic('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>', s),
+  bell: s => ic('<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/>', s),
+  user: s => ic('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>', s),
+  admin: s => ic('<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3M7 9h6M7 13h10"/>', s),
+  plus: s => ic('<path d="M12 5v14M5 12h14"/>', s),
+  more: s => ic('<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>', s),
+  pin: s => ic('<path d="M12 17v5"/><path d="M9 3h6l-1 6 4 4H6l4-4z"/>', s),
+  eye: s => ic('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', s),
+  msg: s => ic('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>', s),
+  react: s => ic('<circle cx="12" cy="12" r="9"/><path d="M8.5 14a4 4 0 0 0 7 0M9 9.5h.01M15 9.5h.01"/>', s),
+  clip: s => ic('<path d="m21 11-8.5 8.5a5 5 0 0 1-7-7L14 4a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4L15.5 7"/>', s),
+  image: s => ic('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>', s),
+  link: s => ic('<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>', s),
+  ul: s => ic('<path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/>', s),
+  ol: s => ic('<path d="M10 6h10M10 12h10M10 18h10M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/>', s),
+  quote: s => ic('<path d="M3 21c3 0 7-1 7-8V5H3v7h4c0 4-4 5-4 5zM14 21c3 0 7-1 7-8V5h-7v7h4c0 4-4 5-4 5z"/>', s),
+  back: s => ic('<path d="M19 12H5M12 19l-7-7 7-7"/>', s),
+  close: s => ic('<path d="M18 6 6 18M6 6l12 12"/>', s),
+  doc: s => ic('<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>', s),
+  gear: s => ic('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>', s),
+  share: s => ic('<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>', s),
+  // big rubric icons
+  news: s => ic('<path d="M4 4h13v16H6a2 2 0 0 1-2-2zM17 8h3v10a2 2 0 0 1-2 2"/><path d="M7 8h7M7 12h7M7 16h4"/>', s),
+  megaphone: s => ic('<path d="M3 11v2a1 1 0 0 0 1 1h3l6 5V5L7 10H4a1 1 0 0 0-1 1z"/><path d="M17 8a5 5 0 0 1 0 8M20 5a9 9 0 0 1 0 14"/>', s),
+  calendar: s => ic('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h2M14 14h2M8 17h2"/>', s),
+  userplus: s => ic('<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M19 8v6M16 11h6"/>', s),
+  gift: s => ic('<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v9h14v-9M12 8S10 3 7.5 4.5 9 8 12 8zM12 8s2-5 4.5-3.5S15 8 12 8z"/>', s),
+  star: s => ic('<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>', s),
+};
+
+/* ===== reference data ===== */
+const REACTIONS = [['like', '👍', 'Нравится'], ['heart', '❤️', 'Люблю'], ['fire', '🔥', 'Огонь'], ['party', '🎉', 'Празднуем'], ['clap', '👏', 'Аплодирую']];
+const ME = { name: 'Никита Воронин', dept: 'Отдел продаж' };
+const EDITOR = { name: 'Мария Лебедева', dept: 'Внутренние коммуникации' };
+const RUBRIC_ICON = { news: 'news', ann: 'megaphone', events: 'calendar', newbies: 'userplus', bday: 'gift', life: 'star' };
+const STATUS = { draft: 'Черновик', scheduled: 'Запланирован', published: 'Опубликован', archived: 'В архиве' };
+const PERIODS = [['all', 'За всё время'], ['week', 'За неделю'], ['month', 'За месяц'], ['quarter', 'За 3 месяца'], ['year', 'За год']];
+const PERIOD_MS = { week: 7 * DAY, month: 30 * DAY, quarter: 91 * DAY, year: 365 * DAY };
+const MAX_PINS = 3, TITLE_MAX = 120, DESC_MAX = 200;
+
+/* ===== seed ===== */
+function seed() {
+  const N = Date.now();
+  const at = (days, h = 10, m = 0) => { const d = new Date(N - days * DAY); d.setHours(h, m, 0, 0); return d.getTime(); };
+  const next = (days, h) => { const d = new Date(N + days * DAY); d.setHours(h, 0, 0, 0); return d.getTime(); };
+  const c = (author, dept, text, t, extra = {}) => ({ id: uid(), author, dept, text, at: t, replies: [], pinned: false, deleted: null, edited: false, mine: false, ...extra });
+  const post = o => ({ id: uid(), desc: '', cover: null, files: [], author: EDITOR.name, createdAt: o.publishedAt || N, publishedAt: null,
+    scheduledAt: null, editedAt: null, notify: false, allowComments: true, allowReactions: true, visibility: 'all', views: 0,
+    reactions: { like: 0, heart: 0, fire: 0, party: 0, clap: 0 }, myReaction: null, comments: [], pinnedAt: null, ...o });
+
+  const p1 = post({ status: 'published', rubric: 'news', publishedAt: at(2, 9, 30), pinnedAt: at(2, 9, 31), views: 437,
+    title: 'Новый корпоративный портал: что изменилось',
+    desc: 'Переезд на новый портал завершён. Рассказываем, где теперь кадровые заявки, оргструктура и цели и что появится дальше.',
+    reactions: { like: 41, heart: 12, fire: 9, party: 18, clap: 23 },
+    files: [{ name: 'Инструкция_новый_портал.pdf', size: '1,2 МБ' }],
+    body: '<p>Коллеги, мы завершили переезд на новый корпоративный портал. Все основные сервисы уже работают, а прежний портал отключён.</p><h2>Что уже работает</h2><ul><li>Кадровые заявки: отпуск, командировка, справки</li><li>Оргструктура и профили коллег</li><li>Цели и Performance Review</li></ul><h2>Что появится до конца года</h2><ul><li>Корпоративный университет</li><li>База знаний</li><li>Корпоративный блог — вы его уже читаете</li></ul><blockquote>Инструкция по каждому разделу — во вложении. Вопросы оставляйте в комментариях: соберём их и ответим.</blockquote>' });
+  p1.comments = [
+    c(EDITOR.name, EDITOR.dept, 'Собрали ответы на частые вопросы о новом портале в базе знаний — раздел «Портал: с чего начать».', at(1, 11), { pinned: true }),
+    c('Анна Ковалёва', 'Ипотечный сервис', 'Наконец-то отпуск оформляется в пару кликов 🙌', at(2, 11, 5)),
+    c('Сергей Белов', 'Юридический департамент', 'А где теперь искать новости со старого портала?', at(2, 12, 40)),
+    c('Павел Гришин', 'Сервис для риелторов', 'Текст удалён модератором', at(2, 13, 10), { deleted: 'moderator' }),
+    c('Ольга Мельникова', 'Разработка', 'Оргструктура теперь открывается моментально. Спасибо команде!', at(2, 15, 20)),
+  ];
+  p1.comments[1].replies = [c(EDITOR.name, EDITOR.dept, 'Спасибо! Если что-то не получается, пишите сюда — поможем.', at(2, 11, 30))];
+  p1.comments[2].replies = [c(EDITOR.name, EDITOR.dept, 'Архив новостей переносим до конца октября. Пока старые материалы можно запросить во внутренних коммуникациях.', at(2, 13, 2))];
+
+  const p2 = post({ status: 'published', rubric: 'ann', publishedAt: at(1, 16), pinnedAt: at(1, 16, 1), views: 512, notify: true, allowComments: false,
+    title: 'Плановые работы: портал будет недоступен в субботу с 10:00 до 12:00',
+    desc: 'Обновляем серверы. Заявки, отправленные до начала работ, сохранятся.',
+    reactions: { like: 27, heart: 0, fire: 0, party: 0, clap: 4 },
+    body: '<p>В субботу с 10:00 до 12:00 по московскому времени портал будет недоступен: команда разработки обновляет серверы.</p><ul><li>Заявки, отправленные до начала работ, сохранятся.</li><li>Срочные кадровые вопросы в это время — по почте hr@company.ru.</li></ul>' });
+
+  const p3 = post({ status: 'published', rubric: 'events', publishedAt: at(3, 12), views: 298,
+    title: 'Квиз-вечер в московском офисе',
+    desc: 'Собираем команды по 5 человек. Регистрация открыта до среды, пицца и призы — за нами.',
+    reactions: { like: 19, heart: 6, fire: 14, party: 21, clap: 3 },
+    body: '<p>Приглашаем на квиз-вечер в московском офисе. Команды — по 5 человек, можно собрать свою или присоединиться к сборной.</p><p><b>Когда:</b> четверг, 19:00<br><b>Где:</b> большая переговорная, 5 этаж</p><p>Регистрация — по <a href="#" onclick="return false">ссылке в форме</a> до среды.</p>' });
+  p3.comments = [c('Дмитрий Зайцев', 'Сервис для риелторов', 'Можно участвовать удалённо из Петербурга?', at(3, 13, 15))];
+  p3.comments[0].replies = [c(EDITOR.name, EDITOR.dept, 'В этот раз только очно. Для петербургского офиса готовим свой квиз в октябре.', at(3, 14))];
+
+  const p4 = post({ status: 'published', rubric: 'newbies', publishedAt: at(5, 10), views: 344,
+    title: 'Новые коллеги недели', desc: 'Знакомьтесь: к нам присоединились четыре специалиста в разработку, ипотечный сервис и юридический департамент.',
+    reactions: { like: 22, heart: 15, fire: 0, party: 11, clap: 17 },
+    body: '<p>Рады приветствовать новых коллег:</p><ul><li><b>Елена Соколова</b> — продуктовый дизайнер, Разработка</li><li><b>Артём Никитин</b> — frontend-разработчик, Разработка</li><li><b>Ирина Фёдорова</b> — ипотечный консультант, Ипотечный сервис</li><li><b>Глеб Орехов</b> — юрист, Юридический департамент</li></ul><p>Не стесняйтесь знакомиться и показывать, где лучший кофе.</p>' });
+  p4.comments = [c('Анна Ковалёва', 'Ипотечный сервис', 'Ира, добро пожаловать в команду!', at(5, 11))];
+
+  const p5 = post({ status: 'published', rubric: 'bday', publishedAt: at(2, 9), views: 401,
+    title: 'Именинники недели', desc: 'Поздравляем коллег, у которых день рождения на этой неделе!',
+    reactions: { like: 12, heart: 20, fire: 0, party: 38, clap: 5 },
+    body: '<p>На этой неделе день рождения празднуют:</p><ul><li>Ольга Мельникова, Разработка</li><li>Константин Лаптев, Отдел продаж</li><li>Вера Андреева, Бухгалтерия</li></ul><p>Желаем интересных задач, сильной команды и отличного настроения!</p>' });
+  p5.comments = [c('Константин Лаптев', 'Отдел продаж', 'Спасибо, коллеги! 🎉', at(2, 10, 12)), c('Сергей Белов', 'Юридический департамент', 'С днём рождения, Вера!', at(2, 12))];
+
+  const p6 = post({ status: 'published', rubric: 'news', publishedAt: at(6, 10), views: 468,
+    title: 'Стартовал осенний цикл Performance Review', desc: 'Самооценка открыта до конца месяца. Оцениваем по компетенциям — памятка во вложении.',
+    reactions: { like: 30, heart: 2, fire: 3, party: 0, clap: 6 }, files: [{ name: 'Памятка_Performance_Review.pdf', size: '640 КБ' }],
+    body: '<p>Осенний цикл Performance Review начался. В этот раз оцениваем по компетенциям: ценности компании, управленческие и профессиональные.</p><h2>Этапы</h2><ul><li>Самооценка — до конца месяца</li><li>Оценка руководителя — первые две недели следующего месяца</li><li>Встречи по итогам — до конца следующего месяца</li></ul>' });
+  p6.comments = [c(ME.name, ME.dept, 'Где посмотреть свои цели за прошлый период?', at(6, 11), { mine: true })];
+  p6.comments[0].replies = [c(EDITOR.name, EDITOR.dept, 'В разделе «Цели» — фильтр «Прошлые периоды».', at(1, 9, 15))];
+
+  const p7 = post({ status: 'published', rubric: 'life', publishedAt: at(24, 11), views: 356,
+    title: 'Как прошёл летний выезд команды', desc: 'Байдарки, квиз у костра и 120 участников: вспоминаем лучшие моменты.',
+    reactions: { like: 25, heart: 31, fire: 12, party: 9, clap: 8 },
+    body: '<p>120 участников, 14 команд и одна очень упрямая байдарка. Спасибо всем, кто был с нами!</p>' });
+
+  const p8 = post({ status: 'archived', rubric: 'events', publishedAt: at(45, 10), views: 380,
+    title: 'Регистрация на летний выезд команды', desc: 'Регистрация закрыта, спасибо всем!', body: '<p>Регистрация закрыта.</p>' });
+
+  const p9 = post({ status: 'draft', rubric: 'life', createdAt: N - 3 * HOUR,
+    title: 'Ежегодная премия сотрудников: приём номинаций открыт', desc: '',
+    body: '<p>Открываем приём номинаций на ежегодную премию. Номинации: «Прорыв года», «Командный игрок», «Наставник»…</p>' });
+
+  const p10 = post({ status: 'scheduled', rubric: 'bday', createdAt: N - 2 * HOUR, scheduledAt: next(5, 9),
+    title: 'Именинники следующей недели', desc: 'Поздравляем коллег с днём рождения!',
+    body: '<p>На следующей неделе день рождения празднуют:</p><ul><li>Мария Лебедева, Внутренние коммуникации</li><li>Тимур Садыков, Разработка</li></ul>' });
+
+  const p11 = post({ status: 'draft', rubric: 'news', createdAt: N - DAY,
+    title: 'Корпоративный университет: первые курсы', desc: 'Что уже доступно и как записаться.', body: '<p>Черновик…</p>' });
+
+  return {
+    rubrics: [
+      { id: 'news', name: 'Новости компании', color: '#3416B6', tint: '#E7E2FD', active: true },
+      { id: 'ann', name: 'Объявления', color: '#F44434', tint: '#FDE4E1', active: true },
+      { id: 'events', name: 'Мероприятия', color: '#FF794D', tint: '#FFE9DF', active: true },
+      { id: 'newbies', name: 'Новые сотрудники', color: '#1F8F93', tint: '#DDF4F4', active: true },
+      { id: 'bday', name: 'Дни рождения', color: '#D19B05', tint: '#FEF3D2', active: true },
+      { id: 'life', name: 'Корпоративная жизнь', color: '#6B4FE8', tint: '#ECE6FF', active: true },
+    ],
+    posts: [p2, p1, p5, p3, p4, p6, p7, p8, p9, p10, p11],
+    notifications: [
+      { id: uid(), kind: 'important', postId: p2.id, text: 'Важное: ' + p2.title, at: p2.publishedAt, read: false },
+      { id: uid(), kind: 'reply', postId: p6.id, text: EDITOR.name + ' ответила на ваш комментарий', at: at(1, 9, 15), read: false },
+    ],
+  };
+}
+
+/* ===== state ===== */
+const STORE_KEY = 'm2-corp-blog-proto-v1';
+function load() { try { const s = localStorage.getItem(STORE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+let S = load() || seed();
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) {} }
+const UI = { q: '', rubric: 'all', period: 'all', limit: 9, aq: '', astatus: 'all', arubric: 'all', aperiod: 'all', menu: null, bell: false };
+let ED = null;
+
+const byId = id => S.posts.find(p => p.id === id);
+const rubricOf = p => S.rubrics.find(r => r.id === p.rubric) || S.rubrics[0];
+const isVisible = p => p.status === 'published';
+const pinnedPosts = () => S.posts.filter(p => p.pinnedAt && p.status === 'published').sort((a, b) => b.pinnedAt - a.pinnedAt);
+const countComments = p => p.comments.reduce((n, c) => n + (c.deleted ? 0 : 1) + c.replies.filter(r => !r.deleted).length, 0);
+const countReactions = p => Object.values(p.reactions).reduce((a, b) => a + b, 0);
+const inPeriod = (ts, period) => period === 'all' || (Date.now() - ts) <= PERIOD_MS[period];
+function matchesQuery(p, q) {
+  if (!q) return true;
+  const hay = (p.title + ' ' + p.desc + ' ' + stripHtml(p.body)).toLowerCase();
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
+}
+function publishScheduledIfDue() {
+  let changed = false;
+  S.posts.forEach(p => { if (p.status === 'scheduled' && p.scheduledAt <= Date.now()) { doPublish(p, false); changed = true; } });
+  if (changed) save();
+}
+
+/* ===== shared components ===== */
+function coverHTML(p) {
+  if (p.cover) return `<img src="${p.cover}" alt="">`;
+  const r = rubricOf(p), icon = I[RUBRIC_ICON[r.id] || 'news'];
+  return `<div class="cover-gen" style="background:${r.tint || '#F3F1F8'}">
+    <svg width="100%" height="100%" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <circle cx="40" cy="160" r="70" fill="${r.color}" opacity=".10"/>
+      <rect x="150" y="-20" width="90" height="90" fill="${r.color}" opacity=".08" transform="rotate(12 195 25)"/>
+      <circle cx="286" cy="150" r="26" fill="${r.color}" opacity=".14"/>
+    </svg>
+    <span class="icon-big" style="position:absolute;right:12%;top:50%;transform:translateY(-50%);color:${r.color};display:block;width:26%;max-width:110px">${icon(64)}</span>
+  </div>`;
+}
+const rubricTag = p => { const r = rubricOf(p); return `<span class="rubric"><i style="background:${r.color}"></i>${esc(r.name)}</span>`; };
+const descOf = p => p.desc || stripHtml(p.body).slice(0, DESC_MAX);
+const statusPill = p => `<span class="pill ${p.status}">${STATUS[p.status]}</span>`;
+
+function renderTopbar(mode) {
+  const who = mode === 'admin' ? EDITOR : ME;
+  const unread = S.notifications.filter(n => !n.read).length;
+  $('#topbar').innerHTML = `
+    <a class="brand" href="#/${mode}"><span class="logo">м<sup>2</sup></span><span><b>Портал сотрудников</b><small>Корпоративный блог</small></span></a>
+    <div class="switch" role="group" aria-label="Режим прототипа">
+      <button type="button" class="${mode === 'admin' ? 'on' : ''}" data-act="mode" data-mode="admin" aria-pressed="${mode === 'admin'}">${I.admin(17)}Кабинет администратора</button>
+      <button type="button" class="${mode === 'user' ? 'on' : ''}" data-act="mode" data-mode="user" aria-pressed="${mode === 'user'}">${I.user(17)}Кабинет пользователя</button>
+    </div>
+    <div class="top-right">
+      ${mode === 'user' ? `<div style="position:relative">
+        <button type="button" class="icon-btn" data-act="bell" aria-label="Уведомления">${I.bell(20)}${unread ? `<span class="dot">${unread}</span>` : ''}</button>
+        ${UI.bell ? bellDropdown() : ''}</div>` : ''}
+      <div class="whoami">${avatar(who.name)}<div>${esc(who.name)}<span>${mode === 'admin' ? 'Редактор · ' : ''}${esc(who.dept)}</span></div></div>
+    </div>`;
+}
+function bellDropdown() {
+  const list = [...S.notifications].sort((a, b) => b.at - a.at);
+  return `<div class="dropdown notif" role="menu">
+    <div class="notif-head"><b>Уведомления</b>${list.some(n => !n.read) ? '<button type="button" class="btn-ghost btn btn-sm" data-act="bell-readall">Прочитать все</button>' : ''}</div>
+    ${list.length ? list.map(n => `<button type="button" class="notif-item ${n.read ? '' : 'unread'}" data-act="bell-open" data-id="${n.id}">
+        <span>${esc(n.text)}</span><span class="small muted">${ago(n.at)}</span></button>`).join('') : '<div class="empty small">Уведомлений пока нет</div>'}
+  </div>`;
+}
+
+/* ===== user cabinet ===== */
+function viewUserHome() {
+  const filtering = UI.q || UI.rubric !== 'all' || UI.period !== 'all';
+  const pins = pinnedPosts();
+  let feed = S.posts.filter(isVisible)
+    .filter(p => UI.rubric === 'all' || p.rubric === UI.rubric)
+    .filter(p => inPeriod(p.publishedAt, UI.period))
+    .filter(p => matchesQuery(p, UI.q))
+    .sort((a, b) => b.publishedAt - a.publishedAt);
+  if (!filtering) feed = feed.filter(p => !p.pinnedAt);
+  const total = feed.length;
+  feed = feed.slice(0, UI.limit);
+  const activeRubrics = S.rubrics.filter(r => r.active);
+  return `
+  <section class="blog-hero"><div class="wrap">
+    <h1>Корпоративный блог</h1>
+    <p>Новости, объявления и жизнь компании</p>
+    <div class="searchrow">
+      <label class="search">${I.search(18)}<input id="q" class="input" type="search" placeholder="Поиск по заголовкам и тексту" value="${esc(UI.q)}" data-input="q" aria-label="Поиск по публикациям"></label>
+      <select class="input" data-change="period" aria-label="Период">${PERIODS.map(([v, l]) => `<option value="${v}" ${UI.period === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+    </div>
+    <div class="chips" role="group" aria-label="Рубрики">
+      <button type="button" class="chip ${UI.rubric === 'all' ? 'on' : ''}" data-act="rubric" data-id="all">Все</button>
+      ${activeRubrics.map(r => `<button type="button" class="chip ${UI.rubric === r.id ? 'on' : ''}" data-act="rubric" data-id="${r.id}">${esc(r.name)}</button>`).join('')}
+    </div>
+  </div></section>
+  <div class="wrap">
+    ${!filtering && pins.length ? `<section class="section">
+      <div class="section-head"><h2>Закреплено</h2></div>
+      <div class="pinned" style="${pins.length === 1 ? 'grid-template-columns:1fr' : ''}">
+        ${cardHTML(pins[0], true)}
+        ${pins.length > 1 ? `<div class="pinned-side">${pins.slice(1).map(p => cardHTML(p)).join('')}</div>` : ''}
+      </div></section>` : ''}
+    <section class="section">
+      <div class="section-head"><h2>${filtering ? 'Найдено: ' + total : 'Все публикации'}</h2>
+        ${filtering ? '<button type="button" class="btn btn-ghost btn-sm" data-act="clear-filters">Сбросить фильтры</button>' : ''}</div>
+      ${feed.length ? `<div class="feed">${feed.map(p => cardHTML(p)).join('')}</div>`
+        : `<div class="empty">Ничего не нашлось. Попробуйте другой запрос, рубрику или период.</div>`}
+    </section>
+    <div class="more">${total > UI.limit ? `<button type="button" class="btn btn-secondary" data-act="more">Показать ещё</button>` : ''}</div>
+  </div>`;
+}
+function cardHTML(p, big = false) {
+  return `<a class="card ${big ? 'big' : ''}" href="#/user/post/${p.id}">
+    <div class="cover">${coverHTML(p)}${p.pinnedAt ? `<span class="pin-flag">${I.pin(13)}Закреплено</span>` : ''}</div>
+    <div class="card-body">
+      ${rubricTag(p)}
+      <h3>${esc(p.title)}</h3>
+      <p>${esc(descOf(p))}</p>
+      <div class="card-meta"><span>${fmtDate(p.publishedAt, false)}</span>
+        <span class="counts">${p.allowReactions ? `<span title="Реакции">${I.react(15)}${countReactions(p)}</span>` : ''}<span title="Комментарии">${I.msg(15)}${countComments(p)}</span></span></div>
+    </div></a>`;
+}
+function viewUnavailable(backHref) {
+  return `<div class="post"><a class="back" href="${backHref}">${I.back(16)} Ко всем публикациям</a>
+    <div class="empty"><h2 style="margin-bottom:8px">Публикация недоступна</h2>Возможно, её перенесли в архив. Если материал нужен вам для работы, напишите во внутренние коммуникации.</div></div>`;
+}
+function viewUserPost(id) {
+  const p = byId(id);
+  if (!p || !isVisible(p)) return viewUnavailable('#/user');
+  if (!UI.viewed) UI.viewed = {};
+  if (!UI.viewed[p.id]) { UI.viewed[p.id] = true; p.views++; save(); }
+  return postHTML(p, false);
+}
+function postHTML(p, preview) {
+  const total = countComments(p);
+  const sorted = [...p.comments].sort((a, b) => (b.pinned - a.pinned) || (a.at - b.at))
+    .filter(c => !(c.deleted === 'author' && !c.replies.length));
+  return `<article class="post">
+    ${preview ? '' : `<a class="back" href="#/user">${I.back(16)} Ко всем публикациям</a>`}
+    <div class="cover">${coverHTML(p)}</div>
+    <div style="margin-top:16px">${rubricTag(p)}</div>
+    <h1>${esc(p.title || 'Без заголовка')}</h1>
+    <div class="post-meta"><span>${fmtDate(p.publishedAt || Date.now())}</span><span>Внутренние коммуникации</span>
+      ${p.editedAt ? `<span>Изменено ${fmtDate(p.editedAt)}</span>` : ''}</div>
+    ${p.desc ? `<p class="lead">${esc(p.desc)}</p>` : ''}
+    <div class="post-body">${p.body || ''}</div>
+    ${p.files.length ? `<div class="files">${p.files.map(f => `<div class="file">${I.doc(22)}<div><b>${esc(f.name)}</b><br><span>${esc(f.size)}</span></div>
+      <span style="margin-left:auto"><button type="button" class="btn btn-ghost btn-sm" data-act="download">Скачать</button></span></div>`).join('')}</div>` : ''}
+    <div class="react-bar">
+      ${p.allowReactions ? `<div class="reacts" role="group" aria-label="Реакции">${REACTIONS.map(([k, e, l]) => `<button type="button" class="react ${p.myReaction === k ? 'on' : ''}" data-act="${preview ? 'noop' : 'react'}" data-id="${p.id}" data-r="${k}" title="${l}" aria-pressed="${p.myReaction === k}">${e}<b>${p.reactions[k] || ''}</b></button>`).join('')}</div>` : '<span class="muted small">Реакции отключены</span>'}
+      <button type="button" class="btn btn-secondary btn-sm" data-act="${preview ? 'noop' : 'copy-link'}">${I.share(16)}Скопировать ссылку</button>
+    </div>
+    <section class="comments">
+      <h2>Комментарии${total ? ' · ' + total : ''}</h2>
+      ${p.allowComments ? (preview ? '' : `<div class="cform">
+        <textarea class="input" id="c-new" maxlength="2000" placeholder="Написать комментарий"></textarea>
+        <div class="cform-foot"><button type="button" class="btn btn-primary btn-sm" data-act="c-send" data-id="${p.id}">Отправить</button></div></div>`)
+        : '<div class="closed">Комментарии к этой публикации отключены.</div>'}
+      ${sorted.map(c => commentHTML(p, c, null, preview)).join('')}
+      ${!sorted.length && p.allowComments ? '<p class="muted">Комментариев пока нет — будьте первым.</p>' : ''}
+    </section>
+  </article>`;
+}
+function commentHTML(p, c, parent, preview) {
+  const deletedText = c.deleted === 'moderator' ? 'Комментарий удалён модератором' : 'Комментарий удалён автором';
+  const editing = UI.editComment === c.id;
+  const canAct = !preview && !c.deleted && p.allowComments;
+  return `<div class="comment ${parent ? 'reply' : ''} ${c.pinned && !parent ? 'pinned-c' : ''}">
+    ${avatar(c.author)}
+    <div>
+      <div class="c-head"><b>${esc(c.author)}</b><span>${esc(c.dept)} · ${ago(c.at)}${c.edited ? ' · изменён' : ''}</span>
+        ${c.pinned && !parent ? `<span class="tag-pin">${I.pin(12)} Закреплён редакцией</span>` : ''}</div>
+      ${c.deleted ? `<p class="c-text deleted">${deletedText}</p>`
+        : editing ? `<div class="cform" style="margin:6px 0"><textarea class="input" id="c-edit" maxlength="2000">${esc(c.text)}</textarea>
+            <div class="cform-foot"><button type="button" class="btn btn-secondary btn-sm" data-act="c-edit-cancel">Отмена</button>
+            <button type="button" class="btn btn-primary btn-sm" data-act="c-edit-save" data-id="${p.id}" data-c="${c.id}">Сохранить</button></div></div>`
+        : `<p class="c-text">${esc(c.text)}</p>`}
+      ${canAct && !editing ? `<div class="c-actions">
+        <button type="button" data-act="c-reply" data-c="${parent ? parent.id : c.id}">Ответить</button>
+        ${c.mine ? `<button type="button" data-act="c-edit" data-c="${c.id}">Изменить</button><button type="button" data-act="c-del" data-id="${p.id}" data-c="${c.id}">Удалить</button>` : ''}
+      </div>` : ''}
+      ${!parent && c.replies.length ? `<div class="c-replies">${c.replies.filter(r => !(r.deleted === 'author')).map(r => commentHTML(p, r, c, preview)).join('')}</div>` : ''}
+      ${!parent && UI.replyTo === c.id && !preview ? `<div class="cform" style="margin-top:10px">
+        <textarea class="input" id="c-reply" maxlength="2000" placeholder="Ответ для ${esc(c.author)}"></textarea>
+        <div class="cform-foot"><button type="button" class="btn btn-secondary btn-sm" data-act="c-reply-cancel">Отмена</button>
+        <button type="button" class="btn btn-primary btn-sm" data-act="c-reply-send" data-id="${p.id}" data-c="${c.id}">Ответить</button></div></div>` : ''}
+    </div></div>`;
+}
+
+/* ===== admin cabinet ===== */
+function adminShell(active, inner) {
+  const n = S.posts.length;
+  return `<div class="admin">
+    <aside class="side">
+      <h4>Корпоративный блог</h4>
+      <button type="button" class="${active === 'list' ? 'on' : ''}" data-act="nav" data-to="#/admin"><span style="display:flex;gap:10px;align-items:center">${I.doc(17)}Публикации</span><span class="count">${n}</span></button>
+      <button type="button" class="${active === 'settings' ? 'on' : ''}" data-act="nav" data-to="#/admin/settings"><span style="display:flex;gap:10px;align-items:center">${I.gear(17)}Настройки</span></button>
+      <div class="side-note">Кабинет для сотрудников внутренних коммуникаций: подготовка и выпуск публикаций, закрепы на главной, модерация комментариев.</div>
+    </aside>
+    <div class="content">${inner}</div></div>`;
+}
+function viewAdminList() {
+  const pins = pinnedPosts();
+  const counts = { all: S.posts.length };
+  Object.keys(STATUS).forEach(s => counts[s] = S.posts.filter(p => p.status === s).length);
+  const dateOf = p => p.status === 'scheduled' ? p.scheduledAt : (p.publishedAt || p.createdAt);
+  const rows = S.posts
+    .filter(p => UI.astatus === 'all' || p.status === UI.astatus)
+    .filter(p => UI.arubric === 'all' || p.rubric === UI.arubric)
+    .filter(p => inPeriod(dateOf(p), UI.aperiod))
+    .filter(p => matchesQuery(p, UI.aq))
+    .sort((a, b) => dateOf(b) - dateOf(a));
+  const tabs = [['all', 'Все'], ['draft', 'Черновики'], ['scheduled', 'Запланированы'], ['published', 'Опубликованы'], ['archived', 'В архиве']];
+  return adminShell('list', `
+    <div class="page-head"><h1>Публикации</h1><a class="btn btn-primary" href="#/admin/new">${I.plus(18)}Создать публикацию</a></div>
+    <div class="pins"><b style="display:flex;gap:6px;align-items:center;font-weight:500">${I.pin(16)}На главной блога: ${pins.length} из ${MAX_PINS}</b>
+      ${pins.length ? pins.map(p => `<span class="pin"><span title="${esc(p.title)}">${esc(p.title)}</span><button type="button" data-act="unpin" data-id="${p.id}" aria-label="Открепить">${I.close(14)}</button></span>`).join('')
+        : '<span class="muted">Закрепите важные публикации — они появятся вверху блога.</span>'}
+    </div>
+    <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button type="button" role="tab" class="${UI.astatus === k ? 'on' : ''}" data-act="astatus" data-id="${k}">${l}<span class="count">${counts[k]}</span></button>`).join('')}</div>
+    <div class="filters">
+      <label class="search">${I.search(18)}<input id="aq" class="input" type="search" placeholder="Поиск по названию и тексту" value="${esc(UI.aq)}" data-input="aq" aria-label="Поиск"></label>
+      <select class="input" data-change="arubric" aria-label="Рубрика"><option value="all">Все рубрики</option>${S.rubrics.map(r => `<option value="${r.id}" ${UI.arubric === r.id ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select>
+      <select class="input" data-change="aperiod" aria-label="Период">${PERIODS.map(([v, l]) => `<option value="${v}" ${UI.aperiod === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+    </div>
+    ${rows.length ? `<div class="tablewrap"><table>
+      <thead><tr><th>Публикация</th><th>Рубрика</th><th>Статус</th><th>Дата</th><th>Автор</th><th title="Просмотры">${I.eye(15)}</th><th title="Комментарии">${I.msg(15)}</th><th></th></tr></thead>
+      <tbody>${rows.map(p => `<tr data-act="row-open" data-id="${p.id}">
+        <td><div class="t-title"><div class="thumb"><div class="cover">${coverHTML(p)}</div></div><div style="min-width:0">
+          <b>${esc(p.title || 'Без заголовка')}${p.pinnedAt && p.status === 'published' ? ` <span title="Закреплено" style="color:var(--indigo)">${I.pin(13)}</span>` : ''}</b>
+          <small>${esc(descOf(p).slice(0, 70))}${descOf(p).length > 70 ? '…' : ''}</small></div></div></td>
+        <td>${rubricTag(p)}</td>
+        <td>${statusPill(p)}</td>
+        <td class="num">${p.status === 'scheduled' ? fmtDate(p.scheduledAt) : p.status === 'draft' ? 'изм. ' + ago(p.editedAt || p.createdAt) : fmtDate(p.publishedAt)}</td>
+        <td style="white-space:nowrap">${esc(p.author)}</td>
+        <td class="num">${p.status === 'published' || p.status === 'archived' ? p.views : '—'}</td>
+        <td class="num">${p.status === 'published' || p.status === 'archived' ? countComments(p) : '—'}</td>
+        <td><button type="button" class="icon-btn" data-act="row-menu" data-id="${p.id}" aria-label="Действия">${I.more(18)}</button></td>
+      </tr>`).join('')}</tbody></table></div>`
+      : `<div class="empty">Публикаций не найдено. Измените фильтры или создайте новую публикацию.</div>`}
+  `);
+}
+function rowMenuHTML(p) {
+  const b = (act, label, cls = '') => `<button type="button" role="menuitem" class="${cls}" data-act="${act}" data-id="${p.id}">${label}</button>`;
+  const pinBtn = p.pinnedAt ? b('unpin', 'Открепить с главной') : b('pin', 'Закрепить на главной');
+  const menus = {
+    draft: [b('edit', 'Редактировать'), b('preview', 'Предпросмотр'), b('publish-now', 'Опубликовать'), '<hr>', b('delete', 'Удалить', 'danger')],
+    scheduled: [b('edit', 'Редактировать'), b('preview', 'Предпросмотр'), b('publish-now', 'Опубликовать сейчас'), b('to-draft', 'Вернуть в черновики'), '<hr>', b('delete', 'Удалить', 'danger')],
+    published: [b('admin-post', 'Статистика и комментарии'), b('edit', 'Редактировать'), b('as-user', 'Открыть как сотрудник'), pinBtn, '<hr>', b('archive', 'Перенести в архив', 'danger')],
+    archived: [b('admin-post', 'Открыть'), b('restore', 'Вернуть в опубликованные')],
+  };
+  return menus[p.status].join('');
+}
+function viewAdminPost(id) {
+  const p = byId(id);
+  if (!p) return adminShell('list', `<a class="back" href="#/admin">${I.back(16)} Все публикации</a><div class="empty">Публикация не найдена.</div>`);
+  if (p.status === 'draft' || p.status === 'scheduled') { location.replace('#/admin/edit/' + id); return ''; }
+  const top = [...p.comments].sort((a, b) => (b.pinned - a.pinned) || (a.at - b.at));
+  const modRow = (c, parent) => `<div class="mod-c ${parent ? 'reply' : ''}">
+      <div style="display:flex;gap:12px">${avatar(c.author)}<div>
+        <div class="c-head"><b>${esc(c.author)}</b><span>${esc(c.dept)} · ${ago(c.at)}</span>${c.pinned ? `<span class="tag-pin">${I.pin(12)} Закреплён</span>` : ''}</div>
+        <p class="c-text ${c.deleted ? 'deleted' : ''}" style="margin-bottom:0">${c.deleted ? (c.deleted === 'moderator' ? 'Удалён модератором. Текст: ' : 'Удалён автором. Текст: ') + esc(c.text) : esc(c.text)}</p></div></div>
+      <div class="mod-actions">
+        ${!parent && !c.deleted ? `<button type="button" class="btn btn-secondary btn-sm" data-act="${c.pinned ? 'mc-unpin' : 'mc-pin'}" data-id="${p.id}" data-c="${c.id}">${c.pinned ? 'Открепить' : 'Закрепить'}</button>` : ''}
+        ${c.deleted === 'moderator' ? `<button type="button" class="btn btn-ghost btn-sm" data-act="mc-restore" data-id="${p.id}" data-c="${c.id}">Восстановить</button>`
+          : !c.deleted ? `<button type="button" class="btn btn-ghost btn-sm" style="color:var(--red)" data-act="mc-delete" data-id="${p.id}" data-c="${c.id}">Удалить</button>` : ''}
+      </div></div>`;
+  return adminShell('list', `
+    <a class="back" href="#/admin">${I.back(16)} Все публикации</a>
+    ${p.status === 'archived' ? `<div class="closed" style="margin-bottom:16px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+      <span>Публикация в архиве: сотрудники не видят её в ленте, поиске и по прямой ссылке.</span>
+      <button type="button" class="btn btn-primary btn-sm" data-act="restore" data-id="${p.id}">Вернуть в опубликованные</button></div>` : ''}
+    <div class="page-head" style="align-items:flex-start">
+      <div><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">${statusPill(p)}${rubricTag(p)}${p.pinnedAt && p.status === 'published' ? `<span class="tag-pin">${I.pin(12)} На главной</span>` : ''}</div>
+        <h1 style="margin-top:10px;font-size:26px">${esc(p.title)}</h1>
+        <p class="muted small" style="margin:6px 0 0">Опубликовано ${fmtDate(p.publishedAt)} · ${esc(p.author)}${p.editedAt ? ' · изменено ' + fmtDate(p.editedAt) : ''}${p.notify ? ' · с уведомлением' : ''}</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn btn-secondary btn-sm" href="#/admin/edit/${p.id}">Редактировать</a>
+        ${p.status === 'published' ? `<button type="button" class="btn btn-secondary btn-sm" data-act="as-user" data-id="${p.id}">Открыть как сотрудник</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-act="${p.pinnedAt ? 'unpin' : 'pin'}" data-id="${p.id}">${p.pinnedAt ? 'Открепить' : 'Закрепить'}</button>
+        <button type="button" class="btn btn-ghost btn-sm" style="color:var(--red)" data-act="archive" data-id="${p.id}">В архив</button>` : ''}
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>${p.views}</b><span>Просмотров</span></div>
+      <div class="stat"><b>${countReactions(p)}</b><span>Реакций ${p.allowReactions ? '' : '(отключены)'}</span></div>
+      <div class="stat"><b>${countComments(p)}</b><span>Комментариев</span></div>
+      <div class="stat"><b style="color:var(--muted2)">${Math.min(99, Math.round(p.views / 5.4))}%</b><span>Охват за 48 часов<span class="stage2">Этап 2</span></span></div>
+    </div>
+    ${p.allowReactions ? `<div class="reacts" style="margin-bottom:24px">${REACTIONS.map(([k, e]) => `<span class="react" style="cursor:default">${e}<b>${p.reactions[k]}</b></span>`).join('')}</div>` : ''}
+    <div class="section-head"><h2 style="font-size:22px">Комментарии</h2>${p.allowComments ? '' : '<span class="muted small">Комментирование отключено — существующие комментарии видны только для чтения</span>'}</div>
+    ${top.length ? top.map(c => modRow(c) + c.replies.map(r => modRow(r, c)).join('')).join('') : '<div class="empty">Комментариев пока нет.</div>'}
+  `);
+}
+function viewAdminSettings() {
+  const used = id => S.posts.filter(p => p.rubric === id).length;
+  return adminShell('settings', `
+    <div class="page-head"><h1>Настройки блога</h1></div>
+    <div class="stack" style="max-width:760px">
+      <div class="panel"><h3>Рубрики</h3>
+        <p class="small muted" style="margin:0">У публикации одна рубрика — по ней сотрудники фильтруют ленту. Рубрику с публикациями нельзя удалить: её можно скрыть из выбора.</p>
+        <div>${S.rubrics.map(r => `<div class="rub-row"><span class="swatch" style="background:${r.color}"></span>
+          <span>${esc(r.name)} <span class="muted small">· ${used(r.id)} ${plural(used(r.id), 'публикация', 'публикации', 'публикаций')}</span></span>
+          <span class="small muted">${r.active ? 'Показывается' : 'Скрыта'}</span>
+          <label class="toggle" title="Показывать рубрику"><input type="checkbox" data-act-change="rubric-active" data-id="${r.id}" ${r.active ? 'checked' : ''}><span></span></label></div>`).join('')}</div>
+        <div style="display:flex;gap:8px"><input id="new-rubric" class="input" maxlength="40" placeholder="Название новой рубрики"><button type="button" class="btn btn-secondary" data-act="rubric-add">Добавить</button></div>
+      </div>
+      <div class="panel"><h3>Главная блога</h3>
+        <p class="small muted" style="margin:0">Закреплено может быть не больше ${MAX_PINS} публикаций: так важное остаётся заметным. Последняя закреплённая показывается первой. Публикация, перенесённая в архив, открепляется автоматически.</p></div>
+      <div class="panel"><h3>Редакторы<span class="stage2">Этап 2</span></h3>
+        <p class="small muted" style="margin:0">В MVP права редактора выдаются через настройки доступа портала. На этапе 2 список редакторов можно будет вести здесь.</p>
+        <div style="display:flex;gap:10px;align-items:center">${avatar(EDITOR.name)}<span>${esc(EDITOR.name)} <span class="muted small">· Внутренние коммуникации</span></span></div></div>
+    </div>`);
+}
+
+/* ===== editor ===== */
+function newED(p) {
+  const d = new Date(Date.now() + DAY); d.setHours(9, 0, 0, 0);
+  const local = ts => { const x = new Date(ts); return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}T${pad(x.getHours())}:${pad(x.getMinutes())}`; };
+  return p ? { id: p.id, status: p.status, title: p.title, desc: p.desc, rubric: p.rubric, cover: p.cover, body: p.body, files: [...p.files],
+      notify: p.notify, notifyChange: false, allowComments: p.allowComments, allowReactions: p.allowReactions,
+      publishMode: p.status === 'scheduled' ? 'schedule' : 'now', scheduledLocal: local(p.scheduledAt || d.getTime()), errors: {}, savedAt: null, dirty: false }
+    : { id: null, status: 'new', title: '', desc: '', rubric: '', cover: null, body: '', files: [], notify: false, notifyChange: false,
+      allowComments: true, allowReactions: true, publishMode: 'now', scheduledLocal: local(d.getTime()), errors: {}, savedAt: null, dirty: false };
+}
+function viewEditor(id) {
+  if (!ED || ED.forRoute !== location.hash) {
+    const p = id ? byId(id) : null;
+    if (id && !p) return adminShell('list', `<a class="back" href="#/admin">${I.back(16)} Все публикации</a><div class="empty">Публикация не найдена.</div>`);
+    ED = newED(p); ED.forRoute = location.hash;
+  }
+  const isPub = ED.status === 'published', isArch = ED.status === 'archived';
+  const fake = { ...ED, rubric: ED.rubric || 'news' };
+  const e = ED.errors;
+  const mainLabel = isPub || isArch ? 'Сохранить изменения' : ED.publishMode === 'schedule' ? 'Запланировать' : 'Опубликовать';
+  return adminShell('list', `
+    <a class="back" href="#/admin">${I.back(16)} Все публикации</a>
+    <div class="page-head"><h1>${ED.id ? 'Редактирование' : 'Новая публикация'}</h1>${ED.id ? `<span class="pill ${ED.status}">${STATUS[ED.status]}</span>` : ''}</div>
+    ${isPub ? '<div class="closed" style="margin-bottom:20px">Публикация уже видна сотрудникам. Изменения появятся сразу после сохранения, у публикации появится метка «Изменено».</div>' : ''}
+    <div class="editor">
+      <div class="stack">
+        <div class="field"><span class="label">Обложка</span>
+          <div class="cover-drop"><div class="cover">${coverHTML(fake)}</div>
+            <div class="cover-actions"><label class="btn btn-secondary btn-sm" style="cursor:pointer">${I.image(16)}Загрузить<input type="file" accept="image/*" hidden data-file="cover"></label>
+              ${ED.cover ? '<button type="button" class="btn btn-ghost btn-sm" data-act="cover-remove">Убрать</button>' : ''}
+              <span>16:9, до 10 МБ. Без обложки покажем обложку рубрики.</span></div></div></div>
+        <div class="field"><label for="ed-title">Заголовок *</label>
+          <input id="ed-title" class="input ${e.title ? 'err' : ''}" maxlength="${TITLE_MAX}" data-ed="title" value="${esc(ED.title)}" placeholder="О чём публикация">
+          <div style="display:flex;justify-content:space-between;gap:12px"><span class="err-text">${e.title || ''}</span><span class="counter" id="cnt-title">${ED.title.length} / ${TITLE_MAX}</span></div></div>
+        <div class="field"><label for="ed-desc">Краткое описание</label>
+          <textarea id="ed-desc" class="input" rows="2" maxlength="${DESC_MAX}" data-ed="desc" placeholder="Одно-два предложения для карточки в ленте">${esc(ED.desc)}</textarea>
+          <div style="display:flex;justify-content:space-between;gap:12px"><span class="small muted">Если оставить пустым, в ленте покажем начало текста.</span><span class="counter" id="cnt-desc">${ED.desc.length} / ${DESC_MAX}</span></div></div>
+        <div class="field"><span class="label">Текст публикации</span>
+          <div class="rte">
+            <div class="rte-bar" role="toolbar" aria-label="Форматирование">
+              <button type="button" data-rte="bold" title="Жирный"><b>Ж</b></button>
+              <button type="button" data-rte="italic" title="Курсив"><i>К</i></button>
+              <button type="button" data-rte="h2" title="Подзаголовок">H2</button>
+              <span class="sep"></span>
+              <button type="button" data-rte="insertUnorderedList" title="Маркированный список">${I.ul(17)}</button>
+              <button type="button" data-rte="insertOrderedList" title="Нумерованный список">${I.ol(17)}</button>
+              <button type="button" data-rte="quote" title="Цитата">${I.quote(15)}</button>
+              <span class="sep"></span>
+              <button type="button" data-rte="link" title="Ссылка">${I.link(17)}</button>
+              <label title="Изображение" style="display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;cursor:pointer;color:var(--ink2)">${I.image(17)}<input type="file" accept="image/*" hidden data-file="inline-image"></label>
+              <label title="Прикрепить файл" style="display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;cursor:pointer;color:var(--ink2)">${I.clip(17)}<input type="file" hidden multiple data-file="attach"></label>
+            </div>
+            <div class="rte-area" contenteditable="true" id="ed-body" data-ph="Текст публикации. Можно вставить текст из Word или Google Docs — лишнее форматирование уберём."></div>
+          </div></div>
+        ${ED.files.length ? `<div class="files" style="margin:0">${ED.files.map((f, i) => `<div class="file">${I.doc(20)}<div><b>${esc(f.name)}</b><br><span>${esc(f.size)}</span></div>
+          <button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto" data-act="file-remove" data-i="${i}">Убрать</button></div>`).join('')}</div>` : ''}
+      </div>
+      <aside class="stack">
+        <div class="panel"><h3>Рубрика *</h3>
+          <select class="input ${e.rubric ? 'err' : ''}" data-ed-change="rubric" aria-label="Рубрика"><option value="">Выберите рубрику</option>
+            ${S.rubrics.filter(r => r.active || r.id === ED.rubric).map(r => `<option value="${r.id}" ${ED.rubric === r.id ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select>
+          ${e.rubric ? `<span class="err-text">${e.rubric}</span>` : ''}</div>
+        ${isPub || isArch ? '' : `<div class="panel"><h3>Когда опубликовать</h3>
+          <label class="radio"><input type="radio" name="pm" value="now" data-ed-change="publishMode" ${ED.publishMode === 'now' ? 'checked' : ''}> Сразу</label>
+          <label class="radio"><input type="radio" name="pm" value="schedule" data-ed-change="publishMode" ${ED.publishMode === 'schedule' ? 'checked' : ''}> По расписанию</label>
+          ${ED.publishMode === 'schedule' ? `<div class="field"><label for="ed-when">Дата и время, МСК</label>
+            <input id="ed-when" type="datetime-local" class="input ${e.when ? 'err' : ''}" value="${ED.scheduledLocal}" data-ed-change="scheduledLocal">
+            ${e.when ? `<span class="err-text">${e.when}</span>` : ''}</div>` : ''}
+        </div>`}
+        <div class="panel"><h3>Кто увидит</h3>
+          <label class="radio"><input type="radio" name="vis" checked> Все сотрудники</label>
+          <label class="radio" style="color:var(--muted)"><input type="radio" name="vis" disabled> Отдельные подразделения и офисы<span class="stage2">Этап 2</span></label>
+        </div>
+        <div class="panel"><h3>Взаимодействие</h3>
+          ${isPub ? `<div class="opt"><div>Уведомить об изменении<p>Если изменились дата, место или суть объявления</p></div>
+            <label class="toggle"><input type="checkbox" data-ed-check="notifyChange" ${ED.notifyChange ? 'checked' : ''}><span></span></label></div>`
+          : `<div class="opt"><div>Уведомить сотрудников<p>Для важного. Если уведомлять о каждой публикации, уведомления перестанут читать</p></div>
+            <label class="toggle"><input type="checkbox" data-ed-check="notify" ${ED.notify ? 'checked' : ''}><span></span></label></div>`}
+          <div class="opt"><div>Комментарии</div><label class="toggle"><input type="checkbox" data-ed-check="allowComments" ${ED.allowComments ? 'checked' : ''}><span></span></label></div>
+          <div class="opt"><div>Реакции</div><label class="toggle"><input type="checkbox" data-ed-check="allowReactions" ${ED.allowReactions ? 'checked' : ''}><span></span></label></div>
+        </div>
+      </aside>
+    </div>
+    <div class="savebar">
+      <span class="small muted" id="save-state">${ED.savedAt ? 'Черновик сохранён · ' + pad(new Date(ED.savedAt).getHours()) + ':' + pad(new Date(ED.savedAt).getMinutes()) : ED.dirty ? 'Есть несохранённые изменения' : ED.id ? 'Изменений нет' : 'Черновик сохранится автоматически'}</span>
+      <div class="btns">
+        <button type="button" class="btn btn-secondary" data-act="ed-preview">Предпросмотр</button>
+        ${!isPub && !isArch ? `<button type="button" class="btn btn-secondary" data-act="ed-save-draft">${ED.status === 'scheduled' ? 'Вернуть в черновики' : 'Сохранить черновик'}</button>` : ''}
+        <button type="button" class="btn btn-primary" data-act="ed-submit">${mainLabel}</button>
+      </div>
+    </div>`);
+}
+
+/* ===== toast, modal, menu ===== */
+function toast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  $('#toasts').appendChild(t); setTimeout(() => t.remove(), 2800);
+}
+function modal({ title, body, ok = 'ОК', cancel = 'Отмена', danger = false, wide = false, collect = null }) {
+  return new Promise(resolve => {
+    const root = $('#modal-root'), prev = document.activeElement;
+    root.innerHTML = `<div class="overlay" data-overlay="1"><div class="modal ${wide ? 'wide' : ''}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+      <div class="modal-head"><h3>${esc(title)}</h3><button type="button" class="icon-btn" data-m="cancel" aria-label="Закрыть">${I.close(18)}</button></div>
+      <div class="modal-body">${body}</div>
+      <div class="modal-foot">${cancel ? `<button type="button" class="btn btn-secondary" data-m="cancel">${cancel}</button>` : ''}${ok ? `<button type="button" class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-m="ok">${ok}</button>` : ''}</div>
+    </div></div>`;
+    const close = v => { root.innerHTML = ''; document.removeEventListener('keydown', onKey, true); if (prev && prev.focus) prev.focus(); resolve(v); };
+    const onKey = e => { if (e.key === 'Escape') { e.stopPropagation(); close(false); } };
+    document.addEventListener('keydown', onKey, true);
+    root.firstElementChild.addEventListener('click', e => {
+      if (e.target.dataset.overlay) return close(false);
+      const b = e.target.closest('[data-m]'); if (!b) return;
+      if (b.dataset.m === 'ok') { const v = collect ? collect(root) : true; if (v === undefined) return; close(v); } else close(false);
+    });
+    const f = root.querySelector('input,textarea') || root.querySelector('[data-m="ok"]') || root.querySelector('[data-m="cancel"]');
+    if (f) f.focus();
+  });
+}
+function renderMenu() {
+  let root = $('#menu-root');
+  if (!root) { root = document.createElement('div'); root.id = 'menu-root'; document.body.appendChild(root); }
+  const p = UI.menu && byId(UI.menu.id);
+  if (!p) { root.innerHTML = ''; return; }
+  root.innerHTML = `<div class="dropdown" role="menu" style="position:fixed;width:240px;top:${UI.menu.y}px;left:${Math.max(8, UI.menu.x - 240)}px">${rowMenuHTML(p)}</div>`;
+  const d = root.firstElementChild, r = d.getBoundingClientRect();
+  if (r.bottom > innerHeight - 8) d.style.top = Math.max(8, UI.menu.y - r.height - 44) + 'px';
+}
+function closeMenus() { UI.menu = null; renderMenu(); }
+
+/* ===== domain actions ===== */
+function doPublish(p) {
+  p.status = 'published'; p.publishedAt = Date.now(); p.scheduledAt = null; p.editedAt = null;
+  if (p.notify) S.notifications.push({ id: uid(), kind: 'important', postId: p.id, at: Date.now(), read: false,
+    text: (p.rubric === 'ann' ? 'Важное: ' : 'Новая публикация: ') + p.title });
+  save();
+}
+async function pinPost(p) {
+  const pins = pinnedPosts();
+  if (pins.length >= MAX_PINS) {
+    const off = await modal({ title: 'На главной уже 3 публикации', ok: 'Заменить', collect: root => { const c = root.querySelector('input[name=unpin]:checked'); return c ? c.value : undefined; },
+      body: `<p style="margin-top:0">Выберите публикацию, которую открепить, чтобы закрепить «${esc(p.title)}».</p>
+        <div class="stack" style="gap:10px">${pins.map((x, i) => `<label class="radio"><input type="radio" name="unpin" value="${x.id}" ${i === pins.length - 1 ? 'checked' : ''}> ${esc(x.title)}</label>`).join('')}</div>` });
+    if (!off) return;
+    byId(off).pinnedAt = null;
+  }
+  p.pinnedAt = Date.now(); save(); render(); toast('Публикация закреплена на главной блога');
+}
+async function archivePost(p) {
+  const ok = await modal({ title: 'Перенести в архив?', ok: 'Перенести', danger: true,
+    body: `<p style="margin-top:0">«${esc(p.title)}» исчезнет из ленты, поиска и закрепов. По прямой ссылке сотрудники увидят сообщение «Публикация недоступна».</p><p>Комментарии и статистика сохранятся. Вернуть публикацию можно в любой момент.</p>` });
+  if (!ok) return;
+  p.status = 'archived'; p.pinnedAt = null; save(); render(); toast('Публикация перенесена в архив');
+}
+async function deletePost(p) {
+  const ok = await modal({ title: 'Удалить публикацию?', ok: 'Удалить', danger: true,
+    body: `<p style="margin-top:0">${p.status === 'scheduled' ? 'Запланированная публикация не выйдет и будет удалена' : 'Черновик будет удалён'} без возможности восстановления.</p>` });
+  if (!ok) return;
+  S.posts = S.posts.filter(x => x.id !== p.id); save();
+  if (location.hash !== '#/admin') location.hash = '#/admin'; else render();
+  toast('Публикация удалена');
+}
+function previewPost(src) {
+  const base = src.id ? byId(src.id) : null;
+  const fake = { ...(base || {}), ...src, rubric: src.rubric || 'news', publishedAt: (base && base.publishedAt) || Date.now(),
+    views: 0, reactions: (base && base.reactions) || { like: 0, heart: 0, fire: 0, party: 0, clap: 0 }, myReaction: null,
+    comments: (base && base.comments) || [], editedAt: null, pinnedAt: null, files: src.files || [] };
+  modal({ title: 'Предпросмотр: так публикацию увидит сотрудник', wide: true, ok: null, cancel: 'Закрыть', body: `<div style="margin:0 -24px">${postHTML(fake, true)}</div>` });
+}
+function findComment(p, cid) {
+  for (const c of p.comments) { if (c.id === cid) return { c, list: p.comments }; const r = c.replies.find(x => x.id === cid); if (r) return { c: r, list: c.replies, parent: c }; }
+  return {};
+}
+
+/* ===== editor actions ===== */
+let savedRange = null, autosaveTimer = null;
+document.addEventListener('selectionchange', () => {
+  const body = $('#ed-body'), sel = getSelection();
+  if (body && sel.rangeCount && body.contains(sel.getRangeAt(0).commonAncestorContainer)) savedRange = sel.getRangeAt(0).cloneRange();
+});
+function restoreRange() {
+  const body = $('#ed-body'); if (!body) return; body.focus();
+  if (savedRange) { const s = getSelection(); s.removeAllRanges(); s.addRange(savedRange); }
+}
+function syncED() { const b = $('#ed-body'); if (b && ED) ED.body = b.innerHTML; }
+function upsertFromED() {
+  let p = ED.id ? byId(ED.id) : null;
+  if (!p) {
+    p = { id: uid(), status: 'draft', createdAt: Date.now(), publishedAt: null, scheduledAt: null, editedAt: null, author: EDITOR.name,
+      visibility: 'all', views: 0, reactions: { like: 0, heart: 0, fire: 0, party: 0, clap: 0 }, myReaction: null, comments: [], pinnedAt: null };
+    S.posts.unshift(p); ED.id = p.id; ED.status = 'draft';
+  }
+  Object.assign(p, { title: ED.title.trim(), desc: ED.desc.trim(), rubric: ED.rubric, cover: ED.cover, body: ED.body, files: [...ED.files],
+    notify: ED.notify, allowComments: ED.allowComments, allowReactions: ED.allowReactions });
+  return p;
+}
+function setSaveState(text) { const s = $('#save-state'); if (s) s.textContent = text; }
+function scheduleAutosave() {
+  clearTimeout(autosaveTimer);
+  if (!(ED.status === 'new' || ED.status === 'draft')) { setSaveState('Есть несохранённые изменения'); return; }
+  setSaveState('Сохраняем…');
+  autosaveTimer = setTimeout(() => {
+    if (!ED || !(ED.title.trim() || stripHtml(ED.body).trim())) { setSaveState('Черновик сохранится автоматически'); return; }
+    const p = upsertFromED(); p.editedAt = Date.now(); ED.savedAt = Date.now(); ED.dirty = false; save();
+    const d = new Date(ED.savedAt); setSaveState('Черновик сохранён · ' + pad(d.getHours()) + ':' + pad(d.getMinutes()));
+  }, 900);
+}
+function validateED(forPublish) {
+  const e = {};
+  if (!ED.title.trim()) e.title = 'Добавьте заголовок';
+  if (!ED.rubric) e.rubric = 'Выберите рубрику';
+  if (forPublish && ED.publishMode === 'schedule' && ED.status !== 'published') {
+    const t = new Date(ED.scheduledLocal).getTime();
+    if (!ED.scheduledLocal || isNaN(t)) e.when = 'Укажите дату и время';
+    else if (t < Date.now() + 5 * MIN) e.when = 'Время публикации должно быть хотя бы на 5 минут позже текущего';
+  }
+  ED.errors = e; return !Object.keys(e).length;
+}
+function edSubmit() {
+  syncED(); clearTimeout(autosaveTimer);
+  const wasPublished = ED.status === 'published' || ED.status === 'archived';
+  if (!validateED(true)) { render(); toast('Проверьте обязательные поля'); return; }
+  const p = upsertFromED();
+  if (wasPublished) {
+    if (p.status === 'published') {
+      p.editedAt = Date.now();
+      if (ED.notifyChange) S.notifications.push({ id: uid(), kind: 'change', postId: p.id, at: Date.now(), read: false, text: 'Изменена публикация: ' + p.title });
+    }
+    save(); ED = null; location.hash = '#/admin/post/' + p.id; toast('Изменения сохранены');
+  } else if (ED.publishMode === 'schedule') {
+    p.status = 'scheduled'; p.scheduledAt = new Date(ED.scheduledLocal).getTime(); save(); ED = null;
+    location.hash = '#/admin'; toast('Публикация запланирована на ' + fmtDate(p.scheduledAt));
+  } else {
+    doPublish(p); ED = null; location.hash = '#/admin/post/' + p.id;
+    toast(p.notify ? 'Опубликовано. Сотрудники получили уведомление' : 'Опубликовано');
+  }
+}
+function edSaveDraft() {
+  syncED(); clearTimeout(autosaveTimer);
+  const wasScheduled = ED.status === 'scheduled';
+  if (!ED.title.trim() && !stripHtml(ED.body).trim()) { toast('Черновик пустой — добавьте заголовок или текст'); return; }
+  const p = upsertFromED();
+  p.status = 'draft'; p.scheduledAt = null; p.editedAt = Date.now(); save(); ED = null;
+  location.hash = '#/admin'; toast(wasScheduled ? 'Публикация возвращена в черновики' : 'Черновик сохранён');
+}
+function readFile(file) {
+  return new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file); });
+}
+const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1).replace('.', ',') + ' МБ' : Math.max(1, Math.round(b / 1024)) + ' КБ';
+
+/* ===== router ===== */
+let lastRoute = '';
+function render() {
+  syncED();
+  publishScheduledIfDue();
+  const h = location.hash || '#/user';
+  const parts = h.replace(/^#\/?/, '').split('/');
+  const mode = parts[0] === 'admin' ? 'admin' : 'user';
+  renderTopbar(mode);
+  let html;
+  if (mode === 'user') html = parts[1] === 'post' ? viewUserPost(parts[2]) : viewUserHome();
+  else if (parts[1] === 'new') html = viewEditor(null);
+  else if (parts[1] === 'edit') html = viewEditor(parts[2]);
+  else if (parts[1] === 'post') html = viewAdminPost(parts[2]);
+  else if (parts[1] === 'settings') html = viewAdminSettings();
+  else html = viewAdminList();
+  if (html === '') return;
+  $('#app').innerHTML = html;
+  const body = $('#ed-body'); if (body && ED) body.innerHTML = ED.body;
+  if (h !== lastRoute) { lastRoute = h; window.scrollTo(0, 0); }
+  renderMenu();
+}
+function renderKeepFocus() {
+  const a = document.activeElement, id = a && a.id, pos = a && a.selectionStart;
+  render();
+  const n = id && document.getElementById(id);
+  if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} }
+}
+window.addEventListener('hashchange', () => {
+  UI.menu = null; UI.bell = false; UI.replyTo = null; UI.editComment = null;
+  if (!/^#\/admin\/(new|edit)/.test(location.hash)) ED = null;
+  render();
+});
+window.addEventListener('scroll', () => { if (UI.menu) closeMenus(); }, { passive: true });
+
+/* ===== events ===== */
+let searchTimer = null;
+document.addEventListener('click', async e => {
+  const el = e.target.closest('[data-act],[data-rte]');
+  if (UI.bell && !e.target.closest('.notif') && !(el && el.dataset.act === 'bell')) { UI.bell = false; renderTopbar(location.hash.startsWith('#/admin') ? 'admin' : 'user'); }
+  if (UI.menu && !(el && (el.dataset.act === 'row-menu' || e.target.closest('#menu-root')))) closeMenus();
+  if (!el) return;
+  if (el.dataset.rte) return rte(el.dataset.rte);
+  const act = el.dataset.act, id = el.dataset.id, p = id ? byId(id) : null;
+  if (el.tagName === 'A') return;
+  e.preventDefault();
+  switch (act) {
+    case 'mode': location.hash = '#/' + el.dataset.mode; break;
+    case 'nav': location.hash = el.dataset.to; break;
+    case 'reset': {
+      const ok = await modal({ title: 'Сбросить демо-данные?', ok: 'Сбросить', body: '<p style="margin-top:0">Все изменения, сделанные в прототипе, будут отменены.</p>' });
+      if (!ok) break;
+      try { localStorage.removeItem(STORE_KEY); } catch (err) {}
+      S = seed(); save(); ED = null; Object.assign(UI, { q: '', rubric: 'all', period: 'all', limit: 9, aq: '', astatus: 'all', arubric: 'all', aperiod: 'all', viewed: {} });
+      if (location.hash === '#/user') render(); else location.hash = '#/user';
+      toast('Демо-данные восстановлены'); break;
+    }
+    /* user */
+    case 'bell': UI.bell = !UI.bell; renderTopbar('user'); break;
+    case 'bell-readall': S.notifications.forEach(n => n.read = true); save(); renderTopbar('user'); break;
+    case 'bell-open': { const n = S.notifications.find(x => x.id === id); if (n) { n.read = true; save(); } UI.bell = false; location.hash = '#/user/post/' + n.postId; renderTopbar('user'); break; }
+    case 'rubric': UI.rubric = id; UI.limit = 9; render(); break;
+    case 'clear-filters': Object.assign(UI, { q: '', rubric: 'all', period: 'all', limit: 9 }); render(); break;
+    case 'more': UI.limit += 9; render(); break;
+    case 'react': {
+      const k = el.dataset.r;
+      if (p.myReaction) p.reactions[p.myReaction]--;
+      p.myReaction = p.myReaction === k ? null : k;
+      if (p.myReaction) p.reactions[k]++;
+      save(); render(); break;
+    }
+    case 'copy-link': try { await navigator.clipboard.writeText(location.href); } catch (err) {} toast('Ссылка скопирована'); break;
+    case 'download': toast('В прототипе файлы не скачиваются'); break;
+    case 'noop': break;
+    case 'c-send': {
+      const t = $('#c-new').value.trim(); if (!t) { $('#c-new').focus(); break; }
+      p.comments.push({ id: uid(), author: ME.name, dept: ME.dept, text: t, at: Date.now(), replies: [], pinned: false, deleted: null, edited: false, mine: true });
+      save(); render(); toast('Комментарий опубликован'); break;
+    }
+    case 'c-reply': UI.replyTo = el.dataset.c; UI.editComment = null; render(); { const f = $('#c-reply'); if (f) f.focus(); } break;
+    case 'c-reply-cancel': UI.replyTo = null; render(); break;
+    case 'c-reply-send': {
+      const t = $('#c-reply').value.trim(); if (!t) break;
+      const { c } = findComment(p, el.dataset.c);
+      c.replies.push({ id: uid(), author: ME.name, dept: ME.dept, text: t, at: Date.now(), replies: [], pinned: false, deleted: null, edited: false, mine: true });
+      UI.replyTo = null; save(); render(); break;
+    }
+    case 'c-edit': UI.editComment = el.dataset.c; UI.replyTo = null; render(); { const f = $('#c-edit'); if (f) f.focus(); } break;
+    case 'c-edit-cancel': UI.editComment = null; render(); break;
+    case 'c-edit-save': {
+      const t = $('#c-edit').value.trim(); if (!t) break;
+      const { c } = findComment(p, el.dataset.c); c.text = t; c.edited = true; UI.editComment = null; save(); render(); break;
+    }
+    case 'c-del': {
+      const ok = await modal({ title: 'Удалить комментарий?', ok: 'Удалить', danger: true, body: '<p style="margin-top:0">Если на комментарий уже ответили, на его месте останется пометка «Комментарий удалён автором».</p>' });
+      if (!ok) break;
+      const { c, list } = findComment(p, el.dataset.c);
+      if (c.replies && c.replies.length) c.deleted = 'author'; else list.splice(list.indexOf(c), 1);
+      save(); render(); break;
+    }
+    /* admin list */
+    case 'astatus': UI.astatus = id; render(); break;
+    case 'row-open':
+      location.hash = (p.status === 'draft' || p.status === 'scheduled') ? '#/admin/edit/' + id : '#/admin/post/' + id; break;
+    case 'row-menu': {
+      const r = el.getBoundingClientRect();
+      UI.menu = UI.menu && UI.menu.id === id ? null : { id, x: r.right, y: r.bottom + 4 };
+      renderMenu(); break;
+    }
+    case 'edit': closeMenus(); location.hash = '#/admin/edit/' + id; break;
+    case 'admin-post': closeMenus(); location.hash = '#/admin/post/' + id; break;
+    case 'as-user': closeMenus(); location.hash = '#/user/post/' + id; break;
+    case 'preview': closeMenus(); previewPost(p); break;
+    case 'publish-now':
+      closeMenus();
+      if (!p.title || !p.rubric) { location.hash = '#/admin/edit/' + id; toast('Заполните заголовок и рубрику'); break; }
+      doPublish(p); render(); toast(p.notify ? 'Опубликовано. Сотрудники получили уведомление' : 'Опубликовано'); break;
+    case 'to-draft': closeMenus(); p.status = 'draft'; p.scheduledAt = null; save(); render(); toast('Публикация возвращена в черновики'); break;
+    case 'delete': closeMenus(); deletePost(p); break;
+    case 'pin': closeMenus(); pinPost(p); break;
+    case 'unpin': closeMenus(); p.pinnedAt = null; save(); render(); toast('Публикация откреплена'); break;
+    case 'archive': closeMenus(); archivePost(p); break;
+    case 'restore': closeMenus(); p.status = 'published'; save(); render(); toast('Публикация снова опубликована'); break;
+    /* moderation */
+    case 'mc-pin': p.comments.forEach(c => c.pinned = false); findComment(p, el.dataset.c).c.pinned = true; save(); render(); toast('Комментарий закреплён'); break;
+    case 'mc-unpin': findComment(p, el.dataset.c).c.pinned = false; save(); render(); break;
+    case 'mc-delete': {
+      const ok = await modal({ title: 'Удалить комментарий?', ok: 'Удалить', danger: true, body: '<p style="margin-top:0">Сотрудники увидят пометку «Комментарий удалён модератором». Текст сохранится в админке, комментарий можно будет восстановить.</p>' });
+      if (!ok) break;
+      const { c } = findComment(p, el.dataset.c); c.deleted = 'moderator'; c.pinned = false; save(); render(); toast('Комментарий удалён'); break;
+    }
+    case 'mc-restore': findComment(p, el.dataset.c).c.deleted = null; save(); render(); toast('Комментарий восстановлен'); break;
+    /* settings */
+    case 'rubric-add': {
+      const inp = $('#new-rubric'), name = inp.value.trim(); if (!name) { inp.focus(); break; }
+      const pal = [['#28B8BD', '#DDF4F4'], ['#8E75FA', '#ECE6FF'], ['#FF794D', '#FFE9DF'], ['#3416B6', '#E7E2FD']];
+      const [color, tint] = pal[S.rubrics.length % pal.length];
+      S.rubrics.push({ id: 'r' + uid(), name, color, tint, active: true }); save(); render(); toast('Рубрика добавлена'); break;
+    }
+    /* editor */
+    case 'ed-submit': edSubmit(); break;
+    case 'ed-save-draft': edSaveDraft(); break;
+    case 'ed-preview': syncED(); previewPost({ ...ED, id: ED.id }); break;
+    case 'cover-remove': syncED(); ED.cover = null; ED.dirty = true; render(); scheduleAutosave(); break;
+    case 'file-remove': syncED(); ED.files.splice(+el.dataset.i, 1); ED.dirty = true; render(); scheduleAutosave(); break;
+  }
+});
+async function rte(cmd) {
+  if (cmd === 'link') {
+    const range = savedRange;
+    const url = await modal({ title: 'Добавить ссылку', ok: 'Добавить', collect: root => { const v = root.querySelector('input').value.trim(); return v || undefined; },
+      body: '<div class="field"><label for="link-url">Адрес ссылки</label><input id="link-url" class="input" placeholder="https://"></div><p class="small muted">Сначала выделите в тексте слово, которое станет ссылкой.</p>' });
+    savedRange = range; if (!url) return;
+    restoreRange(); document.execCommand('createLink', false, url);
+  } else {
+    restoreRange();
+    if (cmd === 'h2') document.execCommand('formatBlock', false, document.queryCommandValue('formatBlock') === 'h2' ? '<p>' : '<h2>');
+    else if (cmd === 'quote') document.execCommand('formatBlock', false, document.queryCommandValue('formatBlock') === 'blockquote' ? '<p>' : '<blockquote>');
+    else document.execCommand(cmd, false, null);
+  }
+  syncED(); ED.dirty = true; scheduleAutosave();
+}
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.input) {
+    UI[t.dataset.input] = t.value; UI.limit = 9;
+    clearTimeout(searchTimer); searchTimer = setTimeout(renderKeepFocus, 220);
+  } else if (t.dataset.ed && ED) {
+    ED[t.dataset.ed] = t.value; ED.dirty = true;
+    const cnt = $('#cnt-' + t.dataset.ed); if (cnt) cnt.textContent = t.value.length + ' / ' + (t.dataset.ed === 'title' ? TITLE_MAX : DESC_MAX);
+    if (ED.errors[t.dataset.ed]) { delete ED.errors[t.dataset.ed]; t.classList.remove('err'); const er = t.parentElement.querySelector('.err-text'); if (er) er.textContent = ''; }
+    scheduleAutosave();
+  } else if (t.id === 'ed-body' && ED) {
+    ED.body = t.innerHTML; ED.dirty = true; scheduleAutosave();
+  }
+});
+document.addEventListener('change', async e => {
+  const t = e.target;
+  if (t.dataset.change) { UI[t.dataset.change] = t.value; UI.limit = 9; render(); return; }
+  if (t.dataset.actChange === 'rubric-active') { const r = S.rubrics.find(x => x.id === t.dataset.id); r.active = t.checked; save(); render(); return; }
+  if (!ED) return;
+  if (t.dataset.edChange) {
+    syncED(); ED[t.dataset.edChange] = t.value; ED.dirty = true;
+    if (t.dataset.edChange === 'rubric') delete ED.errors.rubric;
+    if (t.dataset.edChange === 'scheduledLocal') delete ED.errors.when;
+    render(); scheduleAutosave(); return;
+  }
+  if (t.dataset.edCheck) { ED[t.dataset.edCheck] = t.checked; ED.dirty = true; scheduleAutosave(); return; }
+  if (t.dataset.file && t.files.length) {
+    syncED();
+    if (t.dataset.file === 'cover') { ED.cover = await readFile(t.files[0]); render(); }
+    else if (t.dataset.file === 'inline-image') { const src = await readFile(t.files[0]); restoreRange(); document.execCommand('insertImage', false, src); syncED(); }
+    else if (t.dataset.file === 'attach') { [...t.files].forEach(f => ED.files.push({ name: f.name, size: fmtSize(f.size) })); render(); toast('Файл прикреплён'); }
+    ED.dirty = true; scheduleAutosave(); t.value = '';
+  }
+});
+document.addEventListener('paste', e => {
+  if (e.target.closest && e.target.closest('#ed-body')) {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, text);
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { if (UI.menu) closeMenus(); if (UI.bell) { UI.bell = false; renderTopbar('user'); } }
+});
+
+/* ===== init ===== */
+if (!location.hash) history.replaceState(null, '', '#/user');
+render();
+setInterval(() => {
+  const before = S.posts.filter(p => p.status === 'scheduled').length;
+  publishScheduledIfDue();
+  if (S.posts.filter(p => p.status === 'scheduled').length !== before) { toast('Запланированная публикация вышла'); if (!$('#ed-body')) render(); }
+}, 30000);
+
+</script>
+</body>
+</html>
