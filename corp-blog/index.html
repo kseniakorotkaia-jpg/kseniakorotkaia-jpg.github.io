@@ -279,58 +279,81 @@ tbody tr{cursor:pointer} tbody tr:hover td{background:var(--soft2)}
 ul.m2-list li::before{content:""; position:absolute; left:6px; top:.5em; width:9px; height:9px; background:var(--indigo); box-shadow:4px -4px 0 0 #B8A9F8}
 ol.m2-list li{counter-increment:m2}
 ol.m2-list li::before{content:counter(m2); position:absolute; left:0; top:-1px; width:25px; height:25px; background:var(--lav); color:var(--indigo); font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; border-radius:4px}
-.m2-quote{position:relative; margin:22px 0; padding:22px 24px 20px 68px; background:var(--lav); border-radius:8px}
-.m2-quote::before{content:"\201C"; position:absolute; left:20px; top:8px; font-family:Georgia,'Times New Roman',serif; font-size:72px; line-height:1; color:var(--violet)}
-.m2-quote p{margin:0; font-size:18px; line-height:1.5; color:var(--indigo-night)}
-.m2-quote cite{display:block; margin-top:10px; font-style:normal; font-size:14px; color:var(--indigo); font-weight:500}
+.m2-quote{position:relative; margin:22px 0; padding:20px 24px 18px 66px; background:var(--lav-soft); border-radius:8px}
+.m2-quote::before{content:"\201C"; position:absolute; left:20px; top:8px; font-family:Georgia,'Times New Roman',serif; font-size:68px; line-height:1; color:var(--violet)}
+.m2-quote p{margin:0; font-size:18px; line-height:1.5; color:var(--ink)}
+.m2-quote cite{display:block; margin-top:10px; font-style:normal; font-size:14px; color:var(--muted)}
 .m2-figure{margin:20px 0} .m2-figure img{width:100%; border-radius:8px; display:block} .m2-figure figcaption{font-size:13px; color:var(--muted); margin-top:8px}
 
-/* ===== block editor ===== */
+/* ===== longread editor ===== */
+.ed-tabs{display:flex; gap:4px; background:var(--soft); padding:4px; border-radius:8px; width:max-content; margin-bottom:12px}
+.ed-tabs button{border:0; background:transparent; padding:8px 18px; border-radius:6px; cursor:pointer; font-weight:500; font-size:14px; color:var(--ink2)}
+.ed-tabs button.on{background:#fff; color:var(--indigo); box-shadow:0 1px 2px rgba(33,31,46,.1)}
+.canvas{border:1px solid var(--line); border-radius:10px; background:#fff; padding:28px 40px 32px}
+.canvas.preview{padding:0} .canvas.preview .post{max-width:none; padding:28px 40px 36px}
+@media (max-width:760px){.canvas{padding:18px 16px} .canvas.preview .post{padding:18px 16px}}
+.cv-cover{position:relative; border-radius:8px; overflow:hidden; margin-bottom:22px}
+.cv-cover .cover{aspect-ratio:21/9}
+.cv-cover-actions{position:absolute; right:12px; bottom:12px; display:flex; gap:8px}
+.cv-cover-actions .btn{background:rgba(255,255,255,.94); color:var(--ink); box-shadow:0 1px 4px rgba(33,31,46,.18)}
+.cv-title{width:100%; border:0; outline:none; font-size:30px; font-weight:500; line-height:1.2; letter-spacing:-.01em; color:var(--ink); padding:0; background:transparent}
+.cv-desc{display:block; width:100%; border:0; outline:none; resize:none; overflow:hidden; font-size:18px; line-height:1.5; color:var(--ink2); padding:0; margin-top:10px; background:transparent}
+.cv-title::placeholder,.cv-desc::placeholder{color:var(--muted2)}
+.cv-meta{display:flex; justify-content:space-between; gap:12px}
+.cv-meta .counter{opacity:0; transition:opacity .15s}
+.cv-title:focus+.cv-meta .counter,.cv-desc:focus+.cv-meta .counter{opacity:1}
+.cv-sep{border:0; border-top:1px solid var(--line); margin:16px 0 18px}
 .blocks{display:flex; flex-direction:column}
-.blk{border:1px solid var(--line); border-radius:8px; background:#fff}
-.blk:hover,.blk:focus-within{border-color:var(--line2)}
-.blk-head{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:4px 6px 4px 12px; border-bottom:1px solid var(--line); background:var(--soft2); border-radius:8px 8px 0 0}
-.blk-type{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); font-weight:500}
+.blk{position:relative; border-radius:6px; padding:8px 12px; margin:0 -12px; outline:1px solid transparent; transition:outline-color .15s, background .15s}
+.blk:hover{outline-color:var(--line)}
+.blk:focus-within{outline-color:var(--line2); background:var(--soft2)}
+.blk-head{position:absolute; top:-20px; right:10px; z-index:3; display:flex; align-items:center; gap:2px; background:#fff; border:1px solid var(--line);
+  border-radius:6px; box-shadow:0 2px 10px rgba(33,31,46,.1); padding:2px 4px 2px 10px; opacity:0; pointer-events:none; transition:opacity .15s}
+.blk:hover .blk-head,.blk:focus-within .blk-head{opacity:1; pointer-events:auto}
+.blk-type{display:flex; align-items:center; gap:5px; font-size:12px; color:var(--muted); font-weight:500; margin-right:6px}
 .blk-tools{display:flex; align-items:center; gap:2px}
-.blk-tools button{border:0; background:transparent; min-width:30px; height:30px; border-radius:4px; cursor:pointer; color:var(--ink2); font-size:13px; display:inline-flex; align-items:center; justify-content:center; padding:0 6px}
-.blk-tools button:hover:not(:disabled){background:var(--line)} .blk-tools button:disabled{opacity:.3; cursor:default}
+.blk-tools button,.tool-label{border:0; background:transparent; min-width:30px; height:30px; border-radius:4px; cursor:pointer; color:var(--ink2); font-size:13px; display:inline-flex; align-items:center; justify-content:center; gap:4px; padding:0 6px}
+.blk-tools button:hover:not(:disabled),.tool-label:hover{background:var(--line)} .blk-tools button:disabled{opacity:.3; cursor:default}
 .blk-tools button.on{background:var(--lav); color:var(--indigo)}
 .blk-tools .sep{width:1px; height:18px; background:var(--line2); margin:0 4px}
-.blk-body{padding:14px 16px}
-.rich{outline:none; min-height:44px; line-height:1.6}
+.rich{outline:none; min-height:28px; font-size:16px; line-height:1.65}
 .rich:empty::before{content:attr(data-ph); color:var(--muted2)}
-.rich p{margin:0 0 10px} .rich h2{font-size:20px; margin:6px 0 8px}
-.blk-list{display:grid; gap:4px; justify-items:start}
-.li-row{display:grid; grid-template-columns:26px minmax(0,1fr) 28px; gap:8px; align-items:center; width:100%}
-.li-input{border:0; border-bottom:1px dashed var(--line2); padding:7px 2px; outline:none; width:100%; background:transparent}
-.li-input:focus{border-bottom-color:var(--indigo)}
+.rich p{margin:0 0 12px} .rich p:last-child{margin-bottom:0} .rich h2{font-size:22px; margin:6px 0 10px}
+.blk-list{display:grid; gap:2px; justify-items:start}
+.li-row{display:grid; grid-template-columns:26px minmax(0,1fr) 28px; gap:10px; align-items:center; width:100%}
+.li-input{border:0; border-bottom:1px dashed transparent; padding:5px 2px; outline:none; width:100%; background:transparent; font-size:16px}
+.blk:hover .li-input,.li-input:focus{border-bottom-color:var(--line2)}
 .blk-list.bullet .li-mark{width:9px; height:9px; background:var(--indigo); box-shadow:4px -4px 0 0 #B8A9F8; justify-self:center}
 .blk-list.number .li-mark{width:25px; height:25px; background:var(--lav); color:var(--indigo); font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; border-radius:4px}
-.li-del{border:0; background:transparent; color:var(--muted2); cursor:pointer; width:28px; height:28px; border-radius:4px; display:flex; align-items:center; justify-content:center}
-.li-del:hover{color:var(--red); background:var(--soft)}
-.blk-quote{position:relative; background:var(--lav); border-radius:8px; padding:16px 16px 12px 60px}
-.blk-quote::before{content:"\201C"; position:absolute; left:16px; top:4px; font-family:Georgia,serif; font-size:60px; line-height:1; color:var(--violet)}
-.q-text{width:100%; border:0; background:transparent; resize:vertical; font-size:17px; line-height:1.5; color:var(--indigo-night); outline:none; padding:0}
-.q-author{border:0; background:transparent; font-size:14px; color:var(--indigo); font-weight:500; width:100%; outline:none; margin-top:8px; padding:0}
+.li-del{border:0; background:transparent; color:var(--muted2); cursor:pointer; width:28px; height:28px; border-radius:4px; display:flex; align-items:center; justify-content:center; opacity:0}
+.li-row:hover .li-del,.li-del:focus-visible{opacity:1} .li-del:hover{color:var(--red); background:var(--soft)}
+.blk-quote{position:relative; background:var(--lav-soft); border-radius:8px; padding:18px 18px 14px 62px}
+.blk-quote::before{content:"\201C"; position:absolute; left:18px; top:6px; font-family:Georgia,serif; font-size:60px; line-height:1; color:var(--violet)}
+.q-text{display:block; width:100%; border:0; background:transparent; resize:none; overflow:hidden; font-size:18px; line-height:1.5; color:var(--ink); outline:none; padding:0}
+.q-author{border:0; background:transparent; font-size:14px; color:var(--muted); width:100%; outline:none; margin-top:8px; padding:0}
 .upload-zone{display:flex; flex-direction:column; align-items:center; gap:4px; padding:22px; border:1px dashed var(--line2); border-radius:8px; background:var(--soft2); cursor:pointer; color:var(--muted); text-align:center; font-size:13px}
 .upload-zone b{color:var(--indigo); font-weight:500; font-size:14px} .upload-zone:hover{border-color:var(--indigo)}
-.blk-img{margin:0} .blk-img img{width:100%; border-radius:6px; display:block}
+.blk-img{margin:0} .blk-img img{width:100%; border-radius:8px; display:block}
 .cap-input{border:0; width:100%; padding:8px 2px 0; font-size:13px; color:var(--muted); outline:none; background:transparent}
-.insert{position:relative; height:24px; display:flex; align-items:center; justify-content:center}
-.insert button{width:24px; height:24px; border-radius:50%; border:1px solid var(--line2); background:#fff; color:var(--indigo); cursor:pointer; opacity:0; transition:opacity .15s; display:flex; align-items:center; justify-content:center; position:relative; z-index:1}
+.insert{position:relative; height:16px; display:flex; align-items:center; justify-content:center}
+.insert button{width:22px; height:22px; border-radius:50%; border:1px solid var(--line2); background:#fff; color:var(--indigo); cursor:pointer; opacity:0; transition:opacity .15s; display:flex; align-items:center; justify-content:center; position:relative; z-index:2}
 .insert::before{content:""; position:absolute; left:0; right:0; top:50%; border-top:1px dashed var(--line2); opacity:0; transition:opacity .15s}
 .insert:hover button,.insert:hover::before,.insert button:focus-visible{opacity:1}
 .palette{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:12px; border:1px solid var(--lav); background:var(--lav-soft); border-radius:8px; margin:8px 0}
 .palette .pt{display:flex; flex-direction:column; align-items:center; gap:6px; width:96px; padding:12px 6px; border:1px solid var(--line); background:#fff; border-radius:8px; cursor:pointer; font-size:13px; color:var(--ink)}
 .palette .pt:hover{border-color:var(--indigo); color:var(--indigo)}
-.add-block{margin-top:12px; align-self:flex-start}
-.react-list{display:flex; gap:6px; flex-wrap:wrap}
-.react-pill{font-size:17px; width:38px; height:32px; display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--line); border-radius:16px; background:var(--soft2)}
+.add-block{margin-top:14px; align-self:flex-start}
+.reacts-pick{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; margin-top:2px}
+.react-opt{font-size:17px; width:100%; height:34px; padding:0; display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--line); border-radius:17px; background:#fff; cursor:pointer; filter:grayscale(1); opacity:.5; transition:opacity .15s, filter .15s, border-color .15s}
+.react-opt:hover{opacity:.8}
+.react-opt.on{filter:none; opacity:1; border-color:var(--indigo); background:var(--lav-soft)}
 .groups{display:grid; gap:6px} .groups .gk{font-size:12px; color:var(--muted); margin-top:6px}
 .check{display:flex; align-items:center; gap:8px; font-size:14px; cursor:pointer}
 .check .cnt{color:var(--muted2); font-size:12px; margin-left:auto}
 .t-title small.vis{display:flex; align-items:center; gap:4px; color:var(--indigo); margin-top:2px}
-.pick-list{display:grid; gap:6px; max-height:340px; overflow:auto}
+.pick-filters{display:grid; grid-template-columns:minmax(0,1fr) 190px; gap:8px; margin-bottom:12px}
+.pick-list{display:grid; gap:6px; height:300px; align-content:start; overflow:auto}
+.pick-empty{padding:32px 0; text-align:center; color:var(--muted); font-size:14px}
 .pick{display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--line); border-radius:6px; cursor:pointer}
 .pick[hidden]{display:none}
 .pick:hover{border-color:var(--line2)} .pick b{font-weight:500; display:block} .pick small{color:var(--muted); font-size:12px}
@@ -416,7 +439,8 @@ const I = {
 };
 
 /* ===== reference data ===== */
-const REACTIONS = [['like', '👍', 'Нравится'], ['heart', '❤️', 'Люблю'], ['fire', '🔥', 'Огонь'], ['party', '🎉', 'Празднуем'], ['clap', '👏', 'Аплодирую']];
+const REACTIONS = [['like', '👍', 'Нравится'], ['heart', '❤️', 'Люблю'], ['fire', '🔥', 'Огонь'], ['party', '🎉', 'Празднуем'], ['clap', '👏', 'Аплодирую'], ['sad', '😢', 'Грустно'], ['dislike', '👎', 'Не нравится']];
+const DEFAULT_REACTIONS = ['like', 'heart', 'fire', 'party', 'clap'];
 const GROUPS = [
   { id: 'msk', name: 'Офис в Москве', kind: 'Офисы', count: 410 },
   { id: 'spb', name: 'Офис в Санкт-Петербурге', kind: 'Офисы', count: 130 },
@@ -453,12 +477,12 @@ function seed() {
   const F = (name, size) => ({ id: sid(), type: 'file', name, size });
   const post = o => ({ id: sid(), desc: '', cover: null, blocks: [], author: EDITOR.name, createdAt: o.publishedAt || N, publishedAt: null,
     scheduledAt: null, editedAt: null, notify: false, allowComments: true, allowReactions: true, visibility: 'all', groups: [], views: 0,
-    reactions: { like: 0, heart: 0, fire: 0, party: 0, clap: 0 }, myReaction: null, comments: [], pinnedAt: null, ...o });
+    reactions: { like: 0, heart: 0, fire: 0, party: 0, clap: 0, sad: 0, dislike: 0 }, reactionSet: [...DEFAULT_REACTIONS], myReaction: null, comments: [], pinnedAt: null, ...o });
 
   const p2 = post({ status: 'published', rubric: 'ann', publishedAt: at(1, 16), pinnedAt: at(1, 16, 1), views: 512, notify: true, allowComments: false, cover: IMG.bricks,
     title: 'Плановые работы: портал будет недоступен в субботу с 10:00 до 12:00',
     desc: 'Обновляем серверы. Заявки, отправленные до начала работ, сохранятся.',
-    reactions: { like: 27, heart: 0, fire: 0, party: 0, clap: 4 },
+    reactions: { like: 27, heart: 0, fire: 0, party: 0, clap: 4, sad: 6, dislike: 0 }, reactionSet: ['like', 'clap', 'sad'],
     blocks: [T('<p>В субботу с 10:00 до 12:00 по московскому времени портал будет недоступен: команда разработки обновляет серверы.</p>'),
       L(['Заявки, отправленные до начала работ, сохранятся.', 'Срочные кадровые вопросы в это время — по почте hr@company.ru.'])] });
 
@@ -470,6 +494,7 @@ function seed() {
       L(['Кадровые заявки: отпуск, командировка, справки', 'Оргструктура и профили коллег', 'Цели и Performance Review']),
       T('<h2>Что появится до конца года</h2>'),
       L(['Корпоративный университет', 'База знаний', 'Корпоративный блог — вы его уже читаете'], 'number'),
+      IM(IMG.doc, 'Инструкции ко всем разделам собраны в базе знаний'),
       Q('Мы делали портал вместе с вами и учли больше 200 пожеланий сотрудников. Пишите в комментариях, что улучшить дальше.', 'Команда внутренних коммуникаций'),
       F('Инструкция_новый_портал.pdf', '1,2 МБ')] });
   p1.comments = [
@@ -540,7 +565,9 @@ function seed() {
     blocks: [T('<p>На следующей неделе день рождения празднуют:</p>'), L(['Мария Лебедева, Внутренние коммуникации', 'Тимур Садыков, Разработка'])] });
 
   const p11 = post({ status: 'draft', rubric: 'news', createdAt: N - DAY,
-    title: 'Корпоративный университет: первые курсы', desc: 'Что уже доступно и как записаться.', blocks: [T('<p>Черновик…</p>')] });
+    title: 'Корпоративный университет: первые курсы', desc: 'Что уже доступно и как записаться.',
+    blocks: [T('<p>Корпоративный университет открыт для всех сотрудников.</p><h2>Первые курсы</h2>'), L(['Переговоры с застройщиками', 'Ипотека: новые программы', 'Работа в новом портале']),
+      Q('Мы собрали курсы, которые попросили сами сотрудники.', 'Дарья Смирнова, корпоративный университет'), F('Каталог_курсов.pdf', '2,4 МБ')] });
 
   return {
     rubrics: [
@@ -559,10 +586,22 @@ function seed() {
   };
 }
 
+function demoLongread() {
+  const b = (type, o) => ({ id: uid(), type, ...o });
+  return { title: 'Гид по корпоративному блогу', desc: 'Что есть в блоге и как не пропустить важное.', rubric: 'news', cover: IMG.building,
+    blocks: [b('text', { html: '<p>Корпоративный блог — место, где собраны новости, объявления и жизнь компании. Рассказываем, как им пользоваться.</p><h2>Что есть в блоге</h2>' }),
+      b('list', { style: 'bullet', items: ['Новости компании и важные объявления', 'Анонсы мероприятий в офисах', 'Поздравления и знакомство с новыми коллегами'] }),
+      b('text', { html: '<h2>Как не пропустить важное</h2>' }),
+      b('list', { style: 'number', items: ['Смотрите закреплённые публикации вверху блога', 'Следите за уведомлениями в колокольчике', 'Ищите старые публикации через поиск и фильтры'] }),
+      b('quote', { text: 'Мы хотим, чтобы блог был полезным. Пишите в комментариях, чего не хватает.', author: 'Мария Лебедева, внутренние коммуникации' }),
+      b('image', { src: IMG.armchair, caption: 'Зона отдыха в московском офисе' }),
+      b('file', { name: 'Гид_по_корпоративному_блогу.pdf', size: '860 КБ' })] };
+}
+
 /* ===== state ===== */
 let S = seed();
 function save() {}
-const UI = { q: '', rubric: 'all', period: 'all', limit: 9, aq: '', astatus: 'all', arubric: 'all', aperiod: 'all', menu: null, bell: false, blockMenu: null };
+const UI = { q: '', rubric: 'all', period: 'all', limit: 9, aq: '', astatus: 'all', arubric: 'all', aperiod: 'all', menu: null, bell: false, blockMenu: null, edTab: 'edit' };
 let ED = null;
 
 const byId = id => S.posts.find(p => p.id === id);
@@ -715,7 +754,7 @@ function postHTML(p, preview) {
     ${p.desc ? `<p class="lead">${esc(p.desc)}</p>` : ''}
     <div class="post-body">${blocksHTML(p.blocks)}</div>
     <div class="react-bar">
-      ${p.allowReactions ? `<div class="reacts" role="group" aria-label="Реакции">${REACTIONS.map(([k, e, l]) => `<button type="button" class="react ${p.myReaction === k ? 'on' : ''}" data-act="${preview ? 'noop' : 'react'}" data-id="${p.id}" data-r="${k}" title="${l}" aria-pressed="${p.myReaction === k}">${e}<b>${p.reactions[k] || ''}</b></button>`).join('')}</div>` : '<span class="muted small">Реакции отключены</span>'}
+      ${p.allowReactions ? `<div class="reacts" role="group" aria-label="Реакции">${REACTIONS.filter(([k]) => (p.reactionSet || DEFAULT_REACTIONS).includes(k)).map(([k, e, l]) => `<button type="button" class="react ${p.myReaction === k ? 'on' : ''}" data-act="${preview ? 'noop' : 'react'}" data-id="${p.id}" data-r="${k}" title="${l}" aria-pressed="${p.myReaction === k}">${e}<b>${p.reactions[k] || ''}</b></button>`).join('')}</div>` : '<span class="muted small">Реакции отключены</span>'}
       <button type="button" class="btn btn-secondary btn-sm" data-act="${preview ? 'noop' : 'copy-link'}">${I.share(16)}Скопировать ссылку</button>
     </div>
     <section class="comments">
@@ -865,7 +904,7 @@ function viewAdminPost(id) {
       <div class="stat"><b>${countReactions(p)}</b><span>Реакций ${p.allowReactions ? '' : '(отключены)'}</span></div>
       <div class="stat"><b>${countComments(p)}</b><span>Комментариев</span></div>
     </div>
-    ${p.allowReactions ? `<div class="reacts" style="margin-bottom:24px">${REACTIONS.map(([k, e]) => `<span class="react" style="cursor:default">${e}<b>${p.reactions[k]}</b></span>`).join('')}</div>` : ''}
+    ${p.allowReactions ? `<div class="reacts" style="margin-bottom:24px">${REACTIONS.filter(([k]) => (p.reactionSet || DEFAULT_REACTIONS).includes(k)).map(([k, e]) => `<span class="react" style="cursor:default">${e}<b>${p.reactions[k] || 0}</b></span>`).join('')}</div>` : ''}
     <div class="section-head"><h2 style="font-size:22px">Комментарии</h2>${p.allowComments ? '' : '<span class="muted small">Комментарии отключены</span>'}</div>
     ${top.length ? top.map(c => modRow(c) + c.replies.map(r => modRow(r, c)).join('')).join('') : '<div class="empty">Комментариев пока нет.</div>'}
   `);
@@ -891,13 +930,19 @@ function newED(p) {
   const d = new Date(Date.now() + DAY); d.setHours(9, 0, 0, 0);
   const local = ts => { const x = new Date(ts); return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}T${pad(x.getHours())}:${pad(x.getMinutes())}`; };
   const copy = x => JSON.parse(JSON.stringify(x));
-  return p ? { id: p.id, status: p.status, title: p.title, desc: p.desc, rubric: p.rubric, cover: p.cover, blocks: copy(p.blocks || []),
-      notify: p.notify, notifyChange: false, allowComments: p.allowComments, allowReactions: p.allowReactions,
+  const common = { notifyChange: false, errors: {}, savedAt: null, dirty: false };
+  return p ? { ...common, id: p.id, status: p.status, title: p.title, desc: p.desc, rubric: p.rubric, cover: p.cover, blocks: copy(p.blocks || []),
+      notify: p.notify, allowComments: p.allowComments, allowReactions: p.allowReactions, reactionSet: [...(p.reactionSet || DEFAULT_REACTIONS)],
       visibility: p.visibility || 'all', groups: [...(p.groups || [])],
-      publishMode: p.status === 'scheduled' ? 'schedule' : 'now', scheduledLocal: local(p.scheduledAt || d.getTime()), errors: {}, savedAt: null, dirty: false }
-    : { id: null, status: 'new', title: '', desc: '', rubric: '', cover: null, blocks: [{ id: uid(), type: 'text', html: '' }],
-      notify: false, notifyChange: false, allowComments: true, allowReactions: true, visibility: 'all', groups: [],
-      publishMode: 'now', scheduledLocal: local(d.getTime()), errors: {}, savedAt: null, dirty: false };
+      publishMode: p.status === 'scheduled' ? 'schedule' : 'now', scheduledLocal: local(p.scheduledAt || d.getTime()) }
+    : { ...common, id: null, status: 'new', ...demoLongread(), notify: false, allowComments: true, allowReactions: true,
+      reactionSet: [...DEFAULT_REACTIONS], visibility: 'all', groups: [], publishMode: 'now', scheduledLocal: local(d.getTime()) };
+}
+function edPreviewPost() {
+  const base = ED.id ? byId(ED.id) : null;
+  return { ...(base || {}), ...ED, rubric: ED.rubric || 'news', publishedAt: (base && base.publishedAt) || Date.now(), views: 0,
+    reactions: (base && base.reactions) || { like: 0, heart: 0, fire: 0, party: 0, clap: 0, sad: 0, dislike: 0 }, myReaction: null,
+    comments: (base && base.comments) || [], editedAt: null, pinnedAt: null };
 }
 function paletteHTML(pos) {
   return `<div class="palette" role="menu">${BLOCK_TYPES.map(([k, l, icon]) => `<button type="button" class="pt" data-act="blk-add" data-type="${k}" data-pos="${pos}">${I[icon](22)}<span>${l}</span></button>`).join('')}
@@ -916,25 +961,25 @@ function blockEditorHTML(b, i, n) {
     body = `<div class="rich" contenteditable="true" data-blk-html="${i}" data-ph="Введите текст"></div>`;
   } else if (b.type === 'list') {
     tools = `<button type="button" class="${b.style === 'bullet' ? 'on' : ''}" data-act="blk-liststyle" data-bi="${i}" data-style="bullet" title="Маркированный список">${I.ul(16)}</button>
-      <button type="button" class="${b.style === 'number' ? 'on' : ''}" data-act="blk-liststyle" data-bi="${i}" data-style="number" title="Нумерованный список">${I.ol(16)}</button><span class="sep"></span>`;
+      <button type="button" class="${b.style === 'number' ? 'on' : ''}" data-act="blk-liststyle" data-bi="${i}" data-style="number" title="Нумерованный список">${I.ol(16)}</button><span class="sep"></span>
+      <button type="button" data-act="li-add" data-bi="${i}" title="Добавить пункт">${I.plus(14)}Пункт</button><span class="sep"></span>`;
     body = `<div class="blk-list ${b.style}">${b.items.map((it, j) => `<div class="li-row"><span class="li-mark">${b.style === 'number' ? j + 1 : ''}</span>
         <input class="li-input" data-li="${i}:${j}" value="${esc(it)}" placeholder="Пункт списка">
-        <button type="button" class="li-del" data-act="li-del" data-bi="${i}" data-j="${j}" aria-label="Удалить пункт">${I.close(14)}</button></div>`).join('')}
-      <button type="button" class="btn btn-ghost btn-sm" data-act="li-add" data-bi="${i}">${I.plus(14)}Пункт</button></div>`;
+        <button type="button" class="li-del" data-act="li-del" data-bi="${i}" data-j="${j}" aria-label="Удалить пункт">${I.close(14)}</button></div>`).join('')}</div>`;
   } else if (b.type === 'quote') {
-    body = `<div class="blk-quote"><textarea class="q-text" data-q="${i}" rows="2" placeholder="Текст цитаты">${esc(b.text)}</textarea>
+    body = `<div class="blk-quote"><textarea class="q-text" data-q="${i}" rows="1" placeholder="Текст цитаты">${esc(b.text)}</textarea>
       <input class="q-author" data-qa="${i}" value="${esc(b.author)}" placeholder="Автор цитаты"></div>`;
   } else if (b.type === 'image') {
-    body = b.src ? `<figure class="blk-img"><img src="${b.src}" alt=""><input class="cap-input" data-cap="${i}" value="${esc(b.caption)}" placeholder="Подпись к картинке"></figure>
-        <label class="btn btn-secondary btn-sm" style="cursor:pointer;margin-top:8px">Заменить<input type="file" accept="image/*" hidden data-file="blk-image" data-bi="${i}"></label>`
+    body = b.src ? `<figure class="blk-img"><img src="${b.src}" alt=""><input class="cap-input" data-cap="${i}" value="${esc(b.caption)}" placeholder="Подпись к картинке"></figure>`
       : `<label class="upload-zone">${I.image(26)}<b>Загрузить картинку</b><span>JPG или PNG до 10 МБ</span><input type="file" accept="image/*" hidden data-file="blk-image" data-bi="${i}"></label>`;
+    if (b.src) tools = `<label class="tool-label" title="Заменить картинку">${I.image(16)}<input type="file" accept="image/*" hidden data-file="blk-image" data-bi="${i}"></label><span class="sep"></span>`;
   } else if (b.type === 'file') {
-    body = b.name ? `<div class="file">${I.doc(22)}<div><b>${esc(b.name)}</b><br><span>${esc(b.size)}</span></div>
-        <label class="btn btn-ghost btn-sm" style="margin-left:auto;cursor:pointer">Заменить<input type="file" hidden data-file="blk-file" data-bi="${i}"></label></div>`
+    body = b.name ? `<div class="file">${I.doc(22)}<div><b>${esc(b.name)}</b><br><span>${esc(b.size)}</span></div></div>`
       : `<label class="upload-zone">${I.clip(26)}<b>Прикрепить файл</b><span>PDF, DOCX, XLSX, PPTX до 25 МБ</span><input type="file" hidden data-file="blk-file" data-bi="${i}"></label>`;
+    if (b.name) tools = `<label class="tool-label" title="Заменить файл">${I.clip(16)}<input type="file" hidden data-file="blk-file" data-bi="${i}"></label><span class="sep"></span>`;
   }
   return `<div class="blk" data-bi="${i}">
-    <div class="blk-head"><span class="blk-type">${I[t.icon](15)}${t.label}</span>
+    <div class="blk-head"><span class="blk-type">${I[t.icon](14)}${t.label}</span>
       <div class="blk-tools">${tools}
         <button type="button" data-act="blk-up" data-bi="${i}" title="Переместить выше" ${i === 0 ? 'disabled' : ''}>${I.up(15)}</button>
         <button type="button" data-act="blk-down" data-bi="${i}" title="Переместить ниже" ${i === n - 1 ? 'disabled' : ''}>${I.down(15)}</button>
@@ -950,35 +995,39 @@ function viewEditor(id) {
   if (!ED || ED.forRoute !== location.hash) {
     const p = id ? byId(id) : null;
     if (id && !p) return adminShell('list', `<a class="back" href="#/admin">${I.back(16)} Все публикации</a><div class="empty">Публикация не найдена.</div>`);
-    ED = newED(p); ED.forRoute = location.hash; UI.blockMenu = null;
+    ED = newED(p); ED.forRoute = location.hash; UI.blockMenu = null; UI.edTab = 'edit';
   }
   const isPub = ED.status === 'published', isArch = ED.status === 'archived';
   const fake = { ...ED, rubric: ED.rubric || 'news' };
   const e = ED.errors, n = ED.blocks.length;
   const mainLabel = isPub || isArch ? 'Сохранить изменения' : ED.publishMode === 'schedule' ? 'Запланировать' : 'Опубликовать';
+  const canvas = UI.edTab === 'preview' ? `<div class="canvas preview">${postHTML(edPreviewPost(), true)}</div>` : `
+    <div class="canvas">
+      <div class="cv-cover"><div class="cover">${coverHTML(fake)}</div>
+        <div class="cv-cover-actions"><label class="btn btn-sm" style="cursor:pointer">${I.image(15)}${ED.cover ? 'Заменить обложку' : 'Загрузить обложку'}<input type="file" accept="image/*" hidden data-file="cover"></label>
+          ${ED.cover ? '<button type="button" class="btn btn-sm" data-act="cover-remove">Убрать</button>' : ''}</div></div>
+      <input id="ed-title" class="cv-title" maxlength="${TITLE_MAX}" data-ed="title" value="${esc(ED.title)}" placeholder="Заголовок публикации" aria-label="Заголовок">
+      <div class="cv-meta"><span class="err-text">${e.title || ''}</span><span class="counter" id="cnt-title">${ED.title.length} / ${TITLE_MAX}</span></div>
+      <textarea id="ed-desc" class="cv-desc" rows="1" maxlength="${DESC_MAX}" data-ed="desc" placeholder="Краткое описание для ленты" aria-label="Краткое описание">${esc(ED.desc)}</textarea>
+      <div class="cv-meta"><span></span><span class="counter" id="cnt-desc">${ED.desc.length} / ${DESC_MAX}</span></div>
+      <hr class="cv-sep">
+      <div class="blocks">
+        ${n ? insertHTML(0) : ''}
+        ${ED.blocks.map((b, i) => blockEditorHTML(b, i, n) + (i < n - 1 ? insertHTML(i + 1) : '')).join('')}
+        ${UI.blockMenu === n ? paletteHTML(n) : `<button type="button" class="btn btn-secondary add-block" data-act="blk-menu" data-pos="${n}">${I.plus(16)}Добавить блок</button>`}
+      </div>
+    </div>`;
   return adminShell('list', `
     <a class="back" href="#/admin">${I.back(16)} Все публикации</a>
     <div class="page-head"><h1>${ED.id ? 'Редактирование' : 'Новая публикация'}</h1>${ED.id ? `<span class="pill ${ED.status}">${STATUS[ED.status]}</span>` : ''}</div>
     ${isPub ? '<div class="closed" style="margin-bottom:20px">Публикация опубликована. Изменения сразу увидят сотрудники.</div>' : ''}
     <div class="editor">
-      <div class="stack">
-        <div class="field"><span class="label">Обложка</span>
-          <div class="cover-drop"><div class="cover">${coverHTML(fake)}</div>
-            <div class="cover-actions"><label class="btn btn-secondary btn-sm" style="cursor:pointer">${I.image(16)}Загрузить<input type="file" accept="image/*" hidden data-file="cover"></label>
-              ${ED.cover ? '<button type="button" class="btn btn-ghost btn-sm" data-act="cover-remove">Убрать</button>' : ''}
-              <span>16:9, до 10 МБ</span></div></div></div>
-        <div class="field"><label for="ed-title">Заголовок *</label>
-          <input id="ed-title" class="input ${e.title ? 'err' : ''}" maxlength="${TITLE_MAX}" data-ed="title" value="${esc(ED.title)}" placeholder="О чём публикация">
-          <div style="display:flex;justify-content:space-between;gap:12px"><span class="err-text">${e.title || ''}</span><span class="counter" id="cnt-title">${ED.title.length} / ${TITLE_MAX}</span></div></div>
-        <div class="field"><label for="ed-desc">Краткое описание</label>
-          <textarea id="ed-desc" class="input" rows="2" maxlength="${DESC_MAX}" data-ed="desc" placeholder="Одно-два предложения для ленты">${esc(ED.desc)}</textarea>
-          <div style="display:flex;justify-content:flex-end"><span class="counter" id="cnt-desc">${ED.desc.length} / ${DESC_MAX}</span></div></div>
-        <div class="field"><span class="label">Содержание</span>
-          <div class="blocks">
-            ${n ? insertHTML(0) : ''}
-            ${ED.blocks.map((b, i) => blockEditorHTML(b, i, n) + (i < n - 1 ? insertHTML(i + 1) : '')).join('')}
-            ${UI.blockMenu === n ? paletteHTML(n) : `<button type="button" class="btn btn-secondary add-block" data-act="blk-menu" data-pos="${n}">${I.plus(16)}Добавить блок</button>`}
-          </div></div>
+      <div>
+        <div class="ed-tabs" role="tablist">
+          <button type="button" role="tab" class="${UI.edTab === 'edit' ? 'on' : ''}" aria-selected="${UI.edTab === 'edit'}" data-act="ed-tab" data-tab="edit">Редактирование</button>
+          <button type="button" role="tab" class="${UI.edTab === 'preview' ? 'on' : ''}" aria-selected="${UI.edTab === 'preview'}" data-act="ed-tab" data-tab="preview">Предпросмотр</button>
+        </div>
+        ${canvas}
       </div>
       <aside class="stack">
         <div class="panel"><h3>Рубрика *</h3>
@@ -1003,14 +1052,16 @@ function viewEditor(id) {
             : `<div class="opt"><div>Уведомить сотрудников</div><label class="toggle"><input type="checkbox" data-ed-check="notify" ${ED.notify ? 'checked' : ''}><span></span></label></div>`}
           <div class="opt"><div>Разрешить комментарии</div><label class="toggle"><input type="checkbox" data-ed-check="allowComments" ${ED.allowComments ? 'checked' : ''}><span></span></label></div>
           <div class="opt"><div>Разрешить реакции</div><label class="toggle"><input type="checkbox" data-ed-check="allowReactions" ${ED.allowReactions ? 'checked' : ''}><span></span></label></div>
-          ${ED.allowReactions ? `<div class="react-list">${REACTIONS.map(([k, em, l]) => `<span class="react-pill" title="${l}">${em}</span>`).join('')}</div>` : ''}
+          ${ED.allowReactions ? `<div class="reacts-pick" role="group" aria-label="Доступные реакции">${REACTIONS.map(([k, em, l]) => `<button type="button" class="react-opt ${ED.reactionSet.includes(k) ? 'on' : ''}" data-act="react-toggle" data-r="${k}" title="${l}" aria-pressed="${ED.reactionSet.includes(k)}">${em}</button>`).join('')}</div>
+            ${e.reactions ? `<span class="err-text">${e.reactions}</span>` : ''}` : ''}
         </div>
       </aside>
     </div>
     <div class="savebar">
       <span class="small muted" id="save-state">${ED.savedAt ? 'Черновик сохранён · ' + pad(new Date(ED.savedAt).getHours()) + ':' + pad(new Date(ED.savedAt).getMinutes()) : ED.dirty ? 'Есть несохранённые изменения' : ED.id ? 'Изменений нет' : 'Черновик сохранится автоматически'}</span>
       <div class="btns">
-        <button type="button" class="btn btn-secondary" data-act="ed-preview">Предпросмотр</button>
+        ${UI.edTab === 'preview' ? '<button type="button" class="btn btn-secondary" data-act="ed-tab" data-tab="edit">Редактировать</button>'
+          : '<button type="button" class="btn btn-secondary" data-act="ed-preview">Предпросмотр</button>'}
         ${!isPub && !isArch ? `<button type="button" class="btn btn-secondary" data-act="ed-save-draft">${ED.status === 'scheduled' ? 'Вернуть в черновики' : 'Сохранить черновик'}</button>` : ''}
         <button type="button" class="btn btn-primary" data-act="ed-submit">${mainLabel}</button>
       </div>
@@ -1089,7 +1140,7 @@ function previewPost(src) {
   const base = src.id ? byId(src.id) : null;
   const fake = { ...(base || {}), ...src, rubric: src.rubric || 'news', publishedAt: (base && base.publishedAt) || Date.now(),
     views: 0, reactions: (base && base.reactions) || { like: 0, heart: 0, fire: 0, party: 0, clap: 0 }, myReaction: null,
-    comments: (base && base.comments) || [], editedAt: null, pinnedAt: null, blocks: src.blocks || [] };
+    comments: (base && base.comments) || [], editedAt: null, pinnedAt: null, blocks: src.blocks || [], reactionSet: src.reactionSet || DEFAULT_REACTIONS };
   modal({ title: 'Предпросмотр: так публикацию увидит сотрудник', wide: true, ok: null, cancel: 'Закрыть', body: `<div style="margin:0 -24px">${postHTML(fake, true)}</div>` });
 }
 function findComment(p, cid) {
@@ -1100,11 +1151,17 @@ function findComment(p, cid) {
 async function pinPicker() {
   const list = S.posts.filter(p => p.status === 'published' && !p.pinnedAt).sort((a, b) => b.publishedAt - a.publishedAt);
   const pr = modal({ title: 'Закрепить публикацию', ok: 'Закрепить', collect: root => { const c = root.querySelector('input[name=pickpin]:checked'); return c ? c.value : undefined; },
-    body: `<label class="search" style="display:block;margin-bottom:12px">${I.search(18)}<input id="pin-search" class="input" placeholder="Поиск по названию"></label>
-      <div class="pick-list">${list.map(p => `<label class="pick" data-title="${esc(p.title.toLowerCase())}"><input type="radio" name="pickpin" value="${p.id}">
-        <span><b>${esc(p.title)}</b><small>${esc(rubricOf(p).name)} · ${fmtDate(p.publishedAt, false)}</small></span></label>`).join('')}</div>` });
-  const inp = $('#pin-search');
-  if (inp) inp.addEventListener('input', () => { const q = inp.value.trim().toLowerCase(); document.querySelectorAll('.pick').forEach(l => { l.hidden = !!q && !l.dataset.title.includes(q); }); });
+    body: `<div class="pick-filters"><label class="search">${I.search(18)}<input id="pin-search" class="input" placeholder="Поиск по названию"></label>
+        <select id="pin-rubric" class="input" aria-label="Рубрика"><option value="all">Все рубрики</option>${S.rubrics.map(r => `<option value="${r.id}">${esc(r.name)}</option>`).join('')}</select></div>
+      <div class="pick-list">${list.map(p => `<label class="pick" data-title="${esc(p.title.toLowerCase())}" data-rubric="${p.rubric}"><input type="radio" name="pickpin" value="${p.id}">
+        <span><b>${esc(p.title)}</b><small>${esc(rubricOf(p).name)} · ${fmtDate(p.publishedAt, false)}</small></span></label>`).join('')}
+        <div class="pick-empty" ${list.length ? 'hidden' : ''}>Ничего не найдено</div></div>` });
+  const inp = $('#pin-search'), sel = $('#pin-rubric');
+  const apply = () => { const q = inp.value.trim().toLowerCase(), r = sel.value; let shown = 0;
+    document.querySelectorAll('.pick').forEach(l => { l.hidden = (!!q && !l.dataset.title.includes(q)) || (r !== 'all' && l.dataset.rubric !== r);
+      if (l.hidden) l.querySelector('input').checked = false; else shown++; });
+    $('.pick-empty').hidden = shown > 0; };
+  if (inp) { inp.addEventListener('input', apply); sel.addEventListener('change', apply); }
   const pid = await pr; if (pid) pinPost(byId(pid));
 }
 
@@ -1134,7 +1191,7 @@ function upsertFromED() {
       visibility: 'all', groups: [], views: 0, reactions: { like: 0, heart: 0, fire: 0, party: 0, clap: 0 }, myReaction: null, comments: [], pinnedAt: null };
     S.posts.unshift(p); ED.id = p.id; ED.status = 'draft';
   }
-  Object.assign(p, { title: ED.title.trim(), desc: ED.desc.trim(), rubric: ED.rubric, cover: ED.cover, blocks: JSON.parse(JSON.stringify(ED.blocks)), visibility: ED.visibility, groups: [...ED.groups],
+  Object.assign(p, { title: ED.title.trim(), desc: ED.desc.trim(), rubric: ED.rubric, cover: ED.cover, blocks: JSON.parse(JSON.stringify(ED.blocks)), visibility: ED.visibility, groups: [...ED.groups], reactionSet: [...ED.reactionSet],
     notify: ED.notify, allowComments: ED.allowComments, allowReactions: ED.allowReactions });
   return p;
 }
@@ -1154,6 +1211,7 @@ function validateED(forPublish) {
   if (!ED.title.trim()) e.title = 'Добавьте заголовок';
   if (!ED.rubric) e.rubric = 'Выберите рубрику';
   if (ED.visibility === 'groups' && !ED.groups.length) e.groups = 'Выберите хотя бы одну группу';
+  if (ED.allowReactions && !ED.reactionSet.length) e.reactions = 'Выберите хотя бы одну реакцию';
   if (forPublish && ED.publishMode === 'schedule' && ED.status !== 'published') {
     const t = new Date(ED.scheduledLocal).getTime();
     if (!ED.scheduledLocal || isNaN(t)) e.when = 'Укажите дату и время';
@@ -1192,6 +1250,8 @@ function readFile(file) {
   return new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file); });
 }
 const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1).replace('.', ',') + ' МБ' : Math.max(1, Math.round(b / 1024)) + ' КБ';
+const AUTOSIZE = 'textarea.cv-desc, textarea.q-text';
+const autosize = el => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
 
 /* ===== router ===== */
 let lastRoute = '';
@@ -1212,6 +1272,7 @@ function render() {
   if (html === '') return;
   $('#app').innerHTML = html;
   if (ED) document.querySelectorAll('[data-blk-html]').forEach(el => { const b = ED.blocks[+el.dataset.blkHtml]; if (b) el.innerHTML = b.html || ''; });
+  document.querySelectorAll(AUTOSIZE).forEach(autosize);
   if (h !== lastRoute) { lastRoute = h; window.scrollTo(0, 0); }
   renderMenu();
 }
@@ -1227,6 +1288,7 @@ window.addEventListener('hashchange', () => {
   render();
 });
 window.addEventListener('scroll', () => { if (UI.menu) closeMenus(); }, { passive: true });
+window.addEventListener('resize', () => document.querySelectorAll(AUTOSIZE).forEach(autosize));
 
 /* ===== events ===== */
 let searchTimer = null;
@@ -1259,9 +1321,9 @@ document.addEventListener('click', async e => {
     case 'more': UI.limit += 9; render(); break;
     case 'react': {
       const k = el.dataset.r;
-      if (p.myReaction) p.reactions[p.myReaction]--;
+      if (p.myReaction) p.reactions[p.myReaction] = Math.max(0, (p.reactions[p.myReaction] || 0) - 1);
       p.myReaction = p.myReaction === k ? null : k;
-      if (p.myReaction) p.reactions[k]++;
+      if (p.myReaction) p.reactions[k] = (p.reactions[k] || 0) + 1;
       save(); render(); break;
     }
     case 'copy-link': try { await navigator.clipboard.writeText(location.href); } catch (err) {} toast('Ссылка скопирована'); break;
@@ -1354,7 +1416,13 @@ document.addEventListener('click', async e => {
     /* editor */
     case 'ed-submit': edSubmit(); break;
     case 'ed-save-draft': edSaveDraft(); break;
-    case 'ed-preview': syncED(); previewPost({ ...ED, id: ED.id }); break;
+    case 'ed-preview': syncED(); UI.edTab = 'preview'; UI.blockMenu = null; render(); { const c = $('.editor'); if (c) c.scrollIntoView({ block: 'start' }); } break;
+    case 'ed-tab': syncED(); UI.edTab = el.dataset.tab; UI.blockMenu = null; render(); { const c = $('.editor'); if (c && c.getBoundingClientRect().top < 0) c.scrollIntoView({ block: 'start' }); } break;
+    case 'react-toggle': {
+      syncED(); const k = el.dataset.r;
+      ED.reactionSet = ED.reactionSet.includes(k) ? ED.reactionSet.filter(x => x !== k) : REACTIONS.map(r => r[0]).filter(x => x === k || ED.reactionSet.includes(x));
+      delete ED.errors.reactions; ED.dirty = true; render(); scheduleAutosave(); break;
+    }
     case 'cover-remove': syncED(); ED.cover = null; ED.dirty = true; render(); scheduleAutosave(); break;
     case 'file-remove': syncED(); ED.files.splice(+el.dataset.i, 1); ED.dirty = true; render(); scheduleAutosave(); break;
   }
@@ -1375,6 +1443,7 @@ async function fmt(cmd, bi) {
 }
 document.addEventListener('input', e => {
   const t = e.target;
+  if (t.matches && t.matches(AUTOSIZE)) autosize(t);
   if (t.dataset.input) {
     UI[t.dataset.input] = t.value; UI.limit = 9;
     clearTimeout(searchTimer); searchTimer = setTimeout(renderKeepFocus, 220);
