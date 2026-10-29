@@ -1,0 +1,1162 @@
+<title>Здоровье команды</title>
+<meta name="description" content="Прототип: платформа StartExam для руководителя с агентом, который следит за здоровьем команды">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+<style>
+/* Прототип повторяет продукт, у которого одна светлая тема, поэтому страница
+   сознательно однотемная: фон и все цвета заданы явно. */
+:root{
+  --ink:#244B5A; --ink-deep:#1B3A47; --text:#3F5157; --muted:#6A7C84; --faint:#94A6AD;
+  --line:#DCEAED; --line-soft:#ECF4F6;
+  --bg:#F4FAFB; --surface:#FFFFFF; --tint:#E9F8FA; --tint-2:#D2F1F5;
+  --teal:#03AEC9; --teal-dark:#027E94; --orange:#E87028; --orange-dark:#C9581A;
+  --ok:#15803D; --warn:#CA8A04; --risk:#DC2626;
+  --ok-bg:#E6F4EA; --warn-bg:#FBF2D6; --risk-bg:#FDEBEB;
+  --ok-ink:#14532D; --warn-ink:#6B4A02; --risk-ink:#8F1717;
+  --int:#B4531A; --int-bg:#FDF0E6;
+  --chat-side:#1F3440; --chat-side-2:#2A4452;
+  --r:12px; --r-sm:8px;
+  --font:"Onest", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg); color:var(--text); font:14px/1.5 var(--font); -webkit-font-smoothing:antialiased}
+button{font:inherit; color:inherit; cursor:pointer}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--teal); outline-offset:2px; border-radius:6px}
+h1,h2,h3,h4{margin:0; color:var(--ink); font-weight:600; text-wrap:balance}
+p{margin:0}
+[hidden]{display:none!important}
+.num{font-variant-numeric:tabular-nums}
+.eyebrow{font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+
+/* ---------- Полоса прототипа: не часть продукта ---------- */
+.proto{position:sticky; top:0; z-index:40; background:var(--ink-deep); color:#DCEEF2;
+  display:flex; align-items:center; gap:18px; padding:8px 18px; flex-wrap:wrap}
+.proto__name{font-weight:600; color:#fff; white-space:nowrap}
+.proto__name small{font-weight:400; color:#9FC3CC; margin-left:6px}
+.proto__tabs{display:flex; gap:4px; flex-wrap:wrap}
+.proto__tab{background:transparent; border:1px solid transparent; color:#BFD9DF; padding:5px 11px; border-radius:999px; font-size:13px}
+.proto__tab:hover{background:rgba(255,255,255,.07); color:#fff}
+.proto__tab[aria-selected="true"]{background:#fff; color:var(--ink-deep); font-weight:600}
+.proto__side{margin-left:auto; display:flex; align-items:center; gap:14px; font-size:12px; color:#9FC3CC}
+.switch{display:flex; align-items:center; gap:8px; background:none; border:0; color:#DCEEF2; padding:0; font-size:13px}
+.switch__track{width:32px; height:18px; border-radius:999px; background:#4B6672; position:relative; transition:background .15s}
+.switch__track::after{content:""; position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#fff; transition:transform .15s}
+.switch[aria-pressed="true"] .switch__track{background:var(--teal)}
+.switch[aria-pressed="true"] .switch__track::after{transform:translateX(14px)}
+
+/* ---------- Оболочка продукта ---------- */
+.app{display:grid; grid-template-columns:236px minmax(0,1fr); min-height:calc(100vh - 44px)}
+.side{background:var(--surface); border-right:1px solid var(--line); padding:18px 12px 20px; display:flex; flex-direction:column; gap:2px; position:sticky; top:44px; height:calc(100vh - 44px); overflow-y:auto}
+.logo{display:flex; align-items:center; gap:9px; padding:2px 8px 16px; margin-bottom:8px; border-bottom:1px solid var(--line-soft)}
+.logo__mark{width:26px; height:26px}
+.logo__text{line-height:1.05; color:var(--ink); font-weight:700; font-size:17px; letter-spacing:-.01em}
+.logo__text small{display:block; font-size:10.5px; font-weight:500; color:var(--muted); letter-spacing:0}
+.side__title{margin:14px 10px 4px}
+.nav{display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:none; border:0; padding:7px 10px; border-radius:var(--r-sm); color:var(--ink); font-size:14px}
+.nav svg{width:18px; height:18px; flex:none; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; color:#50707C}
+.nav:hover{background:var(--line-soft)}
+.nav[aria-current="page"]{background:var(--tint-2); color:var(--teal-dark); font-weight:500}
+.nav[aria-current="page"] svg{color:var(--teal-dark)}
+.nav .pill-new{margin-left:auto}
+.side__foot{margin-top:auto; padding:14px 10px 0; border-top:1px solid var(--line-soft); display:flex; gap:10px; align-items:center}
+.side__foot b{display:block; color:var(--ink); font-weight:600; font-size:13px}
+.side__foot span{font-size:11.5px; color:var(--muted)}
+
+.main{min-width:0}
+.top{display:flex; justify-content:flex-end; gap:10px; padding:12px 28px; border-bottom:1px solid var(--line); background:var(--surface)}
+.btn{display:inline-flex; align-items:center; gap:7px; border-radius:var(--r-sm); padding:8px 14px; font-weight:500; font-size:13.5px; border:1px solid transparent; white-space:nowrap}
+.btn svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.btn--primary{background:var(--orange); color:#fff}
+.btn--primary:hover{background:var(--orange-dark)}
+.btn--soft{background:var(--tint); color:var(--teal-dark); border-color:#BDE9F0}
+.btn--soft:hover{background:var(--tint-2)}
+.btn--ghost{background:var(--surface); color:var(--ink); border-color:var(--line)}
+.btn--ghost:hover{border-color:#B9D3D9}
+.btn--sm{padding:6px 11px; font-size:12.5px}
+.page{max-width:1180px; margin:0 auto; padding:26px 28px 56px; display:flex; flex-direction:column; gap:18px}
+.screen[hidden]{display:none!important}
+.page-head{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap}
+.page-head h1{font-size:24px; letter-spacing:-.01em}
+.page-head p{color:var(--muted); margin-top:3px}
+
+/* ---------- Карточки и общие элементы ---------- */
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:18px 20px}
+.card__head{display:flex; align-items:center; gap:9px; margin-bottom:14px}
+.card__head h2{font-size:16px}
+.card__head svg{width:18px; height:18px; stroke:var(--ink); fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
+.card__head .aside{margin-left:auto; font-size:12.5px; color:var(--muted)}
+.grid{display:grid; gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.stack{display:flex; flex-direction:column; gap:10px}
+.row{display:flex; align-items:center; gap:10px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+
+/* Метка «Новое»: подсвечивает то, чего в продукте сейчас нет */
+.pill-new{display:none; font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; background:var(--ink-deep); color:#fff; padding:2px 7px; border-radius:999px; white-space:nowrap}
+body.show-new .pill-new{display:inline-block}
+body.show-new .is-new{outline:1.5px dashed var(--teal-dark); outline-offset:3px}
+.is-new > .card__head .pill-new, .is-new .pill-new{vertical-align:middle}
+/* Приглушение «как сейчас» — только при подсветке нового */
+body.show-new .is-existing{opacity:.62}
+.existing-note{display:none; font-size:12px; color:var(--muted); margin-left:auto}
+body.show-new .existing-note{display:inline}
+
+/* Аватар — как в платформе: бирюзовый круг с инициалами */
+.ava{flex:none; width:34px; height:34px; border-radius:50%; background:var(--teal); color:#fff; font-weight:600; font-size:12.5px; display:grid; place-items:center; letter-spacing:.02em}
+.ava--lg{width:58px; height:58px; font-size:19px}
+.ava--sm{width:28px; height:28px; font-size:11px}
+
+/* Статус: цвет + форма + подпись, никогда только цвет */
+.st{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink); white-space:nowrap}
+.st i{flex:none; width:10px; height:10px; display:inline-block}
+.st--ok i{background:var(--ok); border-radius:50%}
+.st--warn i{width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-bottom:10px solid var(--warn)}
+.st--risk i{background:var(--risk); border-radius:2px}
+.cell{display:inline-flex; align-items:center; gap:7px; padding:4px 9px 4px 8px; border-radius:7px; font-size:12.5px; white-space:nowrap}
+.cell--ok{background:var(--ok-bg); color:var(--ok-ink)}
+.cell--warn{background:var(--warn-bg); color:var(--warn-ink)}
+.cell--risk{background:var(--risk-bg); color:var(--risk-ink)}
+.cell i{flex:none}
+.cell--ok i{width:8px; height:8px; border-radius:50%; background:var(--ok)}
+.cell--warn i{width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:8px solid var(--warn)}
+.cell--risk i{width:8px; height:8px; border-radius:2px; background:var(--risk)}
+
+/* Источник данных: из платформы или из интеграции */
+.src{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; padding:2px 8px; border-radius:999px; white-space:nowrap; border:1px solid}
+.src svg{width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.src--own{color:var(--teal-dark); background:var(--tint); border-color:#C4EBF1}
+.src--int{color:var(--int); background:var(--int-bg); border-color:#F6D5BD}
+.srcs{display:flex; flex-wrap:wrap; gap:5px}
+
+/* ---------- Дашборд ---------- */
+.brief{display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:16px; align-items:start; background:linear-gradient(180deg,#F1FBFD, #FFFFFF 70%)}
+.brief__mark{width:40px; height:40px; border-radius:10px; background:var(--ink-deep); display:grid; place-items:center}
+.brief__mark svg{width:22px; height:22px; stroke:#7FE3F1; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
+.brief h2{font-size:16px; margin-bottom:6px; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.brief p{max-width:70ch; color:var(--text)}
+.brief p + p{margin-top:6px}
+.brief b{color:var(--ink); font-weight:600}
+.kpi{padding:14px 16px}
+.kpi .eyebrow{display:flex; gap:6px; align-items:center}
+.kpi__val{font-size:24px; font-weight:600; color:var(--ink); margin-top:4px; line-height:1.15}
+.kpi__sub{font-size:12px; color:var(--muted); margin-top:2px}
+.dist{display:flex; height:8px; border-radius:999px; overflow:hidden; gap:2px; margin-top:10px; background:var(--surface)}
+.dist span{display:block; height:100%}
+.dist__ok{background:var(--ok)} .dist__warn{background:var(--warn)} .dist__risk{background:var(--risk)}
+.dist-legend{display:flex; gap:12px; margin-top:7px; flex-wrap:wrap}
+
+.alert{display:grid; grid-template-columns:4px minmax(0,1fr); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; background:var(--surface)}
+.alert__bar{background:var(--risk)}
+.alert--warn .alert__bar{background:var(--warn)}
+.alert__body{padding:14px 16px; display:flex; flex-direction:column; gap:10px}
+.alert__who{display:flex; gap:10px; align-items:center}
+.alert__who b{color:var(--ink); font-weight:600; display:block; line-height:1.25}
+.alert__who span{font-size:12px; color:var(--muted)}
+.alert__what{font-weight:600; color:var(--ink)}
+.facts{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:6px}
+.facts li{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:start; font-size:13px}
+.alert__act{display:flex; gap:8px; flex-wrap:wrap; margin-top:2px}
+
+.watch{list-style:none; margin:0; padding:0}
+.watch li{display:grid; grid-template-columns:28px minmax(0,1fr) auto; gap:12px; align-items:center; padding:10px 0; border-top:1px solid var(--line-soft)}
+.watch li:first-child{border-top:0; padding-top:2px}
+.watch b{color:var(--ink); font-weight:600}
+.watch .when{font-size:12px; color:var(--muted); white-space:nowrap}
+
+.mini{display:flex; flex-direction:column; gap:8px}
+.mini h3{font-size:14px}
+.mini__line{height:6px; border-radius:999px; background:var(--line-soft); overflow:hidden}
+.mini__line span{display:block; height:100%; background:var(--teal)}
+.heat{display:grid; grid-template-columns:repeat(6,1fr); gap:3px}
+.heat span{height:16px; border-radius:3px}
+
+/* ---------- Моя команда ---------- */
+.tabs{display:flex; gap:2px; border-bottom:1px solid var(--line)}
+.tab{background:none; border:0; border-bottom:2px solid transparent; padding:9px 14px; color:var(--muted); font-weight:500; display:inline-flex; align-items:center; gap:8px; margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--teal-dark); border-bottom-color:var(--teal)}
+.filters{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.select{display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); background:var(--surface); border-radius:var(--r-sm); padding:7px 11px; font-size:13px; color:var(--ink)}
+.select::after{content:""; width:7px; height:7px; border-right:1.5px solid var(--muted); border-bottom:1.5px solid var(--muted); transform:rotate(45deg) translateY(-2px); margin-left:4px}
+.axis-tile{display:flex; flex-direction:column; gap:8px}
+.axis-tile__top{display:flex; flex-direction:column; gap:6px}
+.axis-tile h3{font-size:14.5px}
+.axis-tile__val{font-size:22px; font-weight:600; color:var(--ink); line-height:1}
+.axis-tile__val small{font-size:13px; color:var(--muted); font-weight:500}
+.axis-tile p{font-size:12.5px; color:var(--muted)}
+
+.tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--r); background:var(--surface)}
+table{border-collapse:collapse; width:100%; min-width:1000px}
+th{font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); text-align:left; padding:11px 12px; border-bottom:1px solid var(--line); background:#FAFDFD; white-space:nowrap}
+td{padding:11px 12px; border-top:1px solid var(--line-soft); vertical-align:middle}
+tbody tr:first-child td{border-top:0}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:#F7FCFD}
+.person{display:flex; gap:10px; align-items:center; min-width:200px}
+.person b{display:block; color:var(--ink); font-weight:600; line-height:1.25}
+.person span{font-size:12px; color:var(--muted)}
+.signal{font-size:12.5px; color:var(--text); line-height:1.4}
+.team-tbl table{table-layout:fixed}
+.team-tbl td .cell{white-space:normal; line-height:1.3}
+.spark{display:block}
+.legend{display:flex; gap:16px; flex-wrap:wrap; align-items:center; font-size:12.5px; color:var(--muted)}
+
+/* ---------- Профиль ---------- */
+.prof-head{background:linear-gradient(180deg,#EEF9FB,#FFFFFF 75%)}
+.prof-head__top{display:flex; gap:16px; align-items:center; padding-bottom:16px; border-bottom:1px solid var(--line-soft)}
+.prof-head__top h1{font-size:22px}
+.prof-head__top p{color:var(--muted)}
+.fields{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px 20px; padding-top:14px}
+.fields div span{display:block}
+.fields .eyebrow{font-size:10.5px}
+.fields b{font-weight:500; color:var(--ink)}
+.axis-card{display:flex; flex-direction:column; gap:10px; padding:16px}
+.axis-card__top{display:flex; justify-content:space-between; gap:8px; align-items:flex-start}
+.axis-card h3{font-size:14.5px}
+.axis-card__val{font-size:13px; color:var(--muted); margin-top:2px}
+.why{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:4px; font-size:12.5px}
+.why li{padding-left:12px; position:relative}
+.why li::before{content:""; position:absolute; left:0; top:.6em; width:5px; height:5px; border-radius:50%; background:var(--faint)}
+.chart{position:relative}
+.chart svg{display:block; width:100%; height:auto; overflow:visible}
+.feed{list-style:none; margin:0; padding:0; position:relative}
+.feed li{display:grid; grid-template-columns:78px minmax(0,1fr); gap:14px; padding:10px 0; border-top:1px solid var(--line-soft)}
+.feed li:first-child{border-top:0; padding-top:0}
+.feed time{font-size:12px; color:var(--muted); padding-top:1px}
+.feed b{color:var(--ink); font-weight:600}
+.draft{background:var(--tint); border:1px solid #C4EBF1; border-radius:var(--r-sm); padding:14px 16px}
+.draft ol{margin:8px 0 0; padding-left:20px; display:flex; flex-direction:column; gap:5px}
+.draft h3{font-size:14px; display:flex; gap:8px; align-items:center}
+.score{display:inline-block; font-weight:600; font-size:12.5px; padding:2px 8px; border-radius:6px}
+.score--ok{background:var(--ok-bg); color:var(--ok-ink)} .score--warn{background:var(--warn-bg); color:var(--warn-ink)} .score--risk{background:var(--risk-bg); color:var(--risk-ink)}
+.bar{height:6px; border-radius:999px; background:var(--line-soft); overflow:hidden; margin-top:5px}
+.bar span{display:block; height:100%}
+.kv{display:flex; justify-content:space-between; gap:12px; font-size:13px; padding:7px 0; border-top:1px solid var(--line-soft)}
+.kv:first-of-type{border-top:0}
+.kv b{font-weight:500; color:var(--ink)}
+
+/* ---------- Мессенджер ---------- */
+.seg{display:inline-flex; background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:3px}
+.seg button{background:none; border:0; border-radius:999px; padding:6px 14px; font-size:13px; color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink-deep); color:#fff}
+.msgr{display:grid; grid-template-columns:230px minmax(0,1fr); border-radius:14px; overflow:hidden; border:1px solid #CFE0E4; min-height:560px; background:#fff}
+.msgr__side{background:var(--chat-side); color:#C9DCE2; padding:14px 10px; display:flex; flex-direction:column; gap:2px}
+.msgr__ws{color:#fff; font-weight:600; padding:2px 8px 12px; border-bottom:1px solid rgba(255,255,255,.08); margin-bottom:8px}
+.msgr__ws small{display:block; font-weight:400; color:#8FB0BA; font-size:11.5px}
+.msgr__grp{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#7F9FA9; padding:10px 8px 4px}
+.msgr__ch{padding:5px 8px; border-radius:6px; font-size:13.5px; display:flex; gap:8px; align-items:center}
+.msgr__ch.on{background:var(--chat-side-2); color:#fff}
+.msgr__ch .dot{width:8px; height:8px; border-radius:50%; background:#3FD18A; flex:none}
+.msgr__main{display:flex; flex-direction:column; min-width:0}
+.msgr__bar{padding:12px 18px; border-bottom:1px solid var(--line-soft); display:flex; gap:10px; align-items:center}
+.msgr__bar b{color:var(--ink)}
+.msgr__feed{padding:18px; display:flex; flex-direction:column; gap:16px; flex:1}
+.msg{display:grid; grid-template-columns:36px minmax(0,1fr); gap:10px; max-width:720px}
+.msg__ava{width:36px; height:36px; border-radius:9px; background:var(--ink-deep); display:grid; place-items:center}
+.msg__ava svg{width:20px; height:20px; stroke:#7FE3F1; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
+.msg__ava--me{background:var(--teal); color:#fff; font-weight:600; font-size:12px; border-radius:50%}
+.msg__name{font-size:13px}
+.msg__name b{color:var(--ink)}
+.msg__name span{color:var(--faint); margin-left:6px; font-size:12px}
+.msg__text{margin-top:3px; color:var(--text)}
+.msg__text p + p, .msg__text p + ul, .msg__text ul + p{margin-top:8px}
+.msg__text ul{margin:6px 0 0; padding-left:18px; display:flex; flex-direction:column; gap:4px}
+.msg__text b{color:var(--ink)}
+.msg__actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px}
+.chip-btn{background:#fff; border:1px solid var(--line); border-radius:7px; padding:5px 11px; font-size:12.5px; color:var(--ink)}
+.chip-btn:hover{border-color:var(--teal)}
+.chip-btn--main{background:var(--teal-dark); border-color:var(--teal-dark); color:#fff}
+.scale5{display:flex; gap:6px; margin-top:10px}
+.scale5 button{width:52px; padding:8px 0 6px; border:1px solid var(--line); border-radius:9px; background:#fff; display:flex; flex-direction:column; align-items:center; gap:2px; font-size:11px; color:var(--muted)}
+.scale5 button b{font-size:16px; color:var(--ink); font-weight:600}
+.scale5 button[aria-pressed="true"]{border-color:var(--teal-dark); background:var(--tint); box-shadow:inset 0 0 0 1px var(--teal-dark)}
+.privacy{display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--muted); background:var(--line-soft); border-radius:7px; padding:7px 10px; margin-top:10px; max-width:560px}
+.privacy svg{width:14px; height:14px; flex:none; margin-top:2px; stroke:var(--muted); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.msgr__input{margin:0 18px 16px; border:1px solid var(--line); border-radius:9px; padding:10px 12px; color:var(--faint); font-size:13px}
+
+/* ---------- Источники данных ---------- */
+.own-mods{display:flex; flex-wrap:wrap; gap:8px}
+.own-mods span{display:inline-flex; align-items:center; gap:6px; background:var(--tint); color:var(--teal-dark); border:1px solid #C4EBF1; border-radius:8px; padding:6px 10px; font-size:13px}
+.own-mods svg{width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.integ{display:flex; flex-direction:column; gap:12px}
+.integ__top{display:flex; gap:12px; align-items:flex-start}
+.integ__icon{width:38px; height:38px; border-radius:9px; background:var(--orange); display:grid; place-items:center; flex:none}
+.integ__icon svg{width:20px; height:20px; stroke:#fff; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.integ__icon--off{background:#C5D3D7}
+.integ h3{font-size:15px}
+.integ__vendors{font-size:12px; color:var(--muted)}
+.integ__state{margin-left:auto}
+.take{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.take h4{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:5px}
+.take ul{margin:0; padding-left:16px; display:flex; flex-direction:column; gap:3px; font-size:12.5px}
+.take .no li{color:var(--muted)}
+.integ__foot{display:flex; justify-content:space-between; align-items:center; gap:10px; border-top:1px solid var(--line-soft); padding-top:10px}
+.mx td, .mx th{text-align:center}
+.mx td:first-child, .mx th:first-child{text-align:left}
+.mx table{min-width:760px}
+.mx tbody tr{cursor:default}
+.mx tbody tr:hover td{background:none}
+.tick{display:inline-block; width:10px; height:10px; border-radius:50%}
+.tick--own{background:var(--teal)}
+.tick--int{background:#fff; border:2px solid var(--int)}
+.rules{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 22px}
+.rules li{display:grid; grid-template-columns:22px minmax(0,1fr); gap:8px; font-size:13.5px}
+.rules svg{width:18px; height:18px; stroke:var(--risk); fill:none; stroke-width:2; stroke-linecap:round}
+.rules b{color:var(--ink); font-weight:600; display:block}
+
+/* ---------- Подсказка графиков ---------- */
+.tip{position:fixed; z-index:60; pointer-events:none; background:var(--ink-deep); color:#fff; font-size:12px; padding:6px 9px; border-radius:6px; white-space:nowrap; transform:translate(-50%,-115%); display:none}
+.tip b{font-weight:600}
+
+@media (max-width:1100px){
+  .g5{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .g3,.g2,.g4,.g5{grid-template-columns:1fr}
+  .brief{grid-template-columns:1fr}
+  .fields{grid-template-columns:1fr 1fr}
+  .msgr{grid-template-columns:1fr}
+  .msgr__side{display:none}
+  .rules{grid-template-columns:1fr}
+  .take{grid-template-columns:1fr}
+  .proto__side{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-org" viewBox="0 0 24 24"><rect x="9" y="2.5" width="6" height="5" rx="1"/><rect x="2.5" y="16.5" width="6" height="5" rx="1"/><rect x="15.5" y="16.5" width="6" height="5" rx="1"/><path d="M12 7.5v4.5M5.5 16.5V14a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v2.5"/></symbol>
+  <symbol id="i-survey" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h6"/></symbol>
+  <symbol id="i-assess" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 13l2 2 4-4"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3"/></symbol>
+  <symbol id="i-sprout" viewBox="0 0 24 24"><path d="M7 20h10M12 20v-8M12 12c0-4-3-6-7-6 0 4 3 6 7 6zM12 12c0-3 2-5 6-5 0 3-2 5-6 5z"/></symbol>
+  <symbol id="i-team" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 3.2-5.5 6.5-5.5s6 2 6.5 5.5M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.7c2 .8 3.2 2.6 3.5 5.3"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4 4-6.5 8-6.5s7.3 2.5 8 6.5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M11 6h10M11 12h10M11 18h10M3 6l1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 6l1.6 1.5M18.2 16.5l1.6 1.5M2.5 12h2.2M19.3 12h2.2M4.2 18l1.6-1.5M18.2 7.5 19.8 6"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M19.5 12.6 12 20l-7.5-7.4A5 5 0 1 1 12 6a5 5 0 1 1 7.5 6.6z"/><path d="M3.5 12h4l2-3 3 6 2-3h6"/></symbol>
+  <symbol id="i-agent" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-crm" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></symbol>
+  <symbol id="i-kanban" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 7v7M12 7v4M16 7v9"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></symbol>
+  <symbol id="i-meet" viewBox="0 0 24 24"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2.5 19c.4-2.8 2.6-4.5 5.5-4.5M21.5 19c-.4-2.8-2.6-4.5-5.5-4.5M9.5 16.5h5"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></symbol>
+  <symbol id="i-hr" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1M10 21v-3h4v3"/></symbol>
+  <symbol id="i-learn" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-feedback" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></symbol>
+</svg>
+
+<div class="proto" role="banner">
+  <div class="proto__name">Здоровье команды <small>прототип · вымышленные данные</small></div>
+  <div class="proto__tabs" role="tablist" aria-label="Экраны прототипа">
+    <button class="proto__tab" role="tab" data-go="dash" aria-selected="true">Утро руководителя</button>
+    <button class="proto__tab" role="tab" data-go="team" aria-selected="false">Моя команда</button>
+    <button class="proto__tab" role="tab" data-go="profile" aria-selected="false">Сотрудник</button>
+    <button class="proto__tab" role="tab" data-go="chat" aria-selected="false">В мессенджере</button>
+    <button class="proto__tab" role="tab" data-go="sources" aria-selected="false">Откуда данные</button>
+  </div>
+  <div class="proto__side">
+    <button class="switch" id="newToggle" aria-pressed="true"><span class="switch__track"></span>Подсветить новое</button>
+  </div>
+</div>
+
+<div class="app">
+  <aside class="side" aria-label="Меню платформы">
+    <div class="logo">
+      <svg class="logo__mark" viewBox="0 0 26 26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1ECAD3"/><stop offset="1" stop-color="#00ABC8"/></linearGradient></defs><path d="M4 3.5c0-1.2 1.3-1.9 2.3-1.3l16 9.5c1 .6 1 2 0 2.6l-16 9.5c-1 .6-2.3-.1-2.3-1.3z" fill="url(#lg)"/><path d="M9.5 9.5 16 13l-6.5 3.5z" fill="#fff" opacity=".9"/></svg>
+      <div class="logo__text">StartExam<small>People Intelligence</small></div>
+    </div>
+    <div class="eyebrow side__title">Управление</div>
+    <button class="nav" data-go="dash"><svg><use href="#i-home"/></svg>Дашборд</button>
+    <button class="nav" data-stub><svg><use href="#i-survey"/></svg>Опросы</button>
+    <button class="nav" data-stub><svg><use href="#i-assess"/></svg>Оценки</button>
+    <button class="nav" data-stub><svg><use href="#i-target"/></svg>Цели</button>
+    <button class="nav" data-stub><svg><use href="#i-sprout"/></svg>Планы развития</button>
+    <button class="nav" data-go="team"><svg><use href="#i-team"/></svg>Моя команда</button>
+    <div class="eyebrow side__title">Личное</div>
+    <button class="nav" data-stub><svg><use href="#i-user"/></svg>Мой профиль</button>
+    <button class="nav" data-stub><svg><use href="#i-assess"/></svg>Мои оценки</button>
+    <button class="nav" data-stub><svg><use href="#i-target"/></svg>Мои цели</button>
+    <button class="nav" data-stub><svg><use href="#i-list"/></svg>Мои опросы</button>
+    <button class="nav" data-stub><svg><use href="#i-file"/></svg>Мои отчёты</button>
+    <button class="nav" data-stub><svg><use href="#i-sprout"/></svg>Мои планы развития</button>
+    <div style="height:14px"></div>
+    <button class="nav" data-go="sources"><svg><use href="#i-settings"/></svg>Настройки</button>
+    <button class="nav" data-stub><svg><use href="#i-book"/></svg>Справка</button>
+    <div class="side__foot">
+      <div class="ava ava--sm">МВ</div>
+      <div><b>Марина Воронцова</b><span>Руководитель отдела продаж</span></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <button class="btn btn--soft"><svg><use href="#i-feedback"/></svg>Оставить отзыв коллеге</button>
+      <button class="btn btn--primary"><svg><use href="#i-agent"/></svg>Спросить AI-эксперта</button>
+    </div>
+    <div class="page">
+
+<!-- ================= ЭКРАН: ДАШБОРД ================= -->
+<section class="screen" data-screen="dash" aria-label="Дашборд руководителя">
+  <div class="stack" style="gap:18px">
+    <div class="page-head">
+      <div><h1>Добрый день, Марина</h1><p>Отдел продаж · 8 человек · неделя 8–12 сентября</p></div>
+      <div class="filters"><span class="select">Моя команда</span><span class="select">Сентябрь</span></div>
+    </div>
+
+    <div class="card brief is-new">
+      <div class="brief__mark"><svg><use href="#i-agent"/></svg></div>
+      <div>
+        <h2>Разбор от агента <span class="pill-new">Новое</span></h2>
+        <p>Трое требуют вашего внимания, пятеро — нет.</p>
+        <p>Главное — <b>Денис Громов</b>: самочувствие падает четвёртую неделю, встречи один на один не было шесть недель, пересмотр зарплаты просрочен на два месяца. Вместе это похоже на риск ухода лучшего продавца отдела — повестка разговора уже готова. <b>Вера Климова</b> на пятой неделе испытательного срока без целей и без обучения по продукту, хотя уже ведёт клиентов. <b>Егор Лисин</b> четвёртую неделю работает выше нормы.</p>
+        <p class="muted small">Остальное агент отслеживает сам и напомнит в срок. Раньше на этом месте была сводка ИИ по опросам — теперь она собирает сигналы из всех источников.</p>
+      </div>
+      <div class="stack" style="gap:8px">
+        <button class="btn btn--soft" data-go="team">Открыть команду</button>
+        <button class="btn btn--ghost" data-go="chat">Как это в мессенджере</button>
+      </div>
+    </div>
+
+    <div class="grid g5">
+      <div class="card kpi is-existing"><div class="eyebrow">eNPS команды</div><div class="kpi__val num">+18</div><div class="kpi__sub">опрос августа · 8 из 8</div></div>
+      <div class="card kpi is-existing"><div class="eyebrow">Вовлечённость</div><div class="kpi__val num">3,9 <span class="small muted">из 5</span></div><div class="kpi__sub">пульс-опрос августа</div></div>
+      <div class="card kpi is-existing"><div class="eyebrow">Оценка 360</div><div class="kpi__val num">3,8</div><div class="kpi__sub">весна 2026 · балл окружения</div></div>
+      <div class="card kpi is-existing"><div class="eyebrow">Цели в срок</div><div class="kpi__val num">71%</div><div class="kpi__sub">12 из 17 целей третьего квартала</div></div>
+      <div class="card kpi is-new">
+        <div class="eyebrow">Здоровье команды <span class="pill-new">Новое</span></div>
+        <div class="kpi__val num">3 <span class="small muted">из 8 в норме</span></div>
+        <div class="dist" role="img" aria-label="Норма 3, внимание 2, риск 3"><span class="dist__ok" style="width:37.5%"></span><span class="dist__warn" style="width:25%"></span><span class="dist__risk" style="width:37.5%"></span></div>
+        <div class="dist-legend"><span class="st st--ok"><i></i>3</span><span class="st st--warn"><i></i>2</span><span class="st st--risk"><i></i>3</span></div>
+      </div>
+    </div>
+
+    <div class="is-new stack" style="gap:12px">
+      <div class="row"><h2 style="font-size:17px">Не пропустить</h2><span class="pill-new">Новое</span><span class="muted small" style="margin-left:6px">то, что без вас станет проблемой</span></div>
+      <div class="grid g3">
+        <article class="alert">
+          <div class="alert__bar"></div>
+          <div class="alert__body">
+            <div class="alert__who"><div class="ava">ДГ</div><div><b>Денис Громов</b><span>Старший менеджер · 4 года</span></div></div>
+            <div class="alert__what">Похоже на риск ухода</div>
+            <ul class="facts">
+              <li><span>Самочувствие 2,4 из 5, падает 4 недели</span><span class="src src--int"><svg><use href="#i-chat"/></svg>Пульс</span></li>
+              <li><span>Встречи один на один не было 6 недель</span><span class="src src--own"><svg><use href="#i-meet"/></svg>Встречи 1:1</span></li>
+              <li><span>Пересмотр зарплаты просрочен на 2 месяца</span><span class="src src--own"><svg><use href="#i-org"/></svg>Оргструктура</span></li>
+              <li><span>Лучшая конверсия в отделе — 31%</span><span class="src src--int"><svg><use href="#i-crm"/></svg>CRM</span></li>
+            </ul>
+            <div class="alert__act"><button class="btn btn--primary btn--sm">Назначить 1:1 — повестка готова</button><button class="btn btn--ghost btn--sm" data-person="gromov">Профиль</button></div>
+          </div>
+        </article>
+        <article class="alert">
+          <div class="alert__bar"></div>
+          <div class="alert__body">
+            <div class="alert__who"><div class="ava">ВК</div><div><b>Вера Климова</b><span>Менеджер · 5-я неделя</span></div></div>
+            <div class="alert__what">Адаптация буксует</div>
+            <ul class="facts">
+              <li><span>Цели на испытательный срок не поставлены</span><span class="src src--own"><svg><use href="#i-target"/></svg>Цели</span></li>
+              <li><span>Обучение по продукту не пройдено, а клиентов в работе уже 6</span><span class="src src--int"><svg><use href="#i-crm"/></svg>CRM</span></li>
+              <li><span>Одна встреча один на один за 5 недель</span><span class="src src--own"><svg><use href="#i-meet"/></svg>Встречи 1:1</span></li>
+              <li><span>Испытательный срок — 5 недель из 12</span><span class="src src--own"><svg><use href="#i-org"/></svg>Оргструктура</span></li>
+            </ul>
+            <div class="alert__act"><button class="btn btn--primary btn--sm">Поставить цели</button><button class="btn btn--ghost btn--sm" data-person="klimova">Профиль</button></div>
+          </div>
+        </article>
+        <article class="alert">
+          <div class="alert__bar"></div>
+          <div class="alert__body">
+            <div class="alert__who"><div class="ava">ЕЛ</div><div><b>Егор Лисин</b><span>Менеджер · 2 года</span></div></div>
+            <div class="alert__what">Перегруз четвёртую неделю</div>
+            <ul class="facts">
+              <li><span>31 час встреч в неделю при норме до 20</span><span class="src src--int"><svg><use href="#i-cal"/></svg>Календарь</span></li>
+              <li><span>47 открытых сделок, по 12 нет движения две недели</span><span class="src src--int"><svg><use href="#i-crm"/></svg>CRM</span></li>
+              <li><span>Встречи после 19:00 — четыре вечера из пяти</span><span class="src src--int"><svg><use href="#i-cal"/></svg>Календарь</span></li>
+              <li><span>Самочувствие 3,7 — пока держится</span><span class="src src--int"><svg><use href="#i-chat"/></svg>Пульс</span></li>
+            </ul>
+            <div class="alert__act"><button class="btn btn--primary btn--sm">Перераспределить 12 сделок</button><button class="btn btn--ghost btn--sm" data-person="lisin">Профиль</button></div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card is-new">
+        <div class="card__head"><svg><use href="#i-eye"/></svg><h2>Отслеживать</h2><span class="pill-new">Новое</span><span class="aside">агент напомнит сам</span></div>
+        <ul class="watch">
+          <li><div class="ava ava--sm">ОР</div><div><b>Ольга Руденко</b> · зовут на встречи втрое реже, чем месяц назад; в общем канале три недели тишины</div><span class="when">наблюдает</span></li>
+          <li><div class="ava ava--sm">АН</div><div><b>Артём Никитин</b> · цель «Выручка Q3» зелёная, но ключевой результат не двигается 5 недель</div><span class="when">15 сентября</span></li>
+          <li><div class="ava ava--sm">НО</div><div><b>Наталья Орлова</b> · 22 сентября — три года в компании, открывается окно пересмотра</div><span class="when">через 12 дней</span></li>
+          <li><div class="ava ava--sm">ВК</div><div><b>Вера Климова</b> · обязательное обучение «Продукт и тарифы», срок 19 сентября</div><span class="when">через 9 дней</span></li>
+          <li><div class="ava ava--sm">2</div><div><b>Две цели</b> ждут вашего согласования</div><span class="when">со вчера</span></li>
+        </ul>
+      </div>
+      <div class="card is-existing">
+        <div class="card__head"><svg><use href="#i-agent"/></svg><h2>ИИ рекомендует на этой неделе</h2><span class="existing-note">как сейчас</span></div>
+        <ul class="watch">
+          <li><div class="ava ava--sm" style="background:var(--tint-2);color:var(--teal-dark)">1</div><div>Обсудить с командой результаты пульса по драйверу «Нагрузка»</div><span class="when">Опросы</span></li>
+          <li><div class="ava ava--sm" style="background:var(--tint-2);color:var(--teal-dark)">2</div><div>Добавить в планы развития компетенцию «Переговоры» — зона развития у троих</div><span class="when">Оценка 360</span></li>
+          <li><div class="ava ava--sm" style="background:var(--tint-2);color:var(--teal-dark)">3</div><div>Запустить повторный пульс — прошлому четыре недели</div><span class="when">Опросы</span></li>
+        </ul>
+        <p class="small muted" style="margin-top:10px">Остаётся: рекомендации по опросам и 360 работают как сейчас. Сигналы по людям агент ведёт отдельно, в блоках слева и выше.</p>
+      </div>
+    </div>
+
+    <div class="grid g3 is-existing">
+      <div class="card mini">
+        <div class="row"><h3>Тепловая карта по отделам</h3><span class="existing-note">как сейчас</span></div>
+        <div class="heat" aria-hidden="true">
+          <span style="background:#BFE6D0"></span><span style="background:#BFE6D0"></span><span style="background:#F5E3A8"></span><span style="background:#BFE6D0"></span><span style="background:#F6C9C9"></span><span style="background:#BFE6D0"></span>
+          <span style="background:#F5E3A8"></span><span style="background:#BFE6D0"></span><span style="background:#BFE6D0"></span><span style="background:#F5E3A8"></span><span style="background:#BFE6D0"></span><span style="background:#BFE6D0"></span>
+        </div>
+        <p class="small muted">Драйверы вовлечённости × отделы, по опросам</p>
+      </div>
+      <div class="card mini">
+        <div class="row"><h3>Оценка 360</h3><span class="existing-note">как сейчас</span></div>
+        <div class="small">Переговоры <span class="score score--warn num" style="float:right">3,4</span></div><div class="mini__line"><span style="width:68%"></span></div>
+        <div class="small">Клиентоориентированность <span class="score score--ok num" style="float:right">4,3</span></div><div class="mini__line"><span style="width:86%"></span></div>
+      </div>
+      <div class="card mini">
+        <div class="row"><h3>Цели команды</h3><span class="existing-note">как сейчас</span></div>
+        <div class="small">Выполнено 12 из 17 · в срок 71%</div><div class="mini__line"><span style="width:71%"></span></div>
+        <p class="small muted">Две цели ждут согласования</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ЭКРАН: МОЯ КОМАНДА ================= -->
+<section class="screen" data-screen="team" aria-label="Моя команда" hidden>
+  <div class="stack" style="gap:16px">
+    <div class="page-head">
+      <div><h1>Моя команда</h1><p>Отдел продаж · 8 прямых подчинённых</p></div>
+      <div class="filters"><span class="select">Все отделы</span><span class="select">Все должности</span><span class="select">Сначала требующие внимания</span></div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab is-new" role="tab" aria-selected="true">Здоровье команды <span class="pill-new">Новое</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-stub>Прямые подчинённые</button>
+      <button class="tab" role="tab" aria-selected="false" data-stub>Подчинённые следующих уровней</button>
+    </div>
+
+    <div class="grid g4 is-new" id="axisTiles"></div>
+
+    <div class="tbl-wrap team-tbl is-new">
+      <table aria-label="Здоровье команды по сотрудникам">
+        <colgroup><col style="width:21%"><col style="width:12.5%"><col style="width:11%"><col style="width:13%"><col style="width:12.5%"><col style="width:10%"><col style="width:20%"></colgroup>
+        <thead><tr>
+          <th>Сотрудник</th><th>Нагрузка</th><th>Самочувствие</th><th>С руководителем</th><th>С командой</th><th>8 недель</th><th>Что заметил агент</th>
+        </tr></thead>
+        <tbody id="teamRows"></tbody>
+      </table>
+    </div>
+
+    <div class="legend">
+      <span class="st st--ok"><i></i>Норма — от 4,0</span>
+      <span class="st st--warn"><i></i>Внимание — 3,5–3,9</span>
+      <span class="st st--risk"><i></i>Риск — ниже 3,5</span>
+      <span style="margin-left:8px">Каждая ось — индекс от 1 до 5, выше — лучше. В ячейке — то, из чего он сложился.</span>
+    </div>
+    <div class="legend">
+      <span class="src src--own"><svg><use href="#i-assess"/></svg>Данные платформы</span>
+      <span class="src src--int"><svg><use href="#i-cal"/></svg>Интеграция</span>
+      <span>Строка кликабельна — откроется профиль сотрудника.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ЭКРАН: ПРОФИЛЬ СОТРУДНИКА ================= -->
+<section class="screen" data-screen="profile" aria-label="Профиль сотрудника" hidden>
+  <div class="stack" style="gap:16px">
+    <div class="row small muted"><button class="btn btn--ghost btn--sm" data-go="team"><svg style="transform:rotate(180deg)"><use href="#i-arrow"/></svg>Моя команда</button><span id="profCrumb"></span></div>
+
+    <div class="card prof-head is-existing">
+      <div class="prof-head__top">
+        <div class="ava ava--lg" id="profAva"></div>
+        <div><h1 id="profName"></h1><p id="profRole"></p></div>
+        <span class="existing-note">шапка как сейчас</span>
+      </div>
+      <div class="fields" id="profFields"></div>
+    </div>
+
+    <div class="card is-new">
+      <div class="card__head"><svg><use href="#i-pulse"/></svg><h2>Здоровье · последние 8 недель</h2><span class="pill-new">Новое</span><span class="aside" id="profOverall"></span></div>
+      <div class="grid g4" id="profAxes"></div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card is-new">
+        <div class="card__head"><svg><use href="#i-agent"/></svg><h2>Что заметил агент</h2><span class="pill-new">Новое</span></div>
+        <ul class="feed" id="profFeed"></ul>
+      </div>
+      <div class="card is-new" id="profDraftCard">
+        <div class="card__head"><svg><use href="#i-meet"/></svg><h2>Агент подготовил</h2><span class="pill-new">Новое</span></div>
+        <div class="draft" id="profDraft"></div>
+        <div class="alert__act" style="margin-top:12px"><button class="btn btn--primary btn--sm">Назначить встречу 1:1</button><button class="btn btn--ghost btn--sm">Поправить повестку</button></div>
+        <p class="small muted" style="margin-top:10px">Агент ничего не отправляет сам: встречу назначаете вы, повестку правите вы.</p>
+      </div>
+    </div>
+
+    <div class="row"><h2 style="font-size:16px">Всё остальное — как сейчас</h2><span class="muted small">блоки профиля не меняются, агент берёт из них данные</span></div>
+    <div class="grid g3 is-existing">
+      <div class="card">
+        <div class="card__head"><svg><use href="#i-assess"/></svg><h2>Компетенции по итогам 360</h2></div>
+        <div class="stack" style="gap:8px" id="profComp"></div>
+      </div>
+      <div class="card">
+        <div class="card__head"><svg><use href="#i-target"/></svg><h2>Цели</h2></div>
+        <div class="stack" style="gap:10px" id="profGoals"></div>
+      </div>
+      <div class="card">
+        <div class="card__head"><svg><use href="#i-meet"/></svg><h2>Встречи 1-1</h2></div>
+        <div id="profMeet"></div>
+      </div>
+      <div class="card">
+        <div class="card__head"><svg><use href="#i-list"/></svg><h2>Опросы</h2></div>
+        <div id="profSurveys"></div>
+      </div>
+      <div class="card">
+        <div class="card__head"><svg><use href="#i-sprout"/></svg><h2>План развития</h2></div>
+        <div id="profPlan"></div>
+      </div>
+      <div class="card">
+        <div class="card__head"><svg><use href="#i-feedback"/></svg><h2>Отзывы</h2></div>
+        <div id="profFeedback"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ЭКРАН: МЕССЕНДЖЕР ================= -->
+<section class="screen" data-screen="chat" aria-label="Агент в мессенджере" hidden>
+  <div class="stack" style="gap:16px">
+    <div class="page-head">
+      <div><h1>Агент в рабочем мессенджере <span class="pill-new">Новое</span></h1><p>Основной интерфейс — не платформа, а чат, где команда и так проводит день</p></div>
+      <div class="seg" role="group" aria-label="Чей экран"><button aria-pressed="true" data-view="lead">Руководитель · утро</button><button aria-pressed="false" data-view="emp">Сотрудник · пятница</button></div>
+    </div>
+
+    <div class="msgr is-new">
+      <div class="msgr__side">
+        <div class="msgr__ws">Отдел продаж<small>рабочее пространство</small></div>
+        <div class="msgr__grp">Каналы</div>
+        <div class="msgr__ch"># продажи</div>
+        <div class="msgr__ch"># общий</div>
+        <div class="msgr__ch"># новости</div>
+        <div class="msgr__grp">Личные</div>
+        <div class="msgr__ch on"><span class="dot"></span>Агент команды</div>
+        <div class="msgr__ch" data-chan-lead>Денис Громов</div>
+        <div class="msgr__ch" data-chan-lead>Роман Белов</div>
+        <div class="msgr__ch" data-chan-emp hidden>Марина Воронцова</div>
+      </div>
+
+      <div class="msgr__main" data-chat="lead">
+        <div class="msgr__bar"><div class="msg__ava" style="width:28px;height:28px;border-radius:7px"><svg><use href="#i-agent"/></svg></div><b>Агент команды</b><span class="muted small">личный чат Марины</span></div>
+        <div class="msgr__feed">
+          <div class="msg">
+            <div class="msg__ava"><svg><use href="#i-agent"/></svg></div>
+            <div>
+              <div class="msg__name"><b>Агент команды</b><span>среда, 9:00</span></div>
+              <div class="msg__text">
+                <p>Доброе утро, Марина. Сегодня три вещи, остальные пятеро в норме.</p>
+                <ul>
+                  <li><b>Денис Громов</b> — самочувствие падает четвёртую неделю, встречи один на один не было шесть недель, пересмотр зарплаты просрочен на два месяца. Похоже на риск ухода. Предлагаю встречу до пятницы — повестку подготовил.</li>
+                  <li><b>Вера Климова</b> — пятая неделя испытательного срока, целей нет, обучение по продукту не пройдено, а клиентов уже шесть.</li>
+                  <li><b>Егор Лисин</b> — 31 час встреч, 12 сделок без движения две недели. У Романа есть запас: можно передать ему часть.</li>
+                </ul>
+                <p class="muted">Отслеживаю сам: Ольга реже бывает на встречах, цель Артёма стоит, у Натальи 22 сентября три года в компании.</p>
+              </div>
+              <div class="msg__actions">
+                <button class="chip-btn chip-btn--main">Назначить 1:1 с Денисом</button>
+                <button class="chip-btn">Поставить цели Вере</button>
+                <button class="chip-btn">Показать сделки Егора</button>
+                <button class="chip-btn" data-go="dash">Открыть в платформе</button>
+              </div>
+            </div>
+          </div>
+          <div class="msg">
+            <div class="msg__ava msg__ava--me">МВ</div>
+            <div><div class="msg__name"><b>Марина Воронцова</b><span>9:14</span></div>
+              <div class="msg__text"><p>Денису поставь четверг на 15:00, пересмотр зарплаты добавь в повестку</p></div></div>
+          </div>
+          <div class="msg">
+            <div class="msg__ava"><svg><use href="#i-agent"/></svg></div>
+            <div><div class="msg__name"><b>Агент команды</b><span>9:14</span></div>
+              <div class="msg__text"><p>Готово: четверг, 11 сентября, 15:00–15:45, приглашение у Дениса в календаре. Пункт про пересмотр добавил в повестку. Напомню за час.</p></div></div>
+          </div>
+        </div>
+        <div class="msgr__input">Написать агенту…</div>
+      </div>
+
+      <div class="msgr__main" data-chat="emp" hidden>
+        <div class="msgr__bar"><div class="msg__ava" style="width:28px;height:28px;border-radius:7px"><svg><use href="#i-agent"/></svg></div><b>Агент команды</b><span class="muted small">личный чат Веры</span></div>
+        <div class="msgr__feed">
+          <div class="msg">
+            <div class="msg__ava"><svg><use href="#i-agent"/></svg></div>
+            <div>
+              <div class="msg__name"><b>Агент команды</b><span>пятница, 17:30</span></div>
+              <div class="msg__text"><p>Вера, привет! Два коротких вопроса про неделю — секунд на десять.</p><p><b>Как прошла неделя?</b></p></div>
+              <div class="scale5" role="group" aria-label="Оценка недели">
+                <button aria-pressed="false"><b>1</b>тяжело</button><button aria-pressed="false"><b>2</b>&nbsp;</button><button aria-pressed="true"><b>3</b>нормально</button><button aria-pressed="false"><b>4</b>&nbsp;</button><button aria-pressed="false"><b>5</b>отлично</button>
+              </div>
+              <div class="msg__text" style="margin-top:12px"><p><b>Что сейчас больше всего мешает?</b></p></div>
+              <div class="msg__actions">
+                <button class="chip-btn chip-btn--main">Не хватает знаний о продукте</button>
+                <button class="chip-btn">Много задач</button>
+                <button class="chip-btn">Непонятно, чего от меня ждут</button>
+                <button class="chip-btn">Всё в порядке</button>
+              </div>
+              <div class="privacy"><svg><use href="#i-eye"/></svg><span>Эти ответы видит ваш руководитель, Марина Воронцова, — чтобы вовремя помочь. Общие опросы компании по-прежнему анонимны.</span></div>
+            </div>
+          </div>
+          <div class="msg">
+            <div class="msg__ava"><svg><use href="#i-agent"/></svg></div>
+            <div><div class="msg__name"><b>Агент команды</b><span>17:31</span></div>
+              <div class="msg__text"><p>Спасибо! Про продукт — есть курс «Продукт и тарифы», около 40 минут, он у вас в обязательных до 19 сентября. Марине передам, что нужна помощь с продуктом, — без оценок и без цитат.</p></div>
+              <div class="msg__actions"><button class="chip-btn chip-btn--main">Открыть курс</button><button class="chip-btn">Мои показатели</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="msgr__input">Написать агенту…</div>
+      </div>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><h3 style="font-size:14px;margin-bottom:4px">Руководитель</h3><p class="small">Заходит в платформу за подробностями, а не за новостями. Новости приходят утром в чат, решения — кнопкой в том же сообщении.</p></div>
+      <div class="card"><h3 style="font-size:14px;margin-bottom:4px">Сотрудник</h3><p class="small">В платформу приходит раз в полгода на оценку. На два вопроса в пятницу отвечает там, где уже сидит, — и видит, что ответ к чему-то привёл.</p></div>
+      <div class="card"><h3 style="font-size:14px;margin-bottom:4px">Какой мессенджер</h3><p class="small">Тот, к которому подключимся: Slack, Telegram, Пачка, VK Teams, Битрикс24. Первым — тот, что у нас, для пилота на себе.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ЭКРАН: ИСТОЧНИКИ ДАННЫХ ================= -->
+<section class="screen" data-screen="sources" aria-label="Источники данных" hidden>
+  <div class="stack" style="gap:16px">
+    <div class="page-head">
+      <div><h1>Источники данных <span class="pill-new">Новое</span></h1><p>Настройки кабинета · раздел для HR-администратора</p></div>
+    </div>
+
+    <div class="card is-existing">
+      <div class="card__head"><svg><use href="#i-assess"/></svg><h2>Уже в платформе — подключать не нужно</h2><span class="existing-note">как сейчас</span></div>
+      <div class="own-mods">
+        <span><svg><use href="#i-assess"/></svg>Оценка 360</span><span><svg><use href="#i-survey"/></svg>Опросы и eNPS</span><span><svg><use href="#i-star"/></svg>NPS руководителя</span><span><svg><use href="#i-meet"/></svg>Встречи 1:1</span><span><svg><use href="#i-target"/></svg>Цели</span><span><svg><use href="#i-sprout"/></svg>Планы развития</span><span><svg><use href="#i-feedback"/></svg>Отзывы</span><span><svg><use href="#i-org"/></svg>Оргструктура и кадровые даты</span><span><svg><use href="#i-learn"/></svg>Обучение</span>
+      </div>
+      <p class="small muted" style="margin-top:12px">Этого уже хватает на три оси из четырёх — «с руководителем», «с командой» и командный срез самочувствия.</p>
+    </div>
+
+    <div class="row"><h2 style="font-size:17px">Внешние источники</h2><span class="pill-new">Новое</span><span class="muted small">у каждого — что берём и чего не берём никогда</span></div>
+    <div class="grid g3 is-new" id="integrations"></div>
+
+    <div class="card is-new mx">
+      <div class="card__head"><svg><use href="#i-chart"/></svg><h2>Какая ось из чего складывается</h2><span class="pill-new">Новое</span></div>
+      <div class="tbl-wrap" style="border:0">
+        <table>
+          <thead><tr><th>Ось</th><th>Оценка 360</th><th>Опросы</th><th>NPS рук.</th><th>Встречи 1:1</th><th>Цели</th><th>Отзывы</th><th>Календарь</th><th>Мессенджер</th><th>CRM</th><th>Трекер</th><th>1С</th></tr></thead>
+          <tbody>
+            <tr><td><b style="color:var(--ink)">Нагрузка</b></td><td></td><td></td><td></td><td></td><td><i class="tick tick--own" title="платформа"></i></td><td></td><td><i class="tick tick--int" title="интеграция"></i></td><td></td><td><i class="tick tick--int"></i></td><td><i class="tick tick--int"></i></td><td><i class="tick tick--int"></i></td></tr>
+            <tr><td><b style="color:var(--ink)">Самочувствие</b></td><td></td><td><i class="tick tick--own"></i></td><td></td><td></td><td></td><td></td><td></td><td><i class="tick tick--int"></i></td><td></td><td></td><td><i class="tick tick--int"></i></td></tr>
+            <tr><td><b style="color:var(--ink)">С руководителем</b></td><td><i class="tick tick--own"></i></td><td></td><td><i class="tick tick--own"></i></td><td><i class="tick tick--own"></i></td><td></td><td><i class="tick tick--own"></i></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td><b style="color:var(--ink)">С командой</b></td><td><i class="tick tick--own"></i></td><td></td><td></td><td></td><td></td><td><i class="tick tick--own"></i></td><td><i class="tick tick--int"></i></td><td><i class="tick tick--int"></i></td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="legend" style="margin-top:12px"><span class="row" style="gap:6px"><i class="tick tick--own"></i>из платформы</span><span class="row" style="gap:6px"><i class="tick tick--int"></i>из интеграции</span><span>«С руководителем» уже целиком на наших данных. Самочувствию нужен канал для личных пульсов. Внешние системы по-настоящему нужны только нагрузке.</span></div>
+    </div>
+
+    <div class="card is-new">
+      <div class="card__head"><svg><use href="#i-lock"/></svg><h2>Границы агента</h2><span class="pill-new">Новое</span><span class="aside">предложение — утвердить до пилота</span></div>
+      <ul class="rules">
+        <li><svg><use href="#i-x"/></svg><div><b>Не читает личную переписку</b>Ни руководителя с сотрудником, ни сотрудников между собой. Из общих каналов — только число сообщений, без текста.</div></li>
+        <li><svg><use href="#i-x"/></svg><div><b>Не угадывает эмоции по текстам</b>Самочувствие — только из прямых ответов человека на пульс.</div></li>
+        <li><svg><use href="#i-x"/></svg><div><b>Не решает за руководителя</b>Не увольняет, не премирует, не ставит оценок. Показывает сигнал и предлагает разговор.</div></li>
+        <li><svg><use href="#i-x"/></svg><div><b>Не прячется от сотрудника</b>Человек видит о себе то же, что руководитель: свои четыре оси и откуда они взялись.</div></li>
+        <li><svg><use href="#i-x"/></svg><div><b>Не выдаёт личный пульс за анонимный</b>Человек знает, что ответ видит руководитель. Анонимность общих опросов и её пороги — как сейчас.</div></li>
+        <li><svg><use href="#i-x"/></svg><div><b>Не выходит за команду</b>Руководитель видит только своих людей — по оргструктуре, как сейчас в «Моей команде».</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+    </div><!-- /page -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<div class="tip" id="tip" role="status"></div>
+
+<script>
+// ─── Данные прототипа: вымышленная команда, совпадений с реальными людьми нет ───
+const WEEKS = ["21.07","28.07","04.08","11.08","18.08","25.08","01.09","08.09"];
+
+const SRC = {
+  cal:{label:"Календарь", icon:"i-cal", own:false}, crm:{label:"CRM", icon:"i-crm", own:false},
+  trk:{label:"Трекер", icon:"i-kanban", own:false}, msg:{label:"Общие каналы", icon:"i-chat", own:false},
+  pulse:{label:"Пульс", icon:"i-chat", own:false}, hr:{label:"1С", icon:"i-hr", own:false},
+  goals:{label:"Цели", icon:"i-target", own:true}, surv:{label:"Опросы", icon:"i-survey", own:true},
+  nps:{label:"NPS руководителя", icon:"i-star", own:true}, meet:{label:"Встречи 1:1", icon:"i-meet", own:true},
+  a360:{label:"Оценка 360", icon:"i-assess", own:true}, fb:{label:"Отзывы", icon:"i-feedback", own:true},
+  org:{label:"Оргструктура", icon:"i-org", own:true}, learn:{label:"Обучение", icon:"i-learn", own:true}
+};
+
+const AXES = [
+  {k:"load", name:"Нагрузка", src:["cal","crm","trk","goals"]},
+  {k:"mood", name:"Самочувствие", src:["pulse","surv","hr"]},
+  {k:"lead", name:"С руководителем", src:["meet","nps","a360"]},
+  {k:"team", name:"С командой", src:["a360","fb","cal","msg"]}
+];
+
+const TEAM = [
+ {id:"gromov", name:"Денис Громов", ini:"ДГ", role:"Старший менеджер по продажам", tenure:"4 года", grade:"senior", hired:"12 июля 2022", mail:"d.gromov@company.demo",
+  signal:"Похоже на риск ухода: самочувствие падает 4 недели, встречи 1:1 не было 6 недель, пересмотр зарплаты просрочен",
+  axes:{
+   load:{v:"26 ч встреч", t:[4.2,4.1,4.0,4.0,3.9,3.8,3.8,3.7], why:["26 часов встреч в неделю — выше нормы в 20","34 открытые сделки — в пределах обычного"], src:["cal","crm"]},
+   mood:{v:"2,4 из 5", t:[4.3,4.2,4.2,4.1,3.7,3.2,2.8,2.4], why:["По пульсу падает четвёртую неделю подряд","В отпуске последний раз 11 месяцев назад"], src:["pulse","hr"]},
+   lead:{v:"1:1 — 6 нед. назад", t:[4.0,4.0,3.9,3.6,3.4,3.2,3.0,2.9], why:["Последняя встреча один на один — 28 июля","Пересмотр зарплаты должен был пройти в июле","NPS руководителя от Дениса: 7 → 5 за полгода"], src:["meet","org","nps"]},
+   team:{v:"в норме", t:[4.3,4.4,4.3,4.3,4.2,4.3,4.3,4.3], why:["Коллеги оценивают сотрудничество на 4,5 по 360","На встречах команды — как обычно"], src:["a360","cal"]}},
+  feed:[["10 сен","<b>Сложилась картина риска ухода.</b> Три сигнала сразу: самочувствие, пауза во встречах, просроченный пересмотр. Каждый по отдельности агент бы только отслеживал."],
+        ["1 сен","Самочувствие ниже 3,0 вторую неделю — отмечено, пока без эскалации."],
+        ["25 авг","Четыре недели без встречи один на один, хотя обычный ритм у Дениса — раз в две недели."],
+        ["18 авг","Пересмотр зарплаты просрочен на месяц. Руководителю отправлено напоминание."]],
+  draft:{title:"Повестка встречи 1:1 с Денисом", items:["Как ему сейчас — без цифр и опросов, просто разговор","Пересмотр зарплаты: был запланирован на июль — назвать срок","Что последний месяц даёт энергию в работе, а что забирает","Лучшая конверсия отдела — 31%: что из его подхода передать команде"]},
+  comp:[["Переговоры",4.4],["Клиентоориентированность",4.6],["Работа в команде",4.5],["Планирование",3.6],["Развитие других",3.3]],
+  goals:[["Выручка Q3 — 18 млн ₽",82,"в работе"],["Наставник для новичка",40,"в работе"]],
+  meet:["28 июля","Обычный ритм — раз в две недели. Следующая не назначена."],
+  surveys:[["Пульс-опрос общий","Пройдено"],["Вовлечённость, август","Пройдено"]],
+  plan:"«Лидерство в продажах» — выполнено 2 из 5 действий", fb:"3 отзыва за полгода · средний балл 4,6"},
+
+ {id:"klimova", name:"Вера Климова", ini:"ВК", role:"Менеджер по продажам", tenure:"5 недель", grade:"junior", hired:"4 августа 2026", mail:"v.klimova@company.demo",
+  signal:"Адаптация буксует: пятая неделя испытательного срока без целей и без обучения по продукту, клиентов уже 6",
+  axes:{
+   load:{v:"9 ч встреч · 6 клиентов", t:[null,null,null,4.6,4.5,4.4,4.3,4.2], why:["9 часов встреч в неделю","6 клиентов в работе — для пятой недели много"], src:["cal","crm"]},
+   mood:{v:"3,6 из 5", t:[null,null,null,4.4,4.2,3.9,3.7,3.6], why:["Снижается с первой недели","В пульсе отметила: «не хватает знаний о продукте»"], src:["pulse"]},
+   lead:{v:"1:1 — 1 раз за 5 нед.", t:[null,null,null,3.8,3.5,3.3,3.1,3.0], why:["Одна встреча один на один за пять недель — на испытательном нужна еженедельная","Цели на испытательный срок не поставлены"], src:["meet","goals"]},
+   team:{v:"2 контакта в команде", t:[null,null,null,3.4,3.5,3.6,3.6,3.6], why:["Регулярно общается с двумя коллегами из восьми","Наставник не назначен"], src:["cal","msg"]}},
+  feed:[["10 сен","<b>Адаптация буксует.</b> Пятая неделя испытательного срока: нет целей, нет обучения, одна встреча один на один."],
+        ["5 сен","В пульсе: «не хватает знаний о продукте». Вере предложен курс «Продукт и тарифы»."],
+        ["1 сен","В CRM появился шестой клиент, а обязательное обучение по продукту не начато."],
+        ["15 авг","Вторая неделя — цели на испытательный срок всё ещё не поставлены."]],
+  draft:{title:"План на остаток испытательного срока", items:["Поставить три цели на испытательный срок — черновик по шаблону отдела готов","Встречи один на один раз в неделю до конца срока","Назначить наставника: у Дениса Громова в целях уже есть «Наставник для новичка»","Курс «Продукт и тарифы» — до 19 сентября"]},
+  comp:[], goals:[], meet:["13 августа","Одна встреча за пять недель."],
+  surveys:[["Пульс-опрос общий","Пройдено"]], plan:"Плана развития пока нет.", fb:"Отзывов пока нет."},
+
+ {id:"lisin", name:"Егор Лисин", ini:"ЕЛ", role:"Менеджер по продажам", tenure:"2 года", grade:"middle", hired:"3 сентября 2024", mail:"e.lisin@company.demo",
+  signal:"Перегруз четвёртую неделю: 31 ч встреч, 12 сделок без движения, встречи по вечерам",
+  axes:{
+   load:{v:"31 ч встреч · 47 сделок", t:[4.0,3.8,3.5,3.2,3.0,2.8,2.7,2.6], why:["31 час встреч в неделю при норме до 20","47 открытых сделок, по 12 нет движения две недели","Встречи после 19:00 — четыре вечера из пяти"], src:["cal","crm"]},
+   mood:{v:"3,7 из 5", t:[4.3,4.3,4.2,4.1,4.0,3.9,3.8,3.7], why:["Пока держится, но снижается","Не был в отпуске 9 месяцев"], src:["pulse","hr"]},
+   lead:{v:"1:1 — неделю назад", t:[4.1,4.2,4.2,4.1,4.2,4.2,4.2,4.2], why:["Встречи один на один раз в две недели, по графику","NPS руководителя — 9"], src:["meet","nps"]},
+   team:{v:"в норме", t:[4.2,4.2,4.1,4.1,4.0,4.0,4.0,4.0], why:["Отзывы коллег — 4,2"], src:["fb","cal"]}},
+  feed:[["10 сен","<b>Перегруз четвёртую неделю.</b> Нагрузка вышла за норму в середине августа и не возвращается."],
+        ["8 сен","12 сделок без движения больше двух недель. У Романа Белова 18 сделок — есть запас."],
+        ["25 авг","Встречи после 19:00 стали регулярными — четыре вечера из пяти."]],
+  draft:{title:"Как разгрузить Егора", items:["Передать Роману Белову 12 сделок без движения — список готов","Сократить внутренние встречи: 9 из 31 часа — внутренние, и Егор там не ведущий","Обсудить на ближайшей 1:1 отпуск — не был 9 месяцев"]},
+  comp:[["Переговоры",4.0],["Клиентоориентированность",4.4],["Работа в команде",4.1],["Планирование",3.4]],
+  goals:[["Выручка Q3 — 12 млн ₽",64,"в работе"],["Новые клиенты — 15",73,"в работе"]],
+  meet:["3 сентября","Ритм раз в две недели соблюдается."],
+  surveys:[["Пульс-опрос общий","Пройдено"],["Вовлечённость, август","Пройдено"]], plan:"«Тайм-менеджмент» — выполнено 1 из 4 действий", fb:"5 отзывов · средний балл 4,2"},
+
+ {id:"rudenko", name:"Ольга Руденко", ini:"ОР", role:"Менеджер по продажам · удалённо, Казань", tenure:"3 года", grade:"middle", hired:"1 марта 2023", mail:"o.rudenko@company.demo",
+  signal:"Выпадает из команды: на встречи зовут втрое реже, в общем канале три недели тишины",
+  axes:{
+   load:{v:"18 ч встреч", t:[4.2,4.3,4.3,4.4,4.4,4.3,4.3,4.3], why:["18 часов встреч в неделю","28 открытых сделок — в норме"], src:["cal","crm"]},
+   mood:{v:"4,0 из 5", t:[4.3,4.3,4.2,4.2,4.1,4.1,4.0,4.0], why:["Стабильно, чуть снижается"], src:["pulse"]},
+   lead:{v:"1:1 — 2 нед. назад", t:[4.2,4.2,4.1,4.2,4.1,4.1,4.1,4.1], why:["Встречи один на один по графику"], src:["meet","nps"]},
+   team:{v:"приглашений −60%", t:[4.3,4.2,4.1,3.9,3.7,3.5,3.3,3.2], why:["На встречи команды зовут втрое реже, чем в июле","Встречи команды всё чаще без ссылки на видеосвязь","В общем канале три недели тишины"], src:["cal","msg"]}},
+  feed:[["8 сен","<b>Выпадает из командных встреч.</b> Приглашений — втрое меньше, чем в июле."],
+        ["1 сен","Встречи команды всё чаще без ссылки на видеосвязь — Ольга подключиться не может."],
+        ["22 авг","Третья неделя без сообщений в общем канале."]],
+  draft:{title:"Что можно сделать", items:["Договориться, что встречи команды — всегда со ссылкой на видеосвязь","Спросить Ольгу на ближайшей 1:1, как она чувствует себя в команде","Раз в квартал — поездка в офис"]},
+  comp:[["Переговоры",4.2],["Клиентоориентированность",4.5],["Работа в команде",3.9]],
+  goals:[["Выручка Q3 — 10 млн ₽",78,"в работе"]], meet:["27 августа","По графику."],
+  surveys:[["Пульс-опрос общий","Пройдено"],["Вовлечённость, август","Пройдено"]], plan:"«Удалённое лидерство» — выполнено 3 из 4 действий", fb:"4 отзыва · средний балл 4,4"},
+
+ {id:"nikitin", name:"Артём Никитин", ini:"АН", role:"Менеджер по продажам", tenure:"1 год", grade:"middle", hired:"19 августа 2025", mail:"a.nikitin@company.demo", flag:true,
+  signal:"Цель «Выручка Q3» отмечена зелёной, но ключевой результат не двигается 5 недель",
+  axes:{
+   load:{v:"16 ч встреч", t:[4.1,4.2,4.1,4.1,4.2,4.1,4.1,4.1], why:["16 часов встреч","22 открытые сделки"], src:["cal","crm"]},
+   mood:{v:"4,2 из 5", t:[4.3,4.2,4.3,4.2,4.2,4.2,4.2,4.2], why:["Стабильно"], src:["pulse"]},
+   lead:{v:"1:1 — неделю назад", t:[4.3,4.3,4.2,4.3,4.3,4.3,4.3,4.3], why:["Встречи один на один по графику"], src:["meet"]},
+   team:{v:"в норме", t:[4.4,4.4,4.4,4.3,4.4,4.4,4.4,4.4], why:["Отзывы коллег — 4,4"], src:["fb"]}},
+  feed:[["8 сен","<b>Цель стоит, хотя отмечена зелёной.</b> «Выручка Q3» — 42% с 4 августа. До конца квартала три недели."],
+        ["18 авг","Статус цели обновлён на «в работе», сам прогресс не изменился."]],
+  draft:{title:"Вопросы на 1:1", items:["Что мешает сделкам сдвинуться — 6 сделок больше месяца на стадии КП","Реалистична ли цель: пересмотреть сейчас лучше, чем признать в последнюю неделю"]},
+  comp:[["Переговоры",3.8],["Клиентоориентированность",4.1]],
+  goals:[["Выручка Q3 — 8 млн ₽",42,"статус зелёный, прогресс стоит 5 недель"]], meet:["3 сентября","По графику."],
+  surveys:[["Пульс-опрос общий","Пройдено"]], plan:"«Работа с возражениями» — выполнено 2 из 3 действий", fb:"2 отзыва · средний балл 4,0"},
+
+ {id:"orlova", name:"Наталья Орлова", ini:"НО", role:"Аккаунт-менеджер", tenure:"3 года 22 сентября", grade:"senior", hired:"22 сентября 2023", mail:"n.orlova@company.demo",
+  signal:"22 сентября — три года в компании, открывается окно пересмотра",
+  axes:{
+   load:{v:"20 ч встреч", t:[4.0,4.1,4.0,4.0,4.1,4.0,4.0,4.0], why:["20 часов встреч — на границе нормы"], src:["cal","crm"]},
+   mood:{v:"4,4 из 5", t:[4.4,4.5,4.4,4.4,4.5,4.4,4.4,4.4], why:["Стабильно высокое"], src:["pulse"]},
+   lead:{v:"1:1 — неделю назад", t:[4.5,4.5,4.5,4.4,4.5,4.5,4.5,4.5], why:["Встречи один на один по графику","NPS руководителя — 10"], src:["meet","nps"]},
+   team:{v:"в норме", t:[4.6,4.6,4.5,4.6,4.6,4.6,4.6,4.6], why:["Коллеги оценивают сотрудничество на 4,7"], src:["a360","fb"]}},
+  feed:[["10 сен","Через 12 дней — три года в компании. Напомню за неделю вместе с данными для пересмотра."]],
+  draft:{title:"К 15 сентября подготовлю", items:["Итоги года: выполнение целей, отзывы клиентов и коллег, оценку 360","Сравнение с вилкой должности — если кадровая система отдаёт зарплаты"]},
+  comp:[["Переговоры",4.3],["Клиентоориентированность",4.8],["Работа в команде",4.6]],
+  goals:[["Удержание клиентов — 95%",91,"в работе"]], meet:["3 сентября","По графику."],
+  surveys:[["Пульс-опрос общий","Пройдено"],["Вовлечённость, август","Пройдено"]], plan:"«Ключевые клиенты» — выполнено 4 из 4 действий", fb:"6 отзывов · средний балл 4,7"},
+
+ {id:"belov", name:"Роман Белов", ini:"РБ", role:"Менеджер по продажам", tenure:"3 года", grade:"middle", hired:"10 апреля 2023", mail:"r.belov@company.demo",
+  signal:"Всё в норме. Есть запас по нагрузке — 18 сделок",
+  axes:{
+   load:{v:"14 ч встреч · 18 сделок", t:[4.4,4.5,4.4,4.5,4.5,4.5,4.5,4.5], why:["14 часов встреч","18 сделок — ниже средней по отделу"], src:["cal","crm"]},
+   mood:{v:"4,3 из 5", t:[4.2,4.3,4.3,4.2,4.3,4.3,4.3,4.3], why:["Стабильно"], src:["pulse"]},
+   lead:{v:"1:1 — 2 нед. назад", t:[4.2,4.2,4.2,4.1,4.2,4.2,4.2,4.2], why:["По графику"], src:["meet"]},
+   team:{v:"в норме", t:[4.4,4.4,4.4,4.4,4.4,4.4,4.4,4.4], why:["Отзывы коллег — 4,4"], src:["fb"]}},
+  feed:[["8 сен","Нагрузка ниже средней по отделу — можно передать часть сделок Егора Лисина."]],
+  draft:null, comp:[["Переговоры",4.1],["Клиентоориентированность",4.3]],
+  goals:[["Выручка Q3 — 9 млн ₽",88,"в работе"]], meet:["27 августа","По графику."],
+  surveys:[["Пульс-опрос общий","Пройдено"]], plan:"Плана развития пока нет.", fb:"3 отзыва · средний балл 4,3"},
+
+ {id:"vasiliev", name:"Илья Васильев", ini:"ИВ", role:"Пресейл-инженер", tenure:"2 года", grade:"middle", hired:"6 мая 2024", mail:"i.vasiliev@company.demo",
+  signal:"Всё в норме",
+  axes:{
+   load:{v:"17 ч встреч", t:[4.2,4.2,4.3,4.2,4.2,4.2,4.2,4.2], why:["17 часов встреч"], src:["cal"]},
+   mood:{v:"4,1 из 5", t:[4.1,4.2,4.1,4.1,4.1,4.1,4.1,4.1], why:["Стабильно"], src:["pulse"]},
+   lead:{v:"1:1 — неделю назад", t:[4.4,4.4,4.4,4.4,4.4,4.4,4.4,4.4], why:["По графику"], src:["meet"]},
+   team:{v:"в норме", t:[4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2], why:["Отзывы коллег — 4,2"], src:["fb"]}},
+  feed:[], draft:null, comp:[["Экспертиза",4.6],["Коммуникация",4.0]],
+  goals:[["Демо для 20 клиентов",70,"в работе"]], meet:["3 сентября","По графику."],
+  surveys:[["Пульс-опрос общий","Пройдено"]], plan:"«Публичные выступления» — выполнено 1 из 3 действий", fb:"4 отзыва · средний балл 4,3"}
+];
+
+const INTEG = [
+ {name:"Календарь", vendors:"Яндекс, Google, Outlook", icon:"i-cal", state:"on", axes:"Нагрузка · С командой",
+  take:["Сколько часов встреч в неделю","Встречи вне рабочего времени","Кто кого приглашает — без названий"], no:["Названия и описания встреч","Внешних участников","Вложения"]},
+ {name:"Рабочий мессенджер", vendors:"Slack, Telegram, Пачка, VK Teams", icon:"i-chat", state:"on", axes:"Самочувствие · С командой",
+  take:["Ответы на пульс — два вопроса в неделю","Сколько сообщений в общих каналах","Упоминания в общих каналах"], no:["Личные сообщения","Тексты сообщений","«Эмоции» по тексту"]},
+ {name:"CRM", vendors:"amoCRM, Битрикс24", icon:"i-crm", state:"on", axes:"Нагрузка",
+  take:["Открытые сделки на человеке","Дни без действия по сделке","Просроченные задачи"], no:["Переписку с клиентами","Суммы и условия договоров"]},
+ {name:"Кадровая система", vendors:"1С:ЗУП", icon:"i-hr", state:"on", axes:"Нагрузка · Самочувствие",
+  take:["Когда был последний отпуск","Больничные — только факт","Даты найма и пересмотра"], no:["Причины больничных","Зарплаты — без отдельного решения"]},
+ {name:"Трекер задач", vendors:"Jira, YouTrack, Kaiten", icon:"i-kanban", state:"off", axes:"Нагрузка",
+  take:["Открытые задачи на человеке","Просрочки","Задачи без движения"], no:["Тексты задач и комментарии"]},
+ {name:"Почта руководителя", vendors:"Яндекс 360, Outlook", icon:"i-mail", state:"exp", axes:"Разбор дня руководителя",
+  take:["Только почта самого руководителя и с его согласия","Что ждёт его ответа сегодня"], no:["Почта сотрудников — никогда"],
+  note:"Это уже другой продукт — ассистент руководителя, а не здоровье команды. Решение отложено."}
+];
+</script>
+
+<script>
+// ─── Логика прототипа ───
+// Пороги зон — те же, что у платформы для шкалы 1–5 (scale-zones.ts): внимание от 3,5, норма от 4,0.
+const ST_LABEL = {ok:"Норма", warn:"Внимание", risk:"Риск"};
+const ST_COLOR = {ok:"var(--ok)", warn:"var(--warn)", risk:"var(--risk)"};
+const status = v => v >= 4 ? "ok" : v >= 3.5 ? "warn" : "risk";
+const lastVal = t => { for (let i = t.length - 1; i >= 0; i--) if (t[i] != null) return t[i]; return null; };
+const firstVal = t => t.find(v => v != null) ?? null;
+const fmt = v => v == null ? "—" : v.toFixed(1).replace(".", ",");
+const $ = s => document.querySelector(s);
+
+function personStatus(p){
+  let risk = 0, warn = 0;
+  AXES.forEach(a => { const s = status(lastVal(p.axes[a.k].t)); if (s === "risk") risk++; else if (s === "warn") warn++; });
+  if (risk >= 2 || (risk >= 1 && warn >= 1)) return "risk";
+  if (risk || warn || p.flag) return "warn";
+  return "ok";
+}
+function overall(p){
+  return WEEKS.map((_, i) => {
+    const vs = AXES.map(a => p.axes[a.k].t[i]).filter(v => v != null);
+    return vs.length ? vs.reduce((s, v) => s + v, 0) / vs.length : null;
+  });
+}
+const chip = k => { const s = SRC[k]; return `<span class="src ${s.own ? "src--own" : "src--int"}"><svg><use href="#${s.icon}"/></svg>${s.label}</span>`; };
+const cell = (st, v) => `<span class="cell cell--${st}" title="${ST_LABEL[st]}"><i></i>${v}</span>`;
+
+// Шкала графиков — 2…5: индекс ниже 2,4 в данных не встречается, а на 1…5 пороги 3,5 и 4,0
+// сливались в одну полосу. Все графики на одной шкале, поэтому сравнимы между собой.
+const YMIN = 2;
+// Малый график: одна серия, область + линия 2px + выделенная последняя точка.
+function spark(vals, st, w = 84, h = 30){
+  const n = vals.length, pl = 2, pr = 5, pt = 4, pb = 4;
+  const x = i => pl + i * (w - pl - pr) / (n - 1), y = v => pt + (5 - v) / (5 - YMIN) * (h - pt - pb);
+  const pts = vals.map((v, i) => v == null ? null : [x(i), y(v)]).filter(Boolean);
+  const line = "M" + pts.map(p => p.map(c => c.toFixed(1)).join(",")).join(" L");
+  const area = line + ` L${pts.at(-1)[0].toFixed(1)},${h - pb} L${pts[0][0].toFixed(1)},${h - pb} Z`;
+  const c = ST_COLOR[st], e = pts.at(-1);
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Индекс за 8 недель: с ${fmt(firstVal(vals))} до ${fmt(lastVal(vals))}">
+    <path d="${area}" style="fill:${c};opacity:.13"/><path d="${line}" style="fill:none;stroke:${c};stroke-width:2;stroke-linejoin:round;stroke-linecap:round"/>
+    <circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="3" style="fill:${c};stroke:#fff;stroke-width:1.5"/></svg>`;
+}
+
+// График оси в профиле: пороги 3,5 и 4,0 пунктиром, подписи недель, подсказка по наведению.
+function axisChart(vals, st){
+  const w = 260, h = 104, pl = 26, pr = 8, pt = 8, pb = 18, n = vals.length;
+  const x = i => pl + i * (w - pl - pr) / (n - 1), y = v => pt + (5 - v) / (5 - YMIN) * (h - pt - pb);
+  const idx = vals.map((v, i) => v == null ? null : i).filter(i => i != null);
+  const pts = idx.map(i => [x(i), y(vals[i])]);
+  const line = "M" + pts.map(p => p.map(c => c.toFixed(1)).join(",")).join(" L");
+  const area = line + ` L${pts.at(-1)[0].toFixed(1)},${y(YMIN)} L${pts[0][0].toFixed(1)},${y(YMIN)} Z`;
+  const c = ST_COLOR[st], e = pts.at(-1), step = (w - pl - pr) / (n - 1);
+  const guide = v => `<line x1="${pl}" x2="${w - pr}" y1="${y(v)}" y2="${y(v)}" style="stroke:#C9DADF;stroke-width:1;stroke-dasharray:3 3"/>
+    <text x="${pl - 5}" y="${y(v) + 3.5}" text-anchor="end" style="font-size:10px;fill:var(--muted)">${fmt(v)}</text>`;
+  const hits = idx.map(i => `<rect x="${(x(i) - step / 2).toFixed(1)}" y="0" width="${step.toFixed(1)}" height="${h - pb}" style="fill:transparent"
+    data-tip="Неделя с ${WEEKS[i]} · <b>${fmt(vals[i])}</b> · ${ST_LABEL[status(vals[i])].toLowerCase()}" data-cx="${x(i).toFixed(1)}" data-cy="${y(vals[i]).toFixed(1)}"/>`).join("");
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="8 недель: с ${fmt(firstVal(vals))} до ${fmt(lastVal(vals))}">
+    <line x1="${pl}" x2="${w - pr}" y1="${y(YMIN)}" y2="${y(YMIN)}" style="stroke:var(--line);stroke-width:1"/>
+    ${guide(4)}${guide(3.5)}
+    <path d="${area}" style="fill:${c};opacity:.12"/>
+    <path d="${line}" style="fill:none;stroke:${c};stroke-width:2;stroke-linejoin:round;stroke-linecap:round"/>
+    <circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="3.5" style="fill:${c};stroke:#fff;stroke-width:1.5"/>
+    <circle class="hov" r="4" cx="0" cy="0" style="display:none;fill:#fff;stroke:${c};stroke-width:2"/>
+    <text x="${x(idx[0])}" y="${h - 4}" style="font-size:10px;fill:var(--muted)">${WEEKS[idx[0]]}</text>
+    <text x="${w - pr}" y="${h - 4}" text-anchor="end" style="font-size:10px;fill:var(--muted)">${WEEKS[n - 1]}</text>
+    ${hits}</svg>`;
+}
+
+function renderAxisTiles(){
+  $("#axisTiles").innerHTML = AXES.map(a => {
+    const c = {ok:0, warn:0, risk:0}, off = [];
+    TEAM.forEach(p => { const s = status(lastVal(p.axes[a.k].t)); c[s]++; if (s !== "ok") off.push(p.name.split(" ")[0]); });
+    const pct = k => (c[k] / TEAM.length * 100).toFixed(1) + "%";
+    const allOwn = a.src.every(k => SRC[k].own), anyOwn = a.src.some(k => SRC[k].own);
+    return `<div class="card axis-tile">
+      <div class="axis-tile__top"><h3>${a.name}</h3><div class="axis-tile__val num">${c.ok}<small> из ${TEAM.length} в норме</small></div></div>
+      <div class="dist" role="img" aria-label="Норма ${c.ok}, внимание ${c.warn}, риск ${c.risk}"><span class="dist__ok" style="width:${pct("ok")}"></span><span class="dist__warn" style="width:${pct("warn")}"></span><span class="dist__risk" style="width:${pct("risk")}"></span></div>
+      <p>${off.length ? "Не в норме: " + off.join(", ") : "Все в норме"}</p>
+      <div class="srcs">${a.src.map(chip).join("")}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderTeam(){
+  const order = {risk:0, warn:1, ok:2};
+  const rows = [...TEAM].sort((a, b) => order[personStatus(a)] - order[personStatus(b)]);
+  $("#teamRows").innerHTML = rows.map(p => {
+    const ps = personStatus(p);
+    return `<tr data-id="${p.id}" tabindex="0" aria-label="${p.name}: ${ST_LABEL[ps]}">
+      <td><div class="person"><div class="ava">${p.ini}</div><div><b>${p.name}</b><span>${p.role} · ${p.tenure}</span></div></div></td>
+      ${AXES.map(a => { const ax = p.axes[a.k]; return `<td>${cell(status(lastVal(ax.t)), ax.v)}</td>`; }).join("")}
+      <td>${spark(overall(p), ps)}</td>
+      <td><div class="signal">${ps === "ok" && !p.flag ? `<span class="muted">${p.signal}</span>` : p.signal}</div></td>
+    </tr>`;
+  }).join("");
+}
+
+let current = "gromov";
+function openProfile(id){
+  const p = TEAM.find(x => x.id === id); if (!p) return; current = id;
+  $("#profCrumb").textContent = "Моя команда / " + p.name;
+  $("#profAva").textContent = p.ini; $("#profName").textContent = p.name; $("#profRole").textContent = p.role + " · Отдел продаж";
+  $("#profFields").innerHTML = [["EmployeeID", "EMP-" + String(100 + TEAM.indexOf(p) * 7).padStart(6, "0")], ["Стаж", p.tenure], ["Грейд", p.grade],
+    ["Руководитель", "Марина Воронцова"], ["Дата найма", p.hired], ["Эл. почта", p.mail]]
+    .map(([k, v]) => `<div><span class="eyebrow">${k}</span><b>${v}</b></div>`).join("");
+  const ov = overall(p);
+  $("#profOverall").textContent = `Общий индекс ${fmt(lastVal(ov))} · восемь недель назад ${fmt(firstVal(ov))}`;
+  $("#profAxes").innerHTML = AXES.map(a => {
+    const ax = p.axes[a.k], v = lastVal(ax.t), s = status(v);
+    return `<div class="axis-card" style="border:1px solid var(--line-soft);border-radius:10px;background:#FBFEFE">
+      <div class="axis-card__top"><div><h3>${a.name}</h3><div class="axis-card__val">${ax.v}</div></div><span class="st st--${s}"><i></i>${ST_LABEL[s]} · ${fmt(v)}</span></div>
+      <div class="chart">${axisChart(ax.t, s)}</div>
+      <ul class="why">${ax.why.map(w => `<li>${w}</li>`).join("")}</ul>
+      <div class="srcs">${ax.src.map(chip).join("")}</div></div>`;
+  }).join("");
+  $("#profFeed").innerHTML = p.feed.length
+    ? p.feed.map(([d, t]) => `<li><time>${d}</time><div>${t}</div></li>`).join("")
+    : `<li><time>—</time><div class="muted">Сигналов нет. Агент молчит — это и есть норма.</div></li>`;
+  const dc = $("#profDraftCard");
+  if (p.draft){
+    $("#profDraft").innerHTML = `<h3><svg style="width:16px;height:16px;stroke:var(--teal-dark);fill:none;stroke-width:1.8"><use href="#i-agent"/></svg>${p.draft.title}</h3><ol>${p.draft.items.map(i => `<li>${i}</li>`).join("")}</ol>`;
+    dc.querySelector(".alert__act").hidden = false;
+  } else {
+    $("#profDraft").innerHTML = `<h3>Ничего делать не нужно</h3><p class="small" style="margin-top:6px">Все четыре оси в норме. Агент продолжит наблюдать и напишет, только если что-то изменится.</p>`;
+    dc.querySelector(".alert__act").hidden = true;
+  }
+  const zone = v => v >= 4 ? "ok" : v >= 3.5 ? "warn" : "risk";
+  $("#profComp").innerHTML = p.comp.length ? p.comp.map(([n, v]) => `<div><div class="row small" style="justify-content:space-between">${n}<span class="score score--${zone(v)} num">${fmt(v)}</span></div><div class="bar"><span style="width:${(v - 1) / 4 * 100}%;background:${ST_COLOR[zone(v)]}"></span></div></div>`).join("")
+    : `<p class="small muted">Данных по компетенциям пока нет — первая оценка после испытательного срока.</p>`;
+  $("#profGoals").innerHTML = p.goals.length ? p.goals.map(([n, pc, s]) => `<div><div class="row small" style="justify-content:space-between"><span style="color:var(--ink)">${n}</span><span class="num">${pc}%</span></div><div class="bar"><span style="width:${pc}%;background:var(--teal)"></span></div><div class="small muted" style="margin-top:3px">${s}</div></div>`).join("")
+    : `<p class="small muted">У сотрудника пока нет целей в работе и на согласовании.</p><div><button class="btn btn--primary btn--sm"><svg><use href="#i-plus"/></svg>Поставить цель</button></div>`;
+  $("#profMeet").innerHTML = `<div class="kv"><span>Последняя встреча</span><b>${p.meet[0]}</b></div><p class="small muted" style="margin:4px 0 10px">${p.meet[1]}</p><button class="btn btn--ghost btn--sm"><svg><use href="#i-plus"/></svg>Назначить встречу</button>`;
+  $("#profSurveys").innerHTML = p.surveys.map(([n, s]) => `<div class="kv"><span>${n}</span><b style="color:var(--ok)">${s}</b></div>`).join("");
+  $("#profPlan").innerHTML = `<p class="small">${p.plan}</p>`;
+  $("#profFeedback").innerHTML = `<p class="small">${p.fb}</p>`;
+}
+
+function renderIntegrations(){
+  const badge = s => s === "on" ? `<span class="st st--ok"><i></i>Подключено</span>` : s === "off" ? `<span class="small muted">Не подключено</span>` : `<span class="small muted">Выключено</span>`;
+  $("#integrations").innerHTML = INTEG.map(g => `<div class="card integ">
+    <div class="integ__top"><div class="integ__icon ${g.state === "on" ? "" : "integ__icon--off"}"><svg><use href="#${g.icon}"/></svg></div>
+      <div><h3>${g.name}</h3><div class="integ__vendors">${g.vendors}</div></div><div class="integ__state">${badge(g.state)}</div></div>
+    <div class="take"><div><h4>Берём</h4><ul>${g.take.map(t => `<li>${t}</li>`).join("")}</ul></div><div class="no"><h4>Не берём</h4><ul>${g.no.map(t => `<li>${t}</li>`).join("")}</ul></div></div>
+    ${g.note ? `<p class="small muted">${g.note}</p>` : ""}
+    <div class="integ__foot"><span class="small muted">Для: ${g.axes}</span><button class="btn btn--ghost btn--sm">${g.state === "on" ? "Настроить" : "Подключить"}</button></div></div>`).join("");
+}
+
+const NAV_OF = {dash:"dash", team:"team", profile:"team", sources:"sources"};
+function show(name){
+  if (name === "profile") openProfile(current);
+  document.querySelectorAll(".screen").forEach(s => s.hidden = s.dataset.screen !== name);
+  document.querySelectorAll(".proto__tab").forEach(t => t.setAttribute("aria-selected", t.dataset.go === name));
+  document.querySelectorAll(".nav").forEach(n => { if (n.dataset.go && n.dataset.go === NAV_OF[name]) n.setAttribute("aria-current", "page"); else n.removeAttribute("aria-current"); });
+  window.scrollTo({top:0});
+}
+
+let toastTimer;
+function toast(text){
+  let t = $("#toast");
+  if (!t){ t = document.createElement("div"); t.id = "toast"; t.setAttribute("role", "status");
+    t.style.cssText = "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink-deep);color:#fff;padding:10px 16px;border-radius:9px;font-size:13px;z-index:70;box-shadow:0 6px 20px rgba(27,58,71,.25)";
+    document.body.appendChild(t); }
+  t.textContent = text; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 2600);
+}
+
+document.addEventListener("click", e => {
+  const person = e.target.closest("[data-person], tr[data-id]");
+  if (person){ openProfile(person.dataset.person || person.dataset.id); show("profile"); return; }
+  const go = e.target.closest("[data-go]"); if (go){ show(go.dataset.go); return; }
+  const view = e.target.closest("[data-view]");
+  if (view){
+    const v = view.dataset.view;
+    document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b === view));
+    document.querySelectorAll("[data-chat]").forEach(c => c.hidden = c.dataset.chat !== v);
+    document.querySelectorAll("[data-chan-lead]").forEach(c => c.hidden = v !== "lead");
+    document.querySelectorAll("[data-chan-emp]").forEach(c => c.hidden = v !== "emp");
+    return;
+  }
+  const s5 = e.target.closest(".scale5 button");
+  if (s5){ s5.parentElement.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b === s5)); return; }
+  if (e.target.closest("[data-stub]")){ toast("Этот раздел в прототипе не менялся — он такой же, как в продукте сейчас"); return; }
+  if (e.target.closest(".btn, .chip-btn")) toast("В прототипе кнопка ничего не делает — здесь показано, где будет действие");
+});
+document.addEventListener("keydown", e => {
+  const tr = e.target.closest && e.target.closest("tr[data-id]");
+  if (tr && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); openProfile(tr.dataset.id); show("profile"); }
+});
+
+const tip = $("#tip");
+document.addEventListener("mouseover", e => {
+  const r = e.target.closest("rect[data-tip]"); if (!r) return;
+  tip.innerHTML = r.dataset.tip; tip.style.display = "block";
+  const h = r.ownerSVGElement.querySelector(".hov"); h.setAttribute("cx", r.dataset.cx); h.setAttribute("cy", r.dataset.cy); h.style.display = "";
+});
+document.addEventListener("mousemove", e => { if (tip.style.display === "block"){ tip.style.left = e.clientX + "px"; tip.style.top = e.clientY + "px"; } });
+document.addEventListener("mouseout", e => {
+  const r = e.target.closest("rect[data-tip]"); if (!r) return;
+  tip.style.display = "none"; const h = r.ownerSVGElement.querySelector(".hov"); if (h) h.style.display = "none";
+});
+
+const tgl = $("#newToggle");
+tgl.addEventListener("click", e => { e.stopPropagation(); const on = document.body.classList.toggle("show-new"); tgl.setAttribute("aria-pressed", on); });
+
+document.body.classList.add("show-new");
+renderAxisTiles(); renderTeam(); renderIntegrations(); openProfile("gromov"); show("dash");
+</script>
